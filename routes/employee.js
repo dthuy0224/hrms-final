@@ -44,11 +44,18 @@ router.get("/dashboard", function viewDashboard(req, res, next) {
       
       Attendance.findOne({
         employeeID: req.user._id,
-        day: day,
+        date: day,
         month: month,
         year: year
       }, function(err, attendance) {
         let isPresent = attendance ? true : false;
+        let attendanceStatus = null;
+        
+        if (attendance && attendance.status) {
+          attendanceStatus = attendance.status;
+        } else {
+          attendanceStatus = 'absent';
+        }
         
         // Get count of days present in current month
         Attendance.countDocuments({
@@ -61,6 +68,8 @@ router.get("/dashboard", function viewDashboard(req, res, next) {
             monthlyAttendance = 0;
           }
           
+          console.log("Attendance Status:", attendanceStatus);
+          
           res.render("Employee/employeeDashboard", {
             title: "Dashboard",
             userName: req.user.name,
@@ -68,6 +77,7 @@ router.get("/dashboard", function viewDashboard(req, res, next) {
             pendingLeaves: pendingLeaves,
             projectCount: projectCount,
             isPresent: isPresent,
+            attendanceStatus: attendanceStatus,
             monthlyAttendance: monthlyAttendance,
             moment: moment,
             path: req.path
@@ -107,6 +117,7 @@ router.get("/apply-for-leave", async function applyForLeave(req, res, next) {
       csrfToken: req.csrfToken(),
       userName: req.user.name,
       coworkers,
+      path: '/employee/apply-for-leave'
     });
   } catch (err) {
     console.error(err);
@@ -148,34 +159,166 @@ router.get("/applied-leaves", function viewAppliedLeaves(req, res, next) {
  * Displays the attendance to the user.
  */
 
-router.post("/view-attendance", function viewAttendanceSheet(req, res, next) {
-  var attendanceChunks = [];
-  Attendance.find({
-    employeeID: req.user._id,
-    month: req.body.month,
-    year: req.body.year,
-  })
-    .sort({ _id: -1 })
-    .exec(function getAttendance(err, docs) {
-      var found = 0;
-      if (docs.length > 0) {
-        found = 1;
-      }
-      for (var i = 0; i < docs.length; i++) {
-        attendanceChunks.push(docs[i]);
-      }
-      res.render("Employee/viewAttendance", {
-        title: "Attendance Sheet",
+router.post(
+  "/view-attendance",
+  function viewAttendanceSheet(req, res, next) {
+    var monthName = "";
+    switch (parseInt(req.body.month)) {
+      case 1:
+        monthName = "January";
+        break;
+      case 2:
+        monthName = "February";
+        break;
+      case 3:
+        monthName = "March";
+        break;
+      case 4:
+        monthName = "April";
+        break;
+      case 5:
+        monthName = "May";
+        break;
+      case 6:
+        monthName = "June";
+        break;
+      case 7:
+        monthName = "July";
+        break;
+      case 8:
+        monthName = "August";
+        break;
+      case 9:
+        monthName = "September";
+        break;
+      case 10:
+        monthName = "October";
+        break;
+      case 11:
+        monthName = "November";
+        break;
+      case 12:
+        monthName = "December";
+        break;
+    }
+    Attendance.find(
+      {
+        employeeID: req.user._id,
         month: req.body.month,
-        csrfToken: req.csrfToken(),
-        found: found,
-        attendance: attendanceChunks,
-        moment: moment,
-        userName: req.user.name,
-        path: "/employee/view-attendance"
+        year: req.body.year,
+      },
+      null,
+      { sort: { date: 1 } }
+    )
+      .exec(function getAttendance(err, docs) {
+        if (err) {
+          console.log(err);
+          return next(err);
+        }
+        var found = 0;
+        if (docs.length > 0) {
+          found = 1;
+        }
+
+        // Calculate attendance statistics
+        const workingDaysInMonth = calculateWorkingDaysInMonth(req.body.month, req.body.year);
+        const presentDays = docs.length;
+        const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);
+
+        // Calculate total work hours and overtime
+        let totalWorkHours = 0;
+        let overtimeHours = 0;
+        let onTimeDays = 0;
+        let lateDays = 0;
+
+        // Regular work hours (e.g., 8 hours per day)
+        const standardWorkHours = 8; 
+
+        docs.forEach(record => {
+          if (record.checkInTime && record.checkOutTime) {
+            const workHours = calculateWorkHoursFromStrings(record.checkInTime, record.checkOutTime);
+            totalWorkHours += workHours;
+            
+            // Calculate overtime (any hours beyond standard work hours)
+            if (workHours > standardWorkHours) {
+              overtimeHours += (workHours - standardWorkHours);
+            }
+          }
+
+          // Count on-time and late days
+          if (record.status === 'late') {
+            lateDays++;
+          } else {
+            onTimeDays++;
+          }
+        });
+
+        res.render("Employee/viewAttendance", {
+          title: "Attendance Sheet",
+          attendance: docs,
+          userName: req.user.name,
+          found: found,
+          csrfToken: req.csrfToken(),
+          moment: require("moment"),
+          monthName: monthName,
+          selectedYear: req.body.year,
+          attendanceRate: attendanceRate,
+          workingDaysInMonth: workingDaysInMonth,
+          presentDays: presentDays,
+          totalWorkHours: totalWorkHours,
+          overtimeHours: overtimeHours,
+          onTimeDays: onTimeDays,
+          lateDays: lateDays,
+          path: '/employee/view-attendance'
+        });
       });
-    });
-});
+  }
+);
+
+// Function to calculate working days in a month (excluding weekends)
+function calculateWorkingDaysInMonth(month, year) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  let workingDays = 0;
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay();
+    
+    // Skip weekends (0 = Sunday, 6 = Saturday)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      workingDays++;
+    }
+  }
+  
+  return workingDays;
+}
+
+// Function to calculate work hours from time strings
+function calculateWorkHoursFromStrings(checkInTime, checkOutTime) {
+  if (!checkInTime || !checkOutTime) return 0;
+  
+  const [inHours, inMinutes, inSeconds] = checkInTime.split(':').map(Number);
+  const [outHours, outMinutes, outSeconds] = checkOutTime.split(':').map(Number);
+  
+  const checkInDate = new Date();
+  checkInDate.setHours(inHours, inMinutes, inSeconds);
+  
+  const checkOutDate = new Date();
+  checkOutDate.setHours(outHours, outMinutes, outSeconds);
+  
+  // If checkout is earlier than checkin (next day), add 24 hours
+  if (checkOutDate < checkInDate) {
+    checkOutDate.setDate(checkOutDate.getDate() + 1);
+  }
+  
+  // Calculate the difference in milliseconds
+  const diffMs = checkOutDate - checkInDate;
+  
+  // Convert to hours (milliseconds to hours)
+  const hours = diffMs / (1000 * 60 * 60);
+  
+  return hours;
+}
 
 /**
  * Display currently marked attendance to the user.
@@ -184,31 +327,105 @@ router.post("/view-attendance", function viewAttendanceSheet(req, res, next) {
 router.get(
   "/view-attendance-current",
   function viewCurrentlyMarkedAttendance(req, res, next) {
-    var attendanceChunks = [];
-
-    Attendance.find({
-      employeeID: req.user._id,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
-    })
-      .sort({ _id: -1 })
+    var monthName = "";
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    
+    switch (currentMonth) {
+      case 1: monthName = "January"; break;
+      case 2: monthName = "February"; break;
+      case 3: monthName = "March"; break;
+      case 4: monthName = "April"; break;
+      case 5: monthName = "May"; break;
+      case 6: monthName = "June"; break;
+      case 7: monthName = "July"; break;
+      case 8: monthName = "August"; break;
+      case 9: monthName = "September"; break;
+      case 10: monthName = "October"; break;
+      case 11: monthName = "November"; break;
+      case 12: monthName = "December"; break;
+    }
+    
+    console.log("Fetching attendance for month:", currentMonth, "year:", currentYear);
+    
+    Attendance.find(
+      {
+        employeeID: req.user._id,
+        month: currentMonth,
+        year: currentYear,
+      },
+      null,
+      { sort: { date: 1 } }
+    )
       .exec(function getAttendanceSheet(err, docs) {
+        if (err) {
+          console.error("Error fetching attendance:", err);
+          return next(err);
+        }
+        
+        console.log("Found attendance records:", docs.length);
+        if (docs.length > 0) {
+          console.log("Sample record:", JSON.stringify(docs[0]));
+          docs.forEach((record, index) => {
+            console.log(`Record ${index+1}: checkInTime = ${record.checkInTime}`);
+          });
+        }
+        
         var found = 0;
         if (docs.length > 0) {
           found = 1;
         }
-        for (var i = 0; i < docs.length; i++) {
-          attendanceChunks.push(docs[i]);
-        }
+        
+        // Calculate attendance statistics
+        const workingDaysInMonth = calculateWorkingDaysInMonth(currentMonth, currentYear);
+        const presentDays = docs.length;
+        const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);
+
+        // Calculate total work hours and overtime
+        let totalWorkHours = 0;
+        let overtimeHours = 0;
+        let onTimeDays = 0;
+        let lateDays = 0;
+
+        // Regular work hours (e.g., 8 hours per day)
+        const standardWorkHours = 8; 
+
+        docs.forEach(record => {
+          if (record.checkInTime && record.checkOutTime) {
+            const workHours = calculateWorkHoursFromStrings(record.checkInTime, record.checkOutTime);
+            totalWorkHours += workHours;
+            
+            // Calculate overtime (any hours beyond standard work hours)
+            if (workHours > standardWorkHours) {
+              overtimeHours += (workHours - standardWorkHours);
+            }
+          }
+
+          // Count on-time and late days
+          if (record.status === 'late') {
+            lateDays++;
+          } else {
+            onTimeDays++;
+          }
+        });
+
         res.render("Employee/viewAttendance", {
           title: "Attendance Sheet",
-          month: new Date().getMonth() + 1,
-          csrfToken: req.csrfToken(),
-          found: found,
-          attendance: attendanceChunks,
-          moment: moment,
+          attendance: docs,
           userName: req.user.name,
-          path: req.path
+          found: found,
+          csrfToken: req.csrfToken(),
+          moment: require("moment"),
+          monthName: monthName,
+          selectedYear: currentYear,
+          attendanceRate: attendanceRate,
+          workingDaysInMonth: workingDaysInMonth,
+          presentDays: presentDays,
+          totalWorkHours: totalWorkHours,
+          overtimeHours: overtimeHours,
+          onTimeDays: onTimeDays,
+          lateDays: lateDays,
+          path: '/employee/view-attendance-current'
         });
       });
   }
@@ -351,42 +568,61 @@ router.post("/apply-for-leave", async function (req, res, next) {
 
 router.post(
   "/mark-employee-attendance",
-  function markEmployeeAttendance(req, res, next) {
-    Attendance.find(
-      {
+  async function markEmployeeAttendance(req, res, next) {
+    try {
+      // Check if attendance is already marked today
+      const currentDate = new Date();
+      const day = currentDate.getDate();
+      const month = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      
+      const existingAttendance = await Attendance.findOne({
         employeeID: req.user._id,
-        month: new Date().getMonth() + 1,
-        date: new Date().getDate(),
-        year: new Date().getFullYear(),
-      },
-      function getAttendanceSheet(err, docs) {
-        var found = 0;
-        if (docs.length > 0) {
-          found = 1;
-        } else {
-          // Get current time for check-in
-          const currentDate = new Date();
-          const hours = currentDate.getHours().toString().padStart(2, '0');
-          const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-          const seconds = currentDate.getSeconds().toString().padStart(2, '0');
-          const checkInTime = `${hours}:${minutes}:${seconds}`;
-          
-          var newAttendance = new Attendance();
-          newAttendance.employeeID = req.user._id;
-          newAttendance.year = new Date().getFullYear();
-          newAttendance.month = new Date().getMonth() + 1;
-          newAttendance.date = new Date().getDate();
-          newAttendance.present = 1;
-          newAttendance.checkInTime = checkInTime;
-          newAttendance.save(function saveAttendance(err) {
-            if (err) {
-              console.log(err);
-            }
-          });
-        }
-        res.redirect("/employee/view-attendance-current");
+        date: day,
+        month: month,
+        year: year
+      });
+      
+      if (existingAttendance) {
+        console.log("Attendance already marked today for user:", req.user._id);
+        console.log("Existing attendance:", existingAttendance);
+        return res.redirect("/employee/view-attendance-current");
       }
-    );
+      
+      // Get current time for check-in
+      const hours = currentDate.getHours().toString().padStart(2, '0');
+      const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+      const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+      const checkInTime = `${hours}:${minutes}:${seconds}`;
+      
+      // Check if the employee is late (e.g., after 9:00 AM)
+      const isLate = (hours > 9) || (hours === 9 && minutes > 0);
+      
+      console.log("Marking new attendance for user:", req.user._id);
+      console.log("Check-in time:", checkInTime);
+      
+      // Create and save new attendance record
+      const newAttendance = new Attendance({
+        employeeID: req.user._id,
+        year: year,
+        month: month,
+        date: day,
+        present: true,
+        checkInTime: checkInTime,
+        status: isLate ? 'late' : 'present'
+      });
+      
+      console.log("Created attendance record:", newAttendance);
+      
+      const savedAttendance = await newAttendance.save();
+      console.log("Attendance saved successfully:", savedAttendance);
+      console.log("Check-in time in saved attendance:", savedAttendance.checkInTime);
+      
+      res.redirect("/employee/view-attendance-current");
+    } catch (err) {
+      console.error("Error marking attendance:", err);
+      res.status(500).send("Error marking attendance: " + err.message);
+    }
   }
 );
 
@@ -417,7 +653,6 @@ router.post("/check-out", async (req, res) => {
       // Update the attendance record with check-out time
       attendance.checkOutTime = checkOutTime;
       await attendance.save();
-      req.session.checkedOut = true; // Mark that the user has checked out
       res.redirect("/employee/view-attendance-current");
     } else {
       // No check-in record found for today

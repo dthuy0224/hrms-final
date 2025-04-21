@@ -124,19 +124,52 @@
                     </div>
 
                     <div class="col-md-3">
-                        <div class="panel panel-success">
-                            <div class="panel-heading bg-success">
+                        <% 
+                        let panelClass = 'panel-success';
+                        let bgClass = 'bg-success';
+                        let attendanceStatusLocal = typeof attendanceStatus !== 'undefined' ? attendanceStatus : 'absent';
+                        
+                        if (!isPresent) {
+                            panelClass = 'panel-danger';
+                            bgClass = 'bg-danger';
+                        } else if (attendanceStatusLocal === 'late') {
+                            panelClass = 'panel-warning';
+                            bgClass = 'bg-warning';
+                        } else {
+                            panelClass = 'panel-success';
+                            bgClass = 'bg-success';
+                        }
+                        %>
+                        <div class="panel <%= panelClass %>">
+                            <div class="panel-heading <%= bgClass %>">
                                 <div class="row">
                                     <div class="col-xs-3">
-                                        <i class="fa fa-check-circle fa-3x"></i>
+                                        <% if (!isPresent) { %>
+                                            <i class="fa fa-times-circle fa-3x"></i>
+                                        <% } else if (attendanceStatusLocal === 'late') { %>
+                                            <i class="fa fa-clock-o fa-3x"></i>
+                                        <% } else { %>
+                                            <i class="fa fa-check-circle fa-3x"></i>
+                                        <% } %>
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        <div class="huge"><%= isPresent ? 'Present' : 'Absent' %></div>
+                                        <% 
+                                        let statusDisplay = '';
+                                        
+                                        if (!isPresent) {
+                                            statusDisplay = 'Absent';
+                                        } else if (attendanceStatusLocal === 'late') {
+                                            statusDisplay = 'Late';
+                                        } else {
+                                            statusDisplay = 'Present';
+                                        }
+                                        %>
+                                        <div class="huge"><%= statusDisplay %></div>
                                         <div>Today's Status</div>
                                     </div>
                                 </div>
                             </div>
-                            <a href="/employee/view-attendance">
+                            <a href="/employee/view-attendance-current">
                                 <div class="panel-footer">
                                     <span class="pull-left">Detail</span>
                                     <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -192,7 +225,7 @@
                                     </a>
                                     <% } %>
                                     <a href="/employee/view-profile" class="list-group-item">
-                                        <i class="fa fa-user"></i> View Profile
+                                        <i class="fa fa-user"></i> My Profile
                                     </a>
                                 </div>
                             </div>
@@ -270,6 +303,7 @@
         }
         .panel-heading {
             padding: 15px;
+            color: white;
         }
         .panel-info .panel-heading {
             background-color: #5bc0de;
@@ -287,6 +321,22 @@
             background-color: #337ab7;
             color: white;
         }
+        .panel-danger .panel-heading {
+            background-color: #d9534f;
+            color: white;
+        }
+        .bg-info {
+            background-color: #5bc0de;
+        }
+        .bg-warning {
+            background-color: #f0ad4e;
+        }
+        .bg-success {
+            background-color: #5cb85c;
+        }
+        .bg-danger {
+            background-color: #d9534f;
+        }
         .huge {
             font-size: 36px;
         }
@@ -296,6 +346,15 @@
         .date-info {
             display: inline-block;
             margin-top: 20px;
+        }
+        .text-success {
+            color: #5cb85c !important;
+        }
+        .text-warning {
+            color: #f0ad4e !important;
+        }
+        .text-danger {
+            color: #d9534f !important;
         }
     </style>
 </body>

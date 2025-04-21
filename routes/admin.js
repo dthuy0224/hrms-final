@@ -494,10 +494,7 @@ router.post("/view-attendance", async (req, res, next) => {
   }
 });
 
-/**
- * After marking attendance.
- * Shows current attendance to the admin.
- */
+// After marking attendance, shows current attendance to the admin.
 router.get("/view-attendance-current", async (req, res, next) => {
   const { _id, name } = req.user;
   const month = new Date().getMonth() + 1;
@@ -521,6 +518,871 @@ router.get("/view-attendance-current", async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error viewing current attendance");
+  }
+});
+
+// Admin Attendance Dashboard - Enhanced version
+router.get("/admin-attendance-dashboard", async (req, res, next) => {
+  const { _id, name } = req.user;
+  const currentDate = new Date();
+  const month = parseInt(req.query.month) || currentDate.getMonth() + 1;
+  const year = parseInt(req.query.year) || currentDate.getFullYear();
+  
+  try {
+    // 1. Lấy toàn bộ điểm danh trong tháng của admin
+    const attendanceRecords = await Attendance.find({
+      employeeID: _id,
+      month,
+      year,
+    }).sort({ date: -1 });
+    
+    // 2. Lấy thông tin điểm danh hôm nay
+    const today = currentDate.getDate();
+    const todayAttendance = attendanceRecords.find(record => record.date === today);
+    const hasCheckedInToday = !!todayAttendance;
+    const hasCheckedOutToday = todayAttendance && !!todayAttendance.checkOutTime;
+    
+    // 3. Thống kê điểm danh
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const presentDays = attendanceRecords.length;
+    const lateDays = attendanceRecords.filter(record => record.status === 'late').length;
+    const onTimeDays = presentDays - lateDays;
+    const attendanceRate = Math.round((presentDays / daysInMonth) * 100);
+    
+    // 4. Thống kê thời gian làm việc
+    let totalWorkHours = 0;
+    let workDaysWithFullHours = 0;
+    
+    attendanceRecords.forEach(record => {
+      if (record.checkInTime && record.checkOutTime) {
+        // Parse times and calculate working hours
+        const checkIn = record.checkInTime.split(':');
+        const checkOut = record.checkOutTime.split(':');
+        
+        const checkInDate = new Date(year, month - 1, record.date);
+        checkInDate.setHours(parseInt(checkIn[0]), parseInt(checkIn[1]), parseInt(checkIn[2]));
+        
+        const checkOutDate = new Date(year, month - 1, record.date);
+        checkOutDate.setHours(parseInt(checkOut[0]), parseInt(checkOut[1]), parseInt(checkOut[2]));
+        
+        // Calculate time difference in hours
+        const diffHours = (checkOutDate - checkInDate) / (1000 * 60 * 60);
+        
+        // Add to total
+        if (diffHours > 0) {
+          totalWorkHours += diffHours;
+          workDaysWithFullHours++;
+        }
+      }
+    });
+    
+    // Round to 2 decimal places
+    totalWorkHours = Math.round(totalWorkHours * 100) / 100;
+    const avgWorkHours = workDaysWithFullHours > 0 ? 
+      Math.round((totalWorkHours / workDaysWithFullHours) * 100) / 100 : 0;
+    
+    // 5. Lấy các đơn nghỉ phép đang chờ phê duyệt để hiển thị tóm tắt
+    const pendingLeaves = await Leave.find({ adminResponse: "Pending" })
+      .limit(5)
+      .populate('applicantID', 'name');
+    
+    res.render("Admin/adminAttendanceDashboard", {
+      title: "Admin Attendance Dashboard",
+          csrfToken: req.csrfToken(),
+      userName: name,
+      month,
+      year,
+      attendanceRecords,
+      todayAttendance,
+      hasCheckedInToday,
+      hasCheckedOutToday,
+      presentDays,
+      lateDays,
+      onTimeDays,
+      attendanceRate,
+      totalWorkHours,
+      avgWorkHours,
+      workDaysWithFullHours,
+      pendingLeaves,
+      daysInMonth,
+          moment: moment,
+      currentDate: currentDate
+        });
+  } catch (err) {
+    console.error("Error in admin attendance dashboard:", err);
+    res.status(500).send("Error loading admin attendance dashboard");
+  }
+});
+
+// Cập nhật route mark-attendance để chuyển hướng đến dashboard mới
+router.post("/mark-attendance", async (req, res) => {
+  const { _id } = req.user;
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  
+  // Format the current time as HH:MM:SS
+  const hours = currentDate.getHours().toString().padStart(2, '0');
+  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+  const checkInTime = `${hours}:${minutes}:${seconds}`;
+  
+  // Define the cutoff time for "late" status (9:00 AM)
+  const lateTime = '09:00:00';
+  // Determine if the employee is late
+  const isLate = checkInTime > lateTime;
+  
+  try {
+    const attendance = await Attendance.find({
+      employeeID: _id,
+      date,
+      month,
+      year,
+    });
+
+    if (attendance.length === 0) {
+      const newAttendance = new Attendance({
+        employeeID: _id,
+        year,
+        month,
+        date,
+        present: 1,
+        checkInTime: checkInTime,
+        status: isLate ? 'late' : 'present'
+      });
+      await newAttendance.save();
+    }
+
+    // Chuyển hướng đến dashboard mới thay vì view-attendance-current
+    res.redirect("/admin/admin-attendance-dashboard");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Cập nhật route check-out để chuyển hướng đến dashboard mới
+router.post("/check-out", async (req, res) => {
+  const { _id } = req.user;
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  
+  // Format the current time as HH:MM:SS
+  const hours = currentDate.getHours().toString().padStart(2, '0');
+  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+  const checkOutTime = `${hours}:${minutes}:${seconds}`;
+  
+  try {
+    // Find today's attendance record for the user
+    const attendance = await Attendance.findOne({
+      employeeID: _id,
+      date,
+      month,
+      year,
+    });
+
+    if (attendance) {
+      // Update the attendance record with check-out time
+      attendance.checkOutTime = checkOutTime;
+      await attendance.save();
+      req.session.checkedOut = true; // Mark that the user has checked out
+      
+      // Chuyển hướng đến dashboard mới thay vì view-attendance-current
+      res.redirect("/admin/admin-attendance-dashboard");
+    } else {
+      // No check-in record found for today
+      res.status(400).send("No check-in record found for today. Please check-in first.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error recording check-out time");
+  }
+});
+
+/**
+ * Employees Salary Management Features 
+ * These were previously in accounts_manager role, now moved to admin
+ * NOTE: These routes have been removed from admin role and should be accessed
+ * only by accounts_manager role. They are kept here for reference only.
+ * These endpoints should be properly protected from unauthorized access.
+ */
+
+// The following salary management routes should be accessed only by accounts_manager role
+router.use("/view-employees-salary|/generate-pay-slip|/set-bonus|/set-salary|/increment-salary", function(req, res, next) {
+  // Redirect admin users away from salary management routes
+  if (req.user && req.user.type === "admin") {
+    return res.status(403).send("Access denied: This feature is restricted to Accounts Manager role");
+  }
+  
+  // Only allow accounts_manager to proceed
+  if (req.user && req.user.type === "accounts_manager") {
+    next();
+  } else {
+    return res.status(403).send("Access denied: This feature is restricted to Accounts Manager role");
+  }
+});
+
+// View employees with salary information
+router.get("/view-employees-salary", async (req, res) => {
+  try {
+    const users = await User.find({ 
+      $or: [{ type: "employee" }, { type: "project_manager" }] 
+    }).sort({ _id: -1 });
+    
+    const salaries = [];
+    
+    for (const user of users) {
+      let salary = await UserSalary.findOne({ employeeID: user._id });
+      
+      if (!salary) {
+        // Create new salary entry if it doesn't exist
+        const newSalary = new UserSalary();
+        newSalary.accountManagerID = req.user._id;
+        newSalary.employeeID = user._id;
+        await newSalary.save();
+        salary = newSalary;
+      }
+      
+      salaries.push(salary);
+    }
+    
+    res.render("Admin/viewEmployeesSalary", {
+      title: "Manage Employee Salaries",
+      csrfToken: req.csrfToken(),
+      users: users,
+      salary: salaries,
+      userName: req.user.name,
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving employee salary information");
+  }
+});
+
+// Generate pay slip route
+router.get("/generate-pay-slip/:employee_id", async (req, res) => {
+  try {
+    const employeeId = req.params.employee_id;
+    const user = await User.findById(employeeId);
+    
+    let paySlip = await PaySlip.findOne({ employeeID: employeeId });
+    let hasPaySlip = 0;
+    
+    if (paySlip) {
+      hasPaySlip = 1;
+    } else {
+      const newPS = new PaySlip();
+      newPS.accountManagerID = req.user._id;
+      newPS.employeeID = employeeId;
+      newPS.bankName = "abc";
+      newPS.branchAddress = "abc";
+      newPS.basicPay = 0;
+      newPS.overtime = 0;
+      newPS.conveyanceAllowance = 0;
+      
+      await newPS.save();
+      paySlip = newPS;
+    }
+    
+    res.render("Admin/generatePaySlip", {
+      title: "Generate Pay Slip",
+      csrfToken: req.csrfToken(),
+      employee: user,
+      pay_slip: paySlip,
+      moment: moment,
+      hasPaySlip: hasPaySlip,
+      userName: req.user.name,
+    });
+    
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error generating pay slip");
+  }
+});
+
+// Set bonus route
+router.post("/set-bonus", async (req, res) => {
+  try {
+    const us = await UserSalary.findOne({ employeeID: req.body.employee_bonus });
+    us.bonus = req.body.bonus;
+    us.reason = req.body.reason;
+    await us.save();
+    
+    res.redirect("/admin/view-employees-salary");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error setting bonus");
+  }
+});
+
+// Set salary route
+router.post("/set-salary", async (req, res) => {
+  try {
+    const employee_id = req.body.employee_salary;
+    const us = await UserSalary.findOne({ employeeID: employee_id });
+    
+    us.salary = Number(req.body.salary);
+    await us.save();
+    
+    res.redirect("/admin/view-employees-salary");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error setting salary");
+  }
+});
+
+// Increment salary route
+router.post("/increment-salary", async (req, res) => {
+  try {
+    const us = await UserSalary.findOne({ employeeID: req.body.employee_increment });
+    
+    us.salary = Number(req.body.current_salary) + Number(req.body.amount_increment);
+    await us.save();
+    
+    res.redirect("/admin/view-employees-salary");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error incrementing salary");
+  }
+});
+
+// Generate pay slip post route
+router.post("/generate-pay-slip", async (req, res) => {
+  try {
+    const employeeId = req.body.employee_id;
+    const docs = await PaySlip.find({ employeeID: employeeId });
+    
+    docs[0].accountManagerID = req.user._id;
+    docs[0].employeeID = employeeId;
+    docs[0].bankName = req.body.bankName;
+    docs[0].branchAddress = req.body.branchAddress;
+    docs[0].basicPay = req.body.basicPay;
+    docs[0].overtime = req.body.overtime;
+    docs[0].conveyanceAllowance = req.body.conveyanceAllowance;
+    
+    await docs[0].save();
+    
+    res.redirect("/admin/view-employees-salary");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error generating pay slip");
+  }
+});
+
+// Test route cho dashboard
+router.get("/dashboard", async function testDashboard(req, res, next) {
+  try {
+    console.log("Test dashboard route called");
+    
+    // Lấy tổng số nhân viên
+    const employeeCount = await User.countDocuments({ type: "employee" });
+    
+    // Lấy tổng số managers
+    const managerCount = await User.countDocuments({ type: "project_manager" });
+    
+    // Lấy số người điểm danh hôm nay
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayAttendanceCount = await Attendance.countDocuments({
+      date: {
+        $gte: today,
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+      }
+    });
+    
+    // Lấy số đơn nghỉ phép
+    const pendingLeaves = await Leave.countDocuments({ adminResponse: "Pending" });
+    const approvedLeaves = await Leave.countDocuments({ adminResponse: "Approved" });
+    const totalLeaves = await Leave.countDocuments({});
+    
+    // Lấy số nhân viên Part-time và Full-time
+    // Tối ưu hóa: chỉ truy vấn cơ sở dữ liệu một lần để lấy tất cả nhân viên
+    const employees = await User.find({ type: "employee" });
+    
+    // Đếm nhân viên part-time và full-time từ kết quả có sẵn
+    let partTimeCount = 0;
+    let fullTimeCount = 0;
+    
+    for (const employee of employees) {
+      if ((employee.employeeType === "Part-Time") || (employee.employmentType === "part-time")) {
+        partTimeCount++;
+      } else {
+        fullTimeCount++;
+      }
+    }
+    
+    // Tính phần trăm
+    const partTimePercentage = Math.round((partTimeCount / employeeCount) * 100) || 0;
+    const fullTimePercentage = Math.round((fullTimeCount / employeeCount) * 100) || 0;
+    
+    res.render("Admin/adminDashboard", {
+      title: "Admin Dashboard",
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      moment: moment,
+      employeeCount,
+      managerCount,
+      todayAttendanceCount,
+      pendingLeaves,
+      approvedLeaves,
+      totalLeaves,
+      partTimeCount,
+      fullTimeCount,
+      partTimePercentage,
+      fullTimePercentage
+    });
+  } catch (err) {
+    console.error("Error in test dashboard route:", err);
+    res.status(500).send("Error loading dashboard");
+  }
+});
+
+/**
+ * View attendance for all employees
+ * Displays a comprehensive list of attendance records for all employees
+ */
+router.get("/employees-attendance", async (req, res, next) => {
+  try {
+    console.log("[DEBUG] Accessing employees-attendance route");
+    
+    // Get month and year from query parameters, default to current month/year
+    const currentDate = new Date();
+    const month = parseInt(req.query.month) || currentDate.getMonth() + 1;
+    const year = parseInt(req.query.year) || currentDate.getFullYear();
+    
+    console.log(`[DEBUG] Showing attendance for month: ${month}, year: ${year}`);
+    
+    // Number of days in the selected month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    // Get all employees (except admins)
+    const employees = await User.find({ type: { $ne: "admin" } });
+    console.log(`[DEBUG] Found ${employees.length} employees`);
+    
+    // Initialize statistics counters
+    let totalPresentDays = 0;
+    let totalLeaveDays = 0;
+    let totalLateDays = 0;
+    let totalOnTimeDays = 0;
+    let totalDays = 0;
+    
+    // Get attendance records for the selected month
+    const attendanceData = await Promise.all(
+      employees.map(async (employee) => {
+        // Get attendance records for this employee in the selected month/year
+        const attendanceRecords = await Attendance.find({
+          employeeID: employee._id,
+          month: month,
+          year: year
+        }).sort({ date: 1 });
+        
+        console.log(`[DEBUG] Employee ${employee.name} has ${attendanceRecords.length} attendance records`);
+        
+        // Count present days for this employee
+        const presentDays = attendanceRecords.length;
+        
+        // Count days with leave status
+        const leaveRecords = await Leave.find({
+          applicantID: employee._id,
+          status: "accepted",
+          $or: [
+            {
+              fromMonth: month,
+              fromYear: year
+            },
+            {
+              toMonth: month,
+              toYear: year
+            }
+          ]
+        });
+        
+        // Calculate days on leave in this month
+        let leaveDays = 0;
+        let absentDays = 0;
+        let lateDays = 0;
+        let onTimeDays = 0;
+        
+        // Process leave records to count leave days in the selected month
+        leaveRecords.forEach(leave => {
+          const fromDate = new Date(leave.fromYear, leave.fromMonth - 1, leave.fromDate);
+          const toDate = new Date(leave.toYear, leave.toMonth - 1, leave.toDate);
+          
+          // Adjust dates to be within the current month if they span multiple months
+          const startDate = new Date(Math.max(fromDate, new Date(year, month - 1, 1)));
+          const endDate = new Date(Math.min(toDate, new Date(year, month, 0)));
+          
+          if (startDate <= endDate) {
+            // Count days between startDate and endDate (inclusive)
+            const diffTime = endDate - startDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            leaveDays += diffDays;
+          }
+        });
+        
+        // Process attendance records to count late arrivals
+        attendanceRecords.forEach(record => {
+          // Consider arrival after 9:00 AM as late
+          if (record.checkInTime && record.checkInTime > '09:00:00') {
+            lateDays++;
+          } else {
+            onTimeDays++;
+          }
+          
+          // Add status to attendance records if not already present
+          if (!record.status) {
+            if (record.checkInTime && record.checkInTime > '09:00:00') {
+              record.status = 'late';
+            } else {
+              record.status = 'present';
+            }
+          }
+        });
+        
+        // Calculate absent days (excluding leave days)
+        absentDays = daysInMonth - presentDays - leaveDays;
+        if (absentDays < 0) absentDays = 0;
+        
+        // Calculate attendance percentage
+        const workingDays = daysInMonth; // Simplification - count all days as working days
+        const attendancePercentage = workingDays > 0 
+          ? Math.round((presentDays / workingDays) * 100) 
+          : 0;
+          
+        // Update statistics totals
+        totalPresentDays += presentDays;
+        totalLeaveDays += leaveDays;
+        totalLateDays += lateDays;
+        totalOnTimeDays += onTimeDays;
+        totalDays += workingDays;
+        
+        return {
+          employee,
+          presentDays,
+          absentDays,
+          leaveDays,
+          lateDays,
+          onTimeDays,
+          attendancePercentage,
+          attendanceRecords,
+          status: leaveDays > 0 ? 'leave' : (presentDays > 0 ? 'present' : '')
+        };
+      })
+    );
+    
+    console.log(`[DEBUG] Processed attendance data for ${attendanceData.length} employees`);
+    
+    // Calculate overall statistics
+    const statsData = {
+      presentDays: totalPresentDays,
+      leaveDays: totalLeaveDays,
+      lateDays: totalLateDays,
+      onTimeDays: totalOnTimeDays,
+      totalDays: totalDays
+    };
+
+    res.render("Admin/employeesAttendance", {
+      title: "Employees Attendance",
+      csrfToken: req.csrfToken(),
+      employees: attendanceData,
+      month,
+      year,
+      userName: req.user.name,
+      statsData
+    });
+  } catch (err) {
+    console.error("[ERROR] Error in employees-attendance route:", err);
+    res.status(500).send("Error retrieving employee attendance");
+  }
+});
+
+// Handle editing attendance record
+router.post("/edit-attendance", async (req, res, next) => {
+  try {
+    const { attendanceId, status, checkInTime, checkOutTime, isNewRecord, date } = req.body;
+    
+    // Nếu là bản ghi mới
+    if (isNewRecord === 'true') {
+      console.log('[DEBUG] Creating new attendance record');
+      
+      // Parse date from ISO format (YYYY-MM-DD)
+      const dateParts = date.split('-');
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]);
+      const day = parseInt(dateParts[2]);
+      
+      // Create new attendance record
+      const newAttendance = new Attendance({
+        employeeID: attendanceId, // Trong trường hợp này attendanceId là ID của nhân viên
+        year,
+        month,
+        date: day,
+        present: status !== 'leave',
+        checkInTime: checkInTime ? checkInTime + ':00' : null,
+        checkOutTime: checkOutTime ? checkOutTime + ':00' : null,
+        status
+      });
+      
+      await newAttendance.save();
+      return res.json({ success: true, message: 'Attendance added successfully' });
+    }
+    
+    // Nếu là cập nhật bản ghi hiện có
+    const attendance = await Attendance.findById(attendanceId);
+    
+    if (!attendance) {
+      return res.status(404).json({ success: false, message: 'Attendance record not found' });
+    }
+    
+    // Update the attendance record with new values
+    attendance.status = status;
+    
+    if (checkInTime) {
+      attendance.checkInTime = checkInTime + ':00';
+    }
+    
+    if (checkOutTime) {
+      attendance.checkOutTime = checkOutTime + ':00';
+    }
+    
+    await attendance.save();
+    
+    return res.json({ success: true, message: 'Attendance updated successfully' });
+  } catch (err) {
+    console.error('Error updating attendance:', err);
+    return res.status(500).json({ success: false, message: 'Error updating attendance' });
+  }
+});
+
+// Get attendance record by ID
+router.get("/get-attendance", async (req, res) => {
+  try {
+    const { id } = req.query;
+    
+    const attendance = await Attendance.findById(id);
+    
+    if (!attendance) {
+      return res.status(404).json({ success: false, message: 'Attendance record not found' });
+    }
+    
+    return res.json({ 
+      success: true, 
+      record: {
+        checkInTime: attendance.checkInTime,
+        checkOutTime: attendance.checkOutTime,
+        status: attendance.status,
+        date: attendance.date,
+        month: attendance.month,
+        year: attendance.year
+      } 
+    });
+  } catch (err) {
+    console.error('Error getting attendance record:', err);
+    return res.status(500).json({ success: false, message: 'Error retrieving attendance record' });
+  }
+});
+
+// Route mới để hiển thị chi tiết nhân viên dạng trang đầy đủ
+router.get("/employee-details/:id", csrfProtection, async (req, res, next) => {
+  try {
+    const employeeId = req.params.id;
+    console.log('[PAGE] Request for employee details page with ID:', employeeId);
+    console.log('[PAGE] MongoDB connection string:', process.env.DB_URL);
+    console.log('[PAGE] Current connection state:', mongoose.connection.readyState);
+    
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+      console.log('[PAGE] Invalid MongoDB ObjectId:', employeeId);
+      req.flash('error', 'Mã nhân viên không hợp lệ');
+      return res.redirect('/admin/view-all-employees');
+    }
+    
+    // Tìm nhân viên theo ID với toàn bộ thông tin
+    const employee = await User.findById(employeeId);
+    
+    if (!employee) {
+      console.log('[PAGE] Employee not found with ID:', employeeId);
+      console.log('[PAGE] Database name:', mongoose.connection.db.databaseName);
+      const count = await User.countDocuments();
+      console.log('[PAGE] Total users in database:', count);
+      req.flash('error', 'Không tìm thấy thông tin nhân viên');
+      return res.redirect('/admin/view-all-employees');
+    }
+    
+    console.log('[PAGE] Successfully found employee:', employee.name);
+    
+    // Render trang employee details
+    res.render("Admin/employeeDetails", {
+      title: `${employee.name} - Employee Details`,
+      employee: employee,
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      moment: moment,
+    });
+  } catch (err) {
+    console.error('[PAGE] Error rendering employee details:', err);
+    req.flash('error', 'Lỗi khi hiển thị thông tin nhân viên');
+    res.redirect('/admin/view-all-employees');
+  }
+});
+
+// API endpoint to get employee profile by ID
+router.get('/api/employee-profile/:id', csrfProtection, async (req, res) => {
+  try {
+    const employeeId = req.params.id;
+    console.log('[API] Request for employee profile with ID:', employeeId);
+    
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+      console.log('[API] Invalid MongoDB ObjectId:', employeeId);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid employee ID format',
+        details: 'The provided ID is not in the correct format'
+      });
+    }
+    
+    // Find employee by ID - get photo field
+    const employee = await User.findById(employeeId)
+      .select('name email contactNumber employeeID department designation photo employmentType startDate address detailedAddress district province');
+    
+    if (!employee) {
+      console.log('[API] Employee not found with ID:', employeeId);
+      return res.status(404).json({
+        success: false,
+        message: 'Employee not found',
+        details: 'No employee found with the provided ID'
+      });
+    }
+    
+    // Kiểm tra thông tin photo
+    console.log('[API] Raw employee photo field:', employee.photo);
+    
+    // Clone employee data to modify for response
+    const employeeData = employee.toObject();
+    
+    // Ensure photo field is included in response
+    if (employee.photo) {
+      // Giữ nguyên trường photo để client có thể kiểm tra
+      employeeData.photo = employee.photo;
+      
+      // Thêm trường profileImage cho thuận tiện
+      employeeData.profileImage = `/uploads/${employee.photo}`;
+      console.log('[API] Employee photo found, setting profileImage to:', employeeData.profileImage);
+    } else {
+      console.log('[API] No photo found for employee, using default image');
+      employeeData.profileImage = '/uploads/default.png';
+    }
+    
+    // Print all fields in the response for debugging
+    console.log('[API] Final response data keys:', Object.keys(employeeData));
+    console.log('[API] profileImage in response:', employeeData.profileImage);
+    console.log('[API] photo in response:', employeeData.photo);
+    console.log('[API] Successfully retrieved employee:', employee.name);
+    
+    return res.json({
+      success: true,
+      employee: employeeData
+    });
+  } catch (err) {
+    const errorDetails = err.name === 'CastError' 
+      ? `Invalid ID format: "${err.value}" is not a valid ObjectId` 
+      : err.message;
+    
+    console.error('[API] Error fetching employee profile:', errorDetails);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+      details: errorDetails
+    });
+  }
+});
+
+// Route để tạo dữ liệu điểm danh mẫu cho kiểm thử
+router.get("/create-sample-attendance", async (req, res) => {
+  try {
+    // Lấy tất cả nhân viên (không phải admin)
+    const employees = await User.find({ type: { $ne: "admin" }});
+    
+    if (employees.length === 0) {
+      return res.send("Không có nhân viên nào trong hệ thống. Vui lòng thêm nhân viên trước.");
+    }
+    
+    const currentDate = new Date();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const daysInMonth = new Date(year, month, 0).getDate();
+    
+    // Số ngày đã qua trong tháng hoặc tối đa 15 ngày
+    const daysToCreate = Math.min(currentDate.getDate(), 15);
+    
+    console.log(`Creating sample attendance for ${employees.length} employees, ${daysToCreate} days`);
+    
+    let createdRecords = 0;
+    
+    // Tạo dữ liệu điểm danh cho mỗi nhân viên
+    for (const employee of employees) {
+      // Tạo dữ liệu cho ngẫu nhiên các ngày trong tháng
+      for (let day = 1; day <= daysToCreate; day++) {
+        // Kiểm tra xem đã có bản ghi điểm danh chưa
+        const existingRecord = await Attendance.findOne({
+          employeeID: employee._id,
+          date: day,
+          month: month,
+          year: year
+        });
+        
+        if (!existingRecord) {
+          // Tạo thời gian check-in ngẫu nhiên (giữa 7:00 và 10:00)
+          const hour = Math.floor(Math.random() * 3) + 7;
+          const minute = Math.floor(Math.random() * 60);
+          const checkInTime = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`;
+          
+          // 50% khả năng có checkout
+          const hasCheckout = Math.random() > 0.5;
+          let checkOutTime = null;
+          
+          if (hasCheckout) {
+            // Check-out giữa 16:00 và 18:00
+            const outHour = Math.floor(Math.random() * 2) + 16;
+            const outMinute = Math.floor(Math.random() * 60);
+            checkOutTime = `${outHour.toString().padStart(2, '0')}:${outMinute.toString().padStart(2, '0')}:00`;
+          }
+          
+          // Xác định trạng thái dựa trên thời gian check-in
+          let status = 'present';
+          if (hour >= 9) {
+            status = 'late';
+          } else if (Math.random() < 0.1) { // 10% khả năng nghỉ phép
+            status = 'leave';
+          }
+          
+          // Tạo bản ghi điểm danh mới
+          const newAttendance = new Attendance({
+            employeeID: employee._id,
+            year,
+            month,
+            date: day,
+            present: status !== 'leave',
+            checkInTime: status !== 'leave' ? checkInTime : null,
+            checkOutTime: status !== 'leave' ? checkOutTime : null,
+            status: status
+          });
+          
+          await newAttendance.save();
+          createdRecords++;
+        }
+      }
+    }
+    
+    res.send(`Đã tạo ${createdRecords} bản ghi điểm danh mẫu. <a href="/admin/employees-attendance">Xem điểm danh</a>`);
+  } catch (err) {
+    console.error("Error creating sample attendance:", err);
+    res.status(500).send("Lỗi khi tạo dữ liệu điểm danh mẫu");
   }
 });
 
@@ -794,627 +1656,6 @@ router.post("/delete-employee/:id", async (req, res) => {
     res.redirect("/admin/view-all-employees");
   } catch (err) {
     console.log("unable to delete employee");
-  }
-});
-
-router.post("/mark-attendance", async (req, res) => {
-  const { _id } = req.user;
-  const currentDate = new Date();
-  const date = currentDate.getDate();
-  const month = currentDate.getMonth() + 1;
-  const year = currentDate.getFullYear();
-  
-  // Format the current time as HH:MM:SS
-  const hours = currentDate.getHours().toString().padStart(2, '0');
-  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
-  const checkInTime = `${hours}:${minutes}:${seconds}`;
-  
-  // Define the cutoff time for "late" status (9:00 AM)
-  const lateTime = '09:00:00';
-  // Determine if the employee is late
-  const isLate = checkInTime > lateTime;
-  
-  try {
-    const attendance = await Attendance.find({
-      employeeID: _id,
-      date,
-      month,
-      year,
-    });
-
-    if (attendance.length === 0) {
-      const newAttendance = new Attendance({
-        employeeID: _id,
-        year,
-        month,
-        date,
-        present: 1,
-        checkInTime: checkInTime,
-        status: isLate ? 'late' : 'present'
-      });
-      await newAttendance.save();
-    }
-
-    res.redirect("/admin/view-attendance-current");
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-/**
- * Employees Salary Management Features 
- * These were previously in accounts_manager role, now moved to admin
- * NOTE: These routes have been removed from admin role and should be accessed
- * only by accounts_manager role. They are kept here for reference only.
- * These endpoints should be properly protected from unauthorized access.
- */
-
-// The following salary management routes should be accessed only by accounts_manager role
-router.use("/view-employees-salary|/generate-pay-slip|/set-bonus|/set-salary|/increment-salary", function(req, res, next) {
-  // Redirect admin users away from salary management routes
-  if (req.user && req.user.type === "admin") {
-    return res.status(403).send("Access denied: This feature is restricted to Accounts Manager role");
-  }
-  
-  // Only allow accounts_manager to proceed
-  if (req.user && req.user.type === "accounts_manager") {
-    next();
-  } else {
-    return res.status(403).send("Access denied: This feature is restricted to Accounts Manager role");
-  }
-});
-
-// View employees with salary information
-router.get("/view-employees-salary", async (req, res) => {
-  try {
-    const users = await User.find({ 
-      $or: [{ type: "employee" }, { type: "project_manager" }] 
-    }).sort({ _id: -1 });
-    
-    const salaries = [];
-    
-    for (const user of users) {
-      let salary = await UserSalary.findOne({ employeeID: user._id });
-      
-      if (!salary) {
-        // Create new salary entry if it doesn't exist
-        const newSalary = new UserSalary();
-        newSalary.accountManagerID = req.user._id;
-        newSalary.employeeID = user._id;
-        await newSalary.save();
-        salary = newSalary;
-      }
-      
-      salaries.push(salary);
-    }
-    
-    res.render("Admin/viewEmployeesSalary", {
-      title: "Manage Employee Salaries",
-      csrfToken: req.csrfToken(),
-      users: users,
-      salary: salaries,
-      userName: req.user.name,
-    });
-    
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving employee salary information");
-  }
-});
-
-// Generate pay slip route
-router.get("/generate-pay-slip/:employee_id", async (req, res) => {
-  try {
-    const employeeId = req.params.employee_id;
-    const user = await User.findById(employeeId);
-    
-    let paySlip = await PaySlip.findOne({ employeeID: employeeId });
-    let hasPaySlip = 0;
-    
-    if (paySlip) {
-      hasPaySlip = 1;
-    } else {
-      const newPS = new PaySlip();
-      newPS.accountManagerID = req.user._id;
-      newPS.employeeID = employeeId;
-      newPS.bankName = "abc";
-      newPS.branchAddress = "abc";
-      newPS.basicPay = 0;
-      newPS.overtime = 0;
-      newPS.conveyanceAllowance = 0;
-      
-      await newPS.save();
-      paySlip = newPS;
-    }
-    
-    res.render("Admin/generatePaySlip", {
-      title: "Generate Pay Slip",
-      csrfToken: req.csrfToken(),
-      employee: user,
-      pay_slip: paySlip,
-      moment: moment,
-      hasPaySlip: hasPaySlip,
-      userName: req.user.name,
-    });
-    
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error generating pay slip");
-  }
-});
-
-// Set bonus route
-router.post("/set-bonus", async (req, res) => {
-  try {
-    const us = await UserSalary.findOne({ employeeID: req.body.employee_bonus });
-    us.bonus = req.body.bonus;
-    us.reason = req.body.reason;
-    await us.save();
-    
-    res.redirect("/admin/view-employees-salary");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error setting bonus");
-  }
-});
-
-// Set salary route
-router.post("/set-salary", async (req, res) => {
-  try {
-    const employee_id = req.body.employee_salary;
-    const us = await UserSalary.findOne({ employeeID: employee_id });
-    
-    us.salary = Number(req.body.salary);
-    await us.save();
-    
-    res.redirect("/admin/view-employees-salary");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error setting salary");
-  }
-});
-
-// Increment salary route
-router.post("/increment-salary", async (req, res) => {
-  try {
-    const us = await UserSalary.findOne({ employeeID: req.body.employee_increment });
-    
-    us.salary = Number(req.body.current_salary) + Number(req.body.amount_increment);
-    await us.save();
-    
-    res.redirect("/admin/view-employees-salary");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error incrementing salary");
-  }
-});
-
-// Generate pay slip post route
-router.post("/generate-pay-slip", async (req, res) => {
-  try {
-    const employeeId = req.body.employee_id;
-    const docs = await PaySlip.find({ employeeID: employeeId });
-    
-    docs[0].accountManagerID = req.user._id;
-    docs[0].employeeID = employeeId;
-    docs[0].bankName = req.body.bankName;
-    docs[0].branchAddress = req.body.branchAddress;
-    docs[0].basicPay = req.body.basicPay;
-    docs[0].overtime = req.body.overtime;
-    docs[0].conveyanceAllowance = req.body.conveyanceAllowance;
-    
-    await docs[0].save();
-    
-    res.redirect("/admin/view-employees-salary");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error generating pay slip");
-  }
-});
-
-// Test route cho dashboard
-router.get("/dashboard", async function testDashboard(req, res, next) {
-  try {
-    console.log("Test dashboard route called");
-    
-    // Lấy tổng số nhân viên
-    const employeeCount = await User.countDocuments({ type: "employee" });
-    
-    // Lấy tổng số managers
-    const managerCount = await User.countDocuments({ type: "project_manager" });
-    
-    // Lấy số người điểm danh hôm nay
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayAttendanceCount = await Attendance.countDocuments({
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      }
-    });
-    
-    // Lấy số đơn nghỉ phép
-    const pendingLeaves = await Leave.countDocuments({ adminResponse: "Pending" });
-    const approvedLeaves = await Leave.countDocuments({ adminResponse: "Approved" });
-    const totalLeaves = await Leave.countDocuments({});
-    
-    // Lấy số nhân viên Part-time và Full-time
-    // Tối ưu hóa: chỉ truy vấn cơ sở dữ liệu một lần để lấy tất cả nhân viên
-    const employees = await User.find({ type: "employee" });
-    
-    // Đếm nhân viên part-time và full-time từ kết quả có sẵn
-    let partTimeCount = 0;
-    let fullTimeCount = 0;
-    
-    for (const employee of employees) {
-      if ((employee.employeeType === "Part-Time") || (employee.employmentType === "part-time")) {
-        partTimeCount++;
-      } else {
-        fullTimeCount++;
-      }
-    }
-    
-    // Tính phần trăm
-    const partTimePercentage = Math.round((partTimeCount / employeeCount) * 100) || 0;
-    const fullTimePercentage = Math.round((fullTimeCount / employeeCount) * 100) || 0;
-    
-    res.render("Admin/adminDashboard", {
-      title: "Admin Dashboard",
-      csrfToken: req.csrfToken(),
-      userName: req.user.name,
-      moment: moment,
-      employeeCount,
-      managerCount,
-      todayAttendanceCount,
-      pendingLeaves,
-      approvedLeaves,
-      totalLeaves,
-      partTimeCount,
-      fullTimeCount,
-      partTimePercentage,
-      fullTimePercentage
-    });
-  } catch (err) {
-    console.error("Error in test dashboard route:", err);
-    res.status(500).send("Error loading dashboard");
-  }
-});
-
-/**
- * View attendance for all employees
- * Displays a comprehensive list of attendance records for all employees
- */
-router.get("/employees-attendance", async (req, res, next) => {
-  try {
-    // Get month and year from query parameters, default to current month/year
-    const currentDate = new Date();
-    const month = parseInt(req.query.month) || currentDate.getMonth() + 1;
-    const year = parseInt(req.query.year) || currentDate.getFullYear();
-    
-    // Number of days in the selected month
-    const daysInMonth = new Date(year, month, 0).getDate();
-    
-    // Get all employees (except admins)
-    const employees = await User.find({ role: "employee" });
-    
-    // Initialize statistics counters
-    let totalPresentDays = 0;
-    let totalLeaveDays = 0;
-    let totalLateDays = 0;
-    let totalOnTimeDays = 0;
-    let totalDays = 0;
-    
-    // Get attendance records for the selected month
-    const attendanceData = await Promise.all(
-      employees.map(async (employee) => {
-        // Get attendance records for this employee in the selected month/year
-        const attendanceRecords = await Attendance.find({
-          employeeID: employee._id,
-          month: month,
-          year: year
-        }).sort({ date: 1 });
-        
-        // Count present days for this employee
-        const presentDays = attendanceRecords.length;
-        
-        // Count days with leave status
-        const leaveRecords = await Leave.find({
-          applicantID: employee._id,
-          status: "accepted",
-          $or: [
-            {
-              fromMonth: month,
-              fromYear: year
-            },
-            {
-              toMonth: month,
-              toYear: year
-            }
-          ]
-        });
-        
-        // Calculate days on leave in this month
-        let leaveDays = 0;
-        let absentDays = 0;
-        let lateDays = 0;
-        let onTimeDays = 0;
-        
-        // Process leave records to count leave days in the selected month
-        leaveRecords.forEach(leave => {
-          const fromDate = new Date(leave.fromYear, leave.fromMonth - 1, leave.fromDate);
-          const toDate = new Date(leave.toYear, leave.toMonth - 1, leave.toDate);
-          
-          // Adjust dates to be within the current month if they span multiple months
-          const startDate = new Date(Math.max(fromDate, new Date(year, month - 1, 1)));
-          const endDate = new Date(Math.min(toDate, new Date(year, month, 0)));
-          
-          if (startDate <= endDate) {
-            // Count days between startDate and endDate (inclusive)
-            const diffTime = endDate - startDate;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            leaveDays += diffDays;
-          }
-        });
-        
-        // Process attendance records to count late arrivals
-        attendanceRecords.forEach(record => {
-          // Consider arrival after 9:00 AM as late
-          if (record.checkInTime && record.checkInTime > '09:00:00') {
-            lateDays++;
-          } else {
-            onTimeDays++;
-          }
-          
-          // Add status to attendance records if not already present
-          if (!record.status) {
-            if (record.checkInTime && record.checkInTime > '09:00:00') {
-              record.status = 'late';
-            } else {
-              record.status = 'present';
-            }
-          }
-        });
-        
-        // Calculate absent days (excluding leave days)
-        absentDays = daysInMonth - presentDays - leaveDays;
-        if (absentDays < 0) absentDays = 0;
-        
-        // Calculate attendance percentage
-        const workingDays = daysInMonth; // Simplification - count all days as working days
-        const attendancePercentage = workingDays > 0 
-          ? Math.round((presentDays / workingDays) * 100) 
-          : 0;
-          
-        // Update statistics totals
-        totalPresentDays += presentDays;
-        totalLeaveDays += leaveDays;
-        totalLateDays += lateDays;
-        totalOnTimeDays += onTimeDays;
-        totalDays += workingDays;
-        
-        return {
-          employee,
-          presentDays,
-          absentDays,
-          leaveDays,
-          lateDays,
-          onTimeDays,
-          attendancePercentage,
-          attendanceRecords,
-          status: leaveDays > 0 ? 'leave' : (presentDays > 0 ? 'present' : '')
-        };
-      })
-    );
-    
-    // Calculate overall statistics
-    const statsData = {
-      presentDays: totalPresentDays,
-      leaveDays: totalLeaveDays,
-      lateDays: totalLateDays,
-      onTimeDays: totalOnTimeDays,
-      totalDays: totalDays
-    };
-
-    res.render("Admin/employeesAttendance", {
-      title: "Employees Attendance",
-      csrfToken: req.csrfToken(),
-      employees: attendanceData,
-      month,
-      year,
-      userName: req.user.name,
-      statsData
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving employee attendance");
-  }
-});
-
-// Handle editing attendance record
-router.post("/edit-attendance", async (req, res, next) => {
-  try {
-    const { attendanceId, status, checkInTime, checkOutTime } = req.body;
-    
-    // Find and update the attendance record
-    const attendance = await Attendance.findById(attendanceId);
-    
-    if (!attendance) {
-      return res.status(404).json({ success: false, message: 'Attendance record not found' });
-    }
-    
-    // Update the attendance record with new values
-    attendance.status = status;
-    
-    if (checkInTime) {
-      attendance.checkInTime = checkInTime;
-    }
-    
-    if (checkOutTime) {
-      attendance.checkOutTime = checkOutTime;
-    }
-    
-    await attendance.save();
-    
-    return res.json({ success: true, message: 'Attendance updated successfully' });
-  } catch (err) {
-    console.error('Error updating attendance:', err);
-    return res.status(500).json({ success: false, message: 'Error updating attendance' });
-  }
-});
-
-// Check-out route to mark the time when an employee leaves for the day
-router.post("/check-out", async (req, res) => {
-  const { _id } = req.user;
-  const currentDate = new Date();
-  const date = currentDate.getDate();
-  const month = currentDate.getMonth() + 1;
-  const year = currentDate.getFullYear();
-  
-  // Format the current time as HH:MM:SS
-  const hours = currentDate.getHours().toString().padStart(2, '0');
-  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
-  const checkOutTime = `${hours}:${minutes}:${seconds}`;
-  
-  try {
-    // Find today's attendance record for the user
-    const attendance = await Attendance.findOne({
-      employeeID: _id,
-      date,
-      month,
-      year,
-    });
-
-    if (attendance) {
-      // Update the attendance record with check-out time
-      attendance.checkOutTime = checkOutTime;
-      await attendance.save();
-      req.session.checkedOut = true; // Mark that the user has checked out
-      res.redirect("/admin/view-attendance-current");
-    } else {
-      // No check-in record found for today
-      res.status(400).send("No check-in record found for today. Please check-in first.");
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error recording check-out time");
-  }
-});
-
-// Route mới để hiển thị chi tiết nhân viên dạng trang đầy đủ
-router.get("/employee-details/:id", csrfProtection, async (req, res, next) => {
-  try {
-    const employeeId = req.params.id;
-    console.log('[PAGE] Request for employee details page with ID:', employeeId);
-    console.log('[PAGE] MongoDB connection string:', process.env.DB_URL);
-    console.log('[PAGE] Current connection state:', mongoose.connection.readyState);
-    
-    // Validate ID format
-    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-      console.log('[PAGE] Invalid MongoDB ObjectId:', employeeId);
-      req.flash('error', 'Mã nhân viên không hợp lệ');
-      return res.redirect('/admin/view-all-employees');
-    }
-    
-    // Tìm nhân viên theo ID với toàn bộ thông tin
-    const employee = await User.findById(employeeId);
-    
-    if (!employee) {
-      console.log('[PAGE] Employee not found with ID:', employeeId);
-      console.log('[PAGE] Database name:', mongoose.connection.db.databaseName);
-      const count = await User.countDocuments();
-      console.log('[PAGE] Total users in database:', count);
-      req.flash('error', 'Không tìm thấy thông tin nhân viên');
-      return res.redirect('/admin/view-all-employees');
-    }
-    
-    console.log('[PAGE] Successfully found employee:', employee.name);
-    
-    // Render trang employee details
-    res.render("Admin/employeeDetails", {
-      title: `${employee.name} - Employee Details`,
-      employee: employee,
-      csrfToken: req.csrfToken(),
-      userName: req.user.name,
-      moment: moment,
-    });
-  } catch (err) {
-    console.error('[PAGE] Error rendering employee details:', err);
-    req.flash('error', 'Lỗi khi hiển thị thông tin nhân viên');
-    res.redirect('/admin/view-all-employees');
-  }
-});
-
-// API endpoint to get employee profile by ID
-router.get('/api/employee-profile/:id', csrfProtection, async (req, res) => {
-  try {
-    const employeeId = req.params.id;
-    console.log('[API] Request for employee profile with ID:', employeeId);
-    
-    // Validate ID format
-    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-      console.log('[API] Invalid MongoDB ObjectId:', employeeId);
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid employee ID format',
-        details: 'The provided ID is not in the correct format'
-      });
-    }
-    
-    // Find employee by ID - get photo field
-    const employee = await User.findById(employeeId)
-      .select('name email contactNumber employeeID department designation photo employmentType startDate address detailedAddress district province');
-    
-    if (!employee) {
-      console.log('[API] Employee not found with ID:', employeeId);
-      return res.status(404).json({
-        success: false,
-        message: 'Employee not found',
-        details: 'No employee found with the provided ID'
-      });
-    }
-    
-    // Kiểm tra thông tin photo
-    console.log('[API] Raw employee photo field:', employee.photo);
-    
-    // Clone employee data to modify for response
-    const employeeData = employee.toObject();
-    
-    // Ensure photo field is included in response
-    if (employee.photo) {
-      // Giữ nguyên trường photo để client có thể kiểm tra
-      employeeData.photo = employee.photo;
-      
-      // Thêm trường profileImage cho thuận tiện
-      employeeData.profileImage = `/uploads/${employee.photo}`;
-      console.log('[API] Employee photo found, setting profileImage to:', employeeData.profileImage);
-    } else {
-      console.log('[API] No photo found for employee, using default image');
-      employeeData.profileImage = '/uploads/default.png';
-    }
-    
-    // Print all fields in the response for debugging
-    console.log('[API] Final response data keys:', Object.keys(employeeData));
-    console.log('[API] profileImage in response:', employeeData.profileImage);
-    console.log('[API] photo in response:', employeeData.photo);
-    console.log('[API] Successfully retrieved employee:', employee.name);
-    
-    return res.json({
-      success: true,
-      employee: employeeData
-    });
-  } catch (err) {
-    const errorDetails = err.name === 'CastError' 
-      ? `Invalid ID format: "${err.value}" is not a valid ObjectId` 
-      : err.message;
-    
-    console.error('[API] Error fetching employee profile:', errorDetails);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error',
-      details: errorDetails
-    });
   }
 });
 

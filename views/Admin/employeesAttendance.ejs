@@ -60,24 +60,23 @@
                     <li>
                         <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
                                     class="fa fa-envelope-square fa-stack-1x"></i></span>
-                            Leave Applications</a>
+                            Approved Leave</a>
                     </li>
                     <li class="active">
                         <a href="/admin/employees-attendance">
-                            <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View
-                            Attendance</a>
+                            <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>Employee Attendance</a>
+                    </li>
+                    <li>
+                        <a href="/admin/admin-attendance-dashboard">
+                          <span class="fa-stack fa-lg pull-left"><i class="fa fa-clock-o fa-stack-1x"></i></span>Attendance Dashboard</a>
                     </li>
                     <li data-toggle="modal" data-target="#myModal2">
                         <a href="#"><span class="fa-stack fa-lg pull-left"><i
                                     class="fa fa-check-circle fa-stack-1x"></i></span>Mark Attendance</a>
                     </li>
-                    <li data-toggle="modal" data-target="#checkOutModal">
-                        <a href="#"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-sign-out fa-stack-1x"></i></span>Check Out</a>
-                    </li>
                     <li>
                         <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
+                                    class="fa fa-user fa-stack-1x"></i></span>My Profile</a>
                     </li>
                 </ul>
             </div>
@@ -87,54 +86,66 @@
                 <div class="container-fluid xyz">
                     <div class="row">
                         <div class="col-lg-12">
-                            <h1>Employees Attendance</h1>
+                            <div style="margin-bottom: 20px;">
+                                <h3 style="font-weight: bold;"> > Attendance</h3>
+                                <p>Month: <%= ['January', 'February', 'March', 'April', 'May',
+                                            'June', 'July', 'August', 'September', 'October', 'November', 'December'][month-1] %>, <%= year %></p>
+                            </div>
 
                             <!-- Attendance Statistics Cards -->
-                            <div class="row mb-4">
+                            <div class="row" style="margin-bottom: 25px;">
                                 <div class="col-md-3">
-                                    <div class="panel panel-default" style="border: 1px solid #6c42e5; border-radius: 5px;">
-                                        <div class="panel-body text-center">
-                                            <h4 style="color: #28a745; margin-bottom: 5px;">Present</h4>
-                                            <h3 style="margin-top: 0;"><span id="presentPercentage">
-                                                <%= (typeof statsData !== 'undefined' && statsData.totalDays > 0) ? 
-                                                   Math.round((statsData.presentDays / statsData.totalDays) * 100) : 0 %>%</span> | 
-                                                <span id="presentCount"><%= typeof statsData !== 'undefined' ? statsData.presentDays : 0 %></span>
+                                    <div class="panel panel-default" style="border: 1px solid #28a745; border-radius: 5px;">
+                                        <div class="panel-body text-center" style="padding: 15px;">
+                                            <h4 style="color: #28a745; margin-bottom: 10px; font-weight: bold;">Present</h4>
+                                            <h3 style="margin: 0;">
+                                                <span id="presentPercentage" style="font-weight: bold; font-size: 28px;">
+                                                <%= (statsData.totalDays > 0) ? 
+                                                   Math.round((statsData.presentDays / statsData.totalDays) * 100) : 0 %>%</span>
+                                                <span style="color: #777; margin: 0 10px;">|</span>
+                                                <span id="presentCount"><%= statsData.presentDays %></span>
                                             </h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="panel panel-default" style="border: 1px solid #e542b7; border-radius: 5px;">
-                                        <div class="panel-body text-center">
-                                            <h4 style="color: #dc3545; margin-bottom: 5px;">Leave</h4>
-                                            <h3 style="margin-top: 0;"><span id="leavePercentage">
-                                                <%= (typeof statsData !== 'undefined' && statsData.totalDays > 0) ? 
-                                                   Math.round((statsData.leaveDays / statsData.totalDays) * 100) : 0 %>%</span> | 
-                                                <span id="leaveCount"><%= typeof statsData !== 'undefined' ? statsData.leaveDays : 0 %></span>
+                                        <div class="panel-body text-center" style="padding: 15px;">
+                                            <h4 style="color: #e542b7; margin-bottom: 10px; font-weight: bold;">Leave</h4>
+                                            <h3 style="margin: 0;">
+                                                <span id="leavePercentage" style="font-weight: bold; font-size: 28px;">
+                                                <%= (statsData.totalDays > 0) ? 
+                                                   Math.round((statsData.leaveDays / statsData.totalDays) * 100) : 0 %>%</span>
+                                                <span style="color: #777; margin: 0 10px;">|</span>
+                                                <span id="leaveCount"><%= statsData.leaveDays %></span>
                                             </h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="panel panel-default" style="border: 1px solid #e58642; border-radius: 5px;">
-                                        <div class="panel-body text-center">
-                                            <h4 style="color: #fd7e14; margin-bottom: 5px;">Late</h4>
-                                            <h3 style="margin-top: 0;"><span id="latePercentage">
-                                                <%= (typeof statsData !== 'undefined' && statsData.totalDays > 0) ? 
-                                                   Math.round((statsData.lateDays / statsData.totalDays) * 100) : 0 %>%</span> | 
-                                                <span id="lateCount"><%= typeof statsData !== 'undefined' ? statsData.lateDays : 0 %></span>
+                                    <div class="panel panel-default" style="border: 1px solid #fd7e14; border-radius: 5px;">
+                                        <div class="panel-body text-center" style="padding: 15px;">
+                                            <h4 style="color: #fd7e14; margin-bottom: 10px; font-weight: bold;">Late</h4>
+                                            <h3 style="margin: 0;">
+                                                <span id="latePercentage" style="font-weight: bold; font-size: 28px;">
+                                                <%= (statsData.totalDays > 0) ? 
+                                                   Math.round((statsData.lateDays / statsData.totalDays) * 100) : 0 %>%</span>
+                                                <span style="color: #777; margin: 0 10px;">|</span>
+                                                <span id="lateCount"><%= statsData.lateDays %></span>
                                             </h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="panel panel-default" style="border: 1px solid #42d0e5; border-radius: 5px;">
-                                        <div class="panel-body text-center">
-                                            <h4 style="color: #17a2b8; margin-bottom: 5px;">On-Time</h4>
-                                            <h3 style="margin-top: 0;"><span id="onTimePercentage">
-                                                <%= (typeof statsData !== 'undefined' && statsData.totalDays > 0) ? 
-                                                   Math.round((statsData.onTimeDays / statsData.totalDays) * 100) : 0 %>%</span> | 
-                                                <span id="onTimeCount"><%= typeof statsData !== 'undefined' ? statsData.onTimeDays : 0 %></span>
+                                    <div class="panel panel-default" style="border: 1px solid #17a2b8; border-radius: 5px;">
+                                        <div class="panel-body text-center" style="padding: 15px;">
+                                            <h4 style="color: #17a2b8; margin-bottom: 10px; font-weight: bold;">On-Time</h4>
+                                            <h3 style="margin: 0;">
+                                                <span id="onTimePercentage" style="font-weight: bold; font-size: 28px;">
+                                                <%= (statsData.totalDays > 0) ? 
+                                                   Math.round((statsData.onTimeDays / statsData.totalDays) * 100) : 0 %>%</span>
+                                                <span style="color: #777; margin: 0 10px;">|</span>
+                                                <span id="onTimeCount"><%= statsData.onTimeDays %></span>
                                             </h3>
                                         </div>
                                     </div>
@@ -142,18 +153,16 @@
                             </div>
                             
                             <!-- Filter and Export Controls -->
-                            <div class="row mb-3">
+                            <div class="row" style="margin-bottom: 20px;">
                                 <div class="col-md-6">
-                                    <div class="btn-group">
-                                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: #222; color: white; border-radius: 20px;">
-                                            <i class="fa fa-sort"></i> Sort By
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="#" class="sort-option" data-sort="name">Name</a></li>
-                                            <li><a href="#" class="sort-option" data-sort="department">Department</a></li>
-                                            <li><a href="#" class="sort-option" data-sort="checkin">Check In Time</a></li>
-                                            <li><a href="#" class="sort-option" data-sort="status">Status</a></li>
-                                        </ul>
+                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" 
+                                           style="background-color: #222; color: white; border-radius: 20px;">
+                                        <i class="fa fa-sort"></i> Sort By
+                                    </button>
+                                    <div class="dropdown-menu" style="padding: 10px; min-width: 200px;">
+                                        <a href="#" class="sort-option" data-sort="name" style="display: block; padding: 5px;">Name</a>
+                                        <a href="#" class="sort-option" data-sort="checkin" style="display: block; padding: 5px;">Check In Time</a>
+                                        <a href="#" class="sort-option" data-sort="status" style="display: block; padding: 5px;">Status</a>
                                     </div>
                                     
                                     <div class="btn-group" style="margin-left: 10px;">
@@ -207,79 +216,118 @@
                                 </div>
                             </div>
 
+                            <!-- For debugging - Show raw employee data -->
+                            <div style="margin-bottom: 20px;" id="debugInfo">
+                                <div class="alert alert-info">
+                                    <span>
+                                        <strong>Debug Stats:</strong> 
+                                        <span>Number of employees: <%= employees ? employees.length : 0 %></span>
+                                        <% if (employees && employees.length > 0) { %>
+                                            <span>, First employee: <%= employees[0].employee.name %></span>
+                                            <span>, Records: <%= employees[0].attendanceRecords ? employees[0].attendanceRecords.length : 0 %></span>
+                                        <% } %>
+                                    </span>
+                                    <a href="/admin/create-sample-attendance" class="btn btn-warning btn-sm" style="float: right">Create Sample Data</a>
+                                </div>
+                                <button class="btn btn-info" onclick="$('#rawData').toggle()">Show/Hide Raw Data</button>
+                                <pre id="rawData" style="display: none; max-height: 300px; overflow: auto; background: #f5f5f5; padding: 10px; margin-top: 10px; border: 1px solid #ddd;">
+Number of employees: <%= employees ? employees.length : 0 %>
+<% if (employees && employees.length > 0) { %>
+<%= JSON.stringify({
+  employee: employees[0].employee,
+  records: employees[0].attendanceRecords,
+  presentDays: employees[0].presentDays,
+  absentDays: employees[0].absentDays,
+  leaveDays: employees[0].leaveDays,
+  lateDays: employees[0].lateDays,
+  onTimeDays: employees[0].onTimeDays,
+}, null, 2) %>
+<% } %>
+                                </pre>
+                            </div>
+
                             <!-- Attendance Table -->
-                            <div class="panel panel-default">
-                                <div class="panel-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover" id="attendanceTable">
+                            <div class="table-responsive" style="margin-top: 20px;">
+                                <table class="table table-hover" id="attendanceTable">
                                     <thead>
                                         <tr>
-                                                    <th>ID</th>
-                                                    <th>Name</th>
-                                                    <th>Check In</th>
-                                                    <th>Check Out</th>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Check In</th>
+                                            <th>Check out</th>
                                             <th>Status</th>
-                                                    <th>Actions</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                                <% if (employees.length > 0) { %>
-                                                    <% employees.forEach(function(empData, index) { %>
-                                                        <% if (typeof empData.attendanceRecords !== 'undefined' && empData.attendanceRecords.length > 0) { %>
-                                                            <% empData.attendanceRecords.forEach(function(record) { %>
-                                                                <tr>
-                                                                    <td><%= index + 1 %></td>
-                                                                    <td><%= empData.employee.name %></td>
-                                                                    <td><%= record.checkInTime || '--' %></td>
-                                                                    <td><%= record.checkOutTime || '--' %></td>
-                                                                    <td>
-                                                                        <% if (record.status === 'present') { %>
-                                                                            <span class="label label-success" style="border-radius: 20px; padding: 5px 10px;">Present</span>
-                                                                        <% } else if (record.status === 'leave') { %>
-                                                                            <span class="label label-warning" style="border-radius: 20px; padding: 5px 10px;">Leave</span>
-                                                                        <% } else if (record.status === 'late') { %>
-                                                                            <span class="label label-danger" style="border-radius: 20px; padding: 5px 10px;">Late</span>
-                                                                        <% } else { %>
-                                                                            <span class="label label-default" style="border-radius: 20px; padding: 5px 10px;"><%= record.status || 'Unknown' %></span>
-                                                                        <% } %>
-                                                                    </td>
-                                                                    <td>
-                                                                        <button class="btn btn-sm btn-danger edit-attendance" data-id="<%= record._id %>" style="border-radius: 20px;">
-                                                                            Edit
-                                                                        </button>
-                                                                    </td>
-                                        </tr>
-                                                            <% }); %>
-                                                        <% } else { %>
-                                                            <tr>
-                                                                <td><%= index + 1 %></td>
-                                                                <td><%= empData.employee.name %></td>
-                                                                <td>--</td>
-                                                                <td>--</td>
-                                                                <td>
-                                                                    <% if (empData.status === 'leave') { %>
-                                                                        <span class="label label-warning" style="border-radius: 20px; padding: 5px 10px;">Leave</span>
-                                                                    <% } else { %>
-                                                                        <span class="label label-default" style="border-radius: 20px; padding: 5px 10px;">Unknown</span>
-                                                                    <% } %>
-                                                                </td>
-                                                                <td>
-                                                                    <button class="btn btn-sm btn-danger edit-attendance" data-id="<%= empData.employee._id %>" style="border-radius: 20px;">
-                                                                        Edit
-                                                                    </button>
-                                                                </td>
-                                        </tr>
-                                                        <% } %>
-                                                    <% }); %>
-                                                <% } else { %>
-                                        <tr>
-                                                        <td colspan="6" class="text-center">No attendance records found for this month</td>
-                                        </tr>
-                                                <% } %>
+                                        <% if (employees && employees.length > 0) { %>
+                                            <% 
+                                            // Biến đếm cho ID
+                                            let counter = 1;
+                                            
+                                            // Duyệt qua mỗi nhân viên
+                                            employees.forEach(function(empData, index) { 
+                                                // Kiểm tra xem có attendanceRecords hay không
+                                                if (empData.attendanceRecords && empData.attendanceRecords.length > 0) {
+                                                    // Nếu có, hiển thị mỗi bản ghi
+                                                    empData.attendanceRecords.forEach(function(record) { 
+                                            %>
+                                                        <tr class="attendance-row">
+                                                            <td><%= counter++ %></td>
+                                                            <td><%= empData.employee.name %></td>
+                                                            <td><%= record.checkInTime || '--' %></td>
+                                                            <td><%= record.checkOutTime || '--' %></td>
+                                                            <td>
+                                                                <% if (record.status === 'present') { %>
+                                                                    <span class="status-badge status-present">Present</span>
+                                                                <% } else if (record.status === 'leave') { %>
+                                                                    <span class="status-badge status-leave">Leave</span>
+                                                                <% } else if (record.status === 'late') { %>
+                                                                    <span class="status-badge status-late">Late</span>
+                                                                <% } else { %>
+                                                                    <span class="status-badge status-unknown"><%= record.status || 'Unknown' %></span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn-edit edit-attendance" data-id="<%= record._id %>">
+                                                                    Edit
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                            <% 
+                                                    }); 
+                                                } else {
+                                                    // Nếu không có bản ghi điểm danh, hiển thị hàng đơn
+                                            %>
+                                                    <tr class="attendance-row">
+                                                        <td><%= counter++ %></td>
+                                                        <td><%= empData.employee.name %></td>
+                                                        <td>--</td>
+                                                        <td>--</td>
+                                                        <td>
+                                                            <% if (empData.status === 'leave') { %>
+                                                                <span class="status-badge status-leave">Leave</span>
+                                                            <% } else { %>
+                                                                <span class="status-badge status-unknown">No Record</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn-edit edit-attendance" data-id="<%= empData.employee._id %>">
+                                                                Add
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                            <% 
+                                                } 
+                                            }); 
+                                            %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="text-center">No employees or attendance records found for this month</td>
+                                            </tr>
+                                        <% } %>
                                     </tbody>
                                 </table>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -391,12 +439,112 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
         <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.print.min.js"></script>
+        
+        <style>
+            /* Custom styles for attendance page */
+            .attendance-row td {
+                vertical-align: middle;
+                padding: 12px 8px;
+            }
+            
+            .status-badge {
+                display: inline-block;
+                padding: 5px 15px;
+                border-radius: 20px;
+                font-weight: normal;
+                font-size: 13px;
+                min-width: 80px;
+                text-align: center;
+            }
+            
+            .status-present {
+                background-color: #e8f5e9;
+                color: #28a745;
+                border: 1px solid #28a745;
+            }
+            
+            .status-leave {
+                background-color: #fce4ec;
+                color: #e542b7;
+                border: 1px solid #e542b7;
+            }
+            
+            .status-late {
+                background-color: #fff3e0;
+                color: #fd7e14;
+                border: 1px solid #fd7e14;
+            }
+            
+            .status-unknown {
+                background-color: #e0e0e0;
+                color: #616161;
+                border: 1px solid #9e9e9e;
+            }
+            
+            .btn-edit {
+                background-color: #fff;
+                color: #dc3545;
+                border: 1px solid #dc3545;
+                border-radius: 20px;
+                padding: 5px 15px;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .btn-edit:hover {
+                background-color: #dc3545;
+                color: #fff;
+            }
+            
+            #attendanceTable th {
+                font-weight: bold;
+                color: #333;
+            }
+            
+            .dropdown-menu {
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            
+            .table-hover tbody tr:hover {
+                background-color: #f8f9fa;
+            }
+            
+            /* Make DataTables pagination look better */
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                border-radius: 20px;
+                margin: 0 3px;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background: #222;
+                color: white !important;
+                border: none;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: #444;
+                color: white !important;
+                border: none;
+            }
+            
+            .dataTables_wrapper .dataTables_filter input {
+                border-radius: 20px;
+                padding: 5px 10px;
+                border: 1px solid #ddd;
+            }
+        </style>
+        
         <script>
             $(document).ready(function () {
                 // Initialize DataTable with export buttons
                 var table = $('#attendanceTable').DataTable({
-                    "order": [[0, "asc"]],
-                    "pageLength": 25,
+                    "ordering": false,
+                    "paging": true, 
+                    "info": false,
+                    "searching": true,
+                    "pageLength": 10,
+                    "lengthChange": false,
                     "dom": 'Bfrtip',
                     "buttons": []
                 });
@@ -438,7 +586,7 @@
                         {
                             extend: 'pdfHtml5',
                             text: 'Export to PDF',
-                            title: 'Attendance Report - <%= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][month-1] %> <%= year %>',
+                            title: 'Attendance Report - ' + '<%= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month-1] %>' + ' <%= year %>',
                             className: 'buttons-pdf',
                             exportOptions: {
                                 columns: [0, 1, 2, 3, 4]
@@ -447,7 +595,7 @@
                         {
                             extend: 'excelHtml5',
                             text: 'Export to Excel',
-                            title: 'Attendance Report - <%= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][month-1] %> <%= year %>',
+                            title: 'Attendance Report - ' + '<%= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month-1] %>' + ' <%= year %>',
                             className: 'buttons-excel',
                             exportOptions: {
                                 columns: [0, 1, 2, 3, 4]
@@ -456,7 +604,7 @@
                         {
                             extend: 'print',
                             text: 'Print',
-                            title: 'Attendance Report - <%= ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][month-1] %> <%= year %>',
+                            title: 'Attendance Report - ' + '<%= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month-1] %>' + ' <%= year %>',
                             className: 'buttons-print',
                             exportOptions: {
                                 columns: [0, 1, 2, 3, 4]
@@ -488,48 +636,109 @@
                     table.order([columnIndex, 'asc']).draw();
                 });
                 
+                // Variable to track if we're adding or editing
+                var isAddingNew = false;
+                var currentDate = new Date();
+                
                 // Edit attendance functionality
                 $('.edit-attendance').click(function() {
                     var attendanceId = $(this).data('id');
+                    var buttonText = $(this).text().trim();
+                    
+                    // Reset form
+                    $('#editAttendanceForm')[0].reset();
+                    
+                    // Set default values for new records
+                    if (buttonText === 'Add') {
+                        isAddingNew = true;
+                        $('.modal-title').text('Add Attendance Record');
+                        
+                        // Set today's date for new record
+                        var today = new Date();
+                        var month = '<%= month %>';
+                        var year = '<%= year %>';
+                        var day = today.getDate(); // Default to today
+                        
+                        // Create a datepicker if needed
+                        if (!$('#attendanceDate').length) {
+                            $('<div class="form-group"><label for="attendanceDate">Date</label><input type="date" class="form-control" id="attendanceDate" name="attendanceDate"></div>').insertBefore($('#statusSelect').parent());
+                        }
+                        
+                        // Set current date value
+                        var dateStr = year + '-' + 
+                                     (month < 10 ? '0' + month : month) + '-' + 
+                                     (day < 10 ? '0' + day : day);
+                        $('#attendanceDate').val(dateStr);
+                        
+                        // Set default times
+                        $('#checkInTime').val('09:00');
+                        $('#checkOutTime').val('17:00');
+                        $('#statusSelect').val('present');
+                    } else {
+                        isAddingNew = false;
+                        $('.modal-title').text('Edit Attendance Record');
+                        
+                        // Remove date field if it exists
+                        if ($('#attendanceDate').length) {
+                            $('#attendanceDate').parent().remove();
+                        }
+                        
+                        // Try to load existing data
+                        $.ajax({
+                            url: '/admin/get-attendance',
+                            type: 'GET',
+                            data: { id: attendanceId },
+                            success: function(data) {
+                                if (data.success) {
+                                    $('#checkInTime').val(data.record.checkInTime ? data.record.checkInTime.substr(0, 5) : '');
+                                    $('#checkOutTime').val(data.record.checkOutTime ? data.record.checkOutTime.substr(0, 5) : '');
+                                    $('#statusSelect').val(data.record.status || 'present');
+                                }
+                            },
+                            error: function() {
+                                // If error, just continue with empty form
+                                console.log('Could not load attendance data');
+                            }
+                        });
+                    }
+                    
                     $('#attendanceId').val(attendanceId);
                     $('#editAttendanceModal').modal('show');
                 });
                 
                 $('#saveAttendanceChanges').click(function() {
                     // Get form data
-                    var attendanceId = $('#attendanceId').val();
-                    var status = $('#statusSelect').val();
-                    var checkInTime = $('#checkInTime').val();
-                    var checkOutTime = $('#checkOutTime').val();
+                    var formData = {
+                        attendanceId: $('#attendanceId').val(),
+                        status: $('#statusSelect').val(),
+                        checkInTime: $('#checkInTime').val(),
+                        checkOutTime: $('#checkOutTime').val(),
+                        _csrf: '<%= csrfToken %>'
+                    };
+                    
+                    // Add date if adding new record
+                    if (isAddingNew && $('#attendanceDate').length) {
+                        formData.date = $('#attendanceDate').val();
+                        formData.isNewRecord = true;
+                    }
                     
                     // Send AJAX request to update attendance
                     $.ajax({
                         url: '/admin/edit-attendance',
                         type: 'POST',
-                        data: {
-                            attendanceId: attendanceId,
-                            status: status,
-                            checkInTime: checkInTime,
-                            checkOutTime: checkOutTime,
-                            _csrf: '<%= csrfToken %>'
-                        },
+                        data: formData,
                         success: function(response) {
                             if (response.success) {
-                                // Close the modal
+                                alert('Attendance ' + (isAddingNew ? 'added' : 'updated') + ' successfully!');
                                 $('#editAttendanceModal').modal('hide');
-                                
-                                // Show success message
-                                alert('Attendance updated successfully!');
-                                
-                                // Reload the page to show updated data
+                                // Reload page to see changes
                                 location.reload();
                             } else {
                                 alert('Error: ' + response.message);
                             }
                         },
                         error: function(xhr) {
-                            var errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred while updating attendance';
-                            alert('Error: ' + errorMessage);
+                            alert('Error ' + (isAddingNew ? 'adding' : 'updating') + ' attendance. Please try again.');
                         }
                     });
                 });

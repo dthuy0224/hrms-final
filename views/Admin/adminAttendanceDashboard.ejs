@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<%- include('../partials/header') %>
+
+<body>
+  <nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header fixed-brand">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+        <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+      </button>
+      <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+        <%= userName %>
+      </a>
+    </div>
+    <!-- navbar-header-->
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active">
+          <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+          </button>
+        </li>
+        <li class="navbar-brand">
+          <form action="/logout" method="get">
+            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+              <i class="fa fa-user" aria-hidden="true"></i> Logout
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    <!-- bs-example-navbar-collapse-1 -->
+  </nav>
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <% 
+      // Set active page for sidebar
+      const activePage = 'attendanceDashboard';
+      const showCheckOut = false;
+    %>
+    <%- include('../partials/adminSidebar') %>
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div class="container-fluid xyz">
+        <div class="row">
+          <div class="col-lg-12">
+            <h3 style="font-weight: bold;"> > Attendance Records</h3>
+            <p>Month: 
+              <% 
+              const monthNames = ["January", "February", "March", "April", "May", "June", 
+                           "July", "August", "September", "October", "November", "December"];
+              %>
+              <%= monthNames[month-1] %>, <%= year %>
+            </p>
+            <hr>
+          </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row">
+          <!-- Attendance Rate Card -->
+          <div class="col-md-3">
+            <div class="panel panel-primary" style="border-color: #3498db;">
+              <div class="panel-heading" style="background-color: #3498db; border-color: #3498db;">
+                <h5 class="panel-title">Attendance Rate</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof attendanceRate !== 'undefined' ? attendanceRate : 0 %>%</h1>
+                <p><%= typeof presentDays !== 'undefined' ? presentDays : 0 %> of <%= typeof daysInMonth !== 'undefined' ? daysInMonth : 21 %> working days</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Hours Card -->
+          <div class="col-md-3">
+            <div class="panel panel-info" style="border-color: #9b59b6;">
+              <div class="panel-heading" style="background-color: #9b59b6; border-color: #9b59b6; color: white;">
+                <h5 class="panel-title">Work Hours</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof totalWorkHours !== 'undefined' ? totalWorkHours : 0.17 %> hrs</h1>
+                <p>including <%= typeof overtimeHours !== 'undefined' ? overtimeHours : 0.00 %> hrs overtime</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- On Time Card -->
+          <div class="col-md-3">
+            <div class="panel panel-success" style="border-color: #2ecc71;">
+              <div class="panel-heading" style="background-color: #2ecc71; border-color: #2ecc71;">
+                <h5 class="panel-title">On Time</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof onTimeDays !== 'undefined' ? onTimeDays : 0 %></h1>
+                <p>Days present on time</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Late Card -->
+          <div class="col-md-3">
+            <div class="panel panel-warning" style="border-color: #f39c12;">
+              <div class="panel-heading" style="background-color: #f39c12; border-color: #f39c12;">
+                <h5 class="panel-title">Late</h5>
+              </div>
+              <div class="panel-body text-center">
+                <h1 style="font-size: 36px; margin: 10px 0;"><%= typeof lateDays !== 'undefined' ? lateDays : 0 %></h1>
+                <p>Days arrived late</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export and Search -->
+        <div class="row" style="margin-bottom: 20px;">
+          <div class="col-md-6">
+            <button id="exportExcel" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
+            <button id="printBtn" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
+          </div>
+          <div class="col-md-6">
+            <form id="searchForm">
+              <div class="form-group">
+                <label for="searchQuery">Search:</label>
+                <input type="text" class="form-control" id="searchQuery" placeholder="Search...">
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Attendance Records Table -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover" id="attendanceTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Work Hours</th>
+                    <th>Overtime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (typeof attendanceRecords !== 'undefined' && attendanceRecords && attendanceRecords.length > 0) { %>
+                    <% attendanceRecords.forEach(record => { %>
+                      <tr>
+                        <td><%= record.date %>/<%= record.month %>/<%= record.year %></td>
+                        <td>
+                          <% if (record.status === 'present') { %>
+                            <span class="label label-success">Present</span>
+                          <% } else if (record.status === 'late') { %>
+                            <span class="label label-warning">Late</span>
+                          <% } else if (record.status === 'leave') { %>
+                            <span class="label label-info">Leave</span>
+                          <% } else { %>
+                            <span class="label label-default">Unknown</span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime) { %>
+                            <% 
+                              // Check if checkInTime is a full date string or just a time
+                              let checkInDisplay = record.checkInTime;
+                              if (record.checkInTime.includes('GMT')) {
+                                // It's a full date string, extract only the time part
+                                const checkInDate = new Date(record.checkInTime);
+                                checkInDisplay = checkInDate.toTimeString().split(' ')[0];
+                              }
+                            %>
+                            <%= checkInDisplay %>
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkOutTime) { %>
+                            <% 
+                              // Check if checkOutTime is a full date string or just a time
+                              let checkOutDisplay = record.checkOutTime;
+                              if (record.checkOutTime.includes('GMT')) {
+                                // It's a full date string, extract only the time part
+                                const checkOutDate = new Date(record.checkOutTime);
+                                checkOutDisplay = checkOutDate.toTimeString().split(' ')[0];
+                              }
+                            %>
+                            <%= checkOutDisplay %>
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime && record.checkOutTime) { 
+                            let checkIn, checkOut, checkInDate, checkOutDate;
+                            
+                            // Check if checkInTime is a full date string or just a time
+                            if (record.checkInTime.includes('GMT')) {
+                              // It's a full date string
+                              checkInDate = new Date(record.checkInTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkIn = record.checkInTime.split(':');
+                              checkInDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                    typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                    record.date);
+                              checkInDate.setHours(parseInt(checkIn[0]), parseInt(checkIn[1]), parseInt(checkIn[2]));
+                            }
+                            
+                            // Check if checkOutTime is a full date string or just a time
+                            if (record.checkOutTime.includes('GMT')) {
+                              // It's a full date string
+                              checkOutDate = new Date(record.checkOutTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkOut = record.checkOutTime.split(':');
+                              checkOutDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                     typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                     record.date);
+                              checkOutDate.setHours(parseInt(checkOut[0]), parseInt(checkOut[1]), parseInt(checkOut[2]));
+                            }
+                            
+                            const diffHours = Math.round(((checkOutDate - checkInDate) / (1000 * 60 * 60)) * 100) / 100;
+                            const standardHours = 8;
+                            const workHours = diffHours > standardHours ? standardHours : diffHours;
+                          %>
+                            <%= workHours.toFixed(2) %> hrs
+                          <% } else { %>
+                            0.00 hrs
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (record.checkInTime && record.checkOutTime) { 
+                            let checkIn, checkOut, checkInDate, checkOutDate;
+                            
+                            // Check if checkInTime is a full date string or just a time
+                            if (record.checkInTime.includes('GMT')) {
+                              // It's a full date string
+                              checkInDate = new Date(record.checkInTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkIn = record.checkInTime.split(':');
+                              checkInDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                    typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                    record.date);
+                              checkInDate.setHours(parseInt(checkIn[0]), parseInt(checkIn[1]), parseInt(checkIn[2]));
+                            }
+                            
+                            // Check if checkOutTime is a full date string or just a time
+                            if (record.checkOutTime.includes('GMT')) {
+                              // It's a full date string
+                              checkOutDate = new Date(record.checkOutTime);
+                            } else {
+                              // It's just a time string, construct the date
+                              checkOut = record.checkOutTime.split(':');
+                              checkOutDate = new Date(typeof year !== 'undefined' ? year : new Date().getFullYear(), 
+                                                     typeof month !== 'undefined' ? month - 1 : new Date().getMonth(), 
+                                                     record.date);
+                              checkOutDate.setHours(parseInt(checkOut[0]), parseInt(checkOut[1]), parseInt(checkOut[2]));
+                            }
+                            
+                            const diffHours = Math.round(((checkOutDate - checkInDate) / (1000 * 60 * 60)) * 100) / 100;
+                            const standardHours = 8;
+                            const overtime = diffHours > standardHours ? (diffHours - standardHours) : 0;
+                          %>
+                            <%= overtime.toFixed(2) %> hrs
+                          <% } else { %>
+                            --
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="6" class="text-center">No attendance records found for this month.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <div class="text-right">
+              <p>Showing 1 to <%= typeof attendanceRecords !== 'undefined' && attendanceRecords ? attendanceRecords.length : 0 %> of <%= typeof attendanceRecords !== 'undefined' && attendanceRecords ? attendanceRecords.length : 0 %> entries</p>
+              <ul class="pagination">
+                <li class="disabled"><a href="#">Previous</a></li>
+                <li class="active"><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li><a href="#">Next</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+  </div>
+
+  <!-- Mark Attendance Modal -->
+  <div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="/admin/mark-attendance">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Mark Attendance</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to mark attendance?</p>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Yes</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Check Out Modal -->
+  <div id="checkoutModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="/admin/check-out">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Check Out</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to check out?</p>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Yes</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+  <script src="/javascripts/sidebar_menu.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Search functionality
+      $("#searchQuery").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#attendanceTable tbody tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+
+      // Print functionality
+      $("#printBtn").click(function() {
+        window.print();
+      });
+
+      // Export to Excel
+      $("#exportExcel").click(function() {
+        // Implement export to excel functionality
+        alert("Export to Excel functionality will be implemented here");
+      });
+    });
+  </script>
+</body>
+</html> 

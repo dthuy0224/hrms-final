@@ -49,19 +49,22 @@
             </li>
             <li>
                 <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-envelope-square fa-stack-1x "></i></span> Leave Applications</a></li>
+                                class="fa fa-envelope-square fa-stack-1x "></i></span> Approved Leave</a></li>
             <li>
                 <a href="/admin/employees-attendance">
-                    <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x "></i></span>View
-                    Attendance</a>
+                    <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x "></i></span>Employee Attendance</a>
             </li>
+            <li class="<%= typeof activePage !== 'undefined' && activePage === 'attendanceDashboard' ? 'active' : '' %>">
+                <a href="/admin/admin-attendance-dashboard">
+                  <span class="fa-stack fa-lg pull-left"><i class="fa fa-clock-o fa-stack-1x"></i></span>Attendance Dashboard</a>
+              </li>
             <li data-toggle="modal" data-target="#myModal2">
                 <a href="#"><span class="fa-stack fa-lg pull-left"><i
                                 class="fa fa-check-circle fa-stack-1x "></i></span>Mark Attendance</a>
             </li>
             <li>
                 <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-user fa-stack-1x "></i></span>View Profile</a>
+                                class="fa fa-user fa-stack-1x "></i></span>My Profile</a>
             </li>
         </ul>
     </div><!-- /#sidebar-wrapper -->
@@ -119,7 +122,7 @@
                                         <label class="col-sm-2 control-label">DOB: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="date" class="form-control" required name="dateOfBirth" max="<%= new Date().toISOString().split('T')[0] %>" min="<%= new Date(new Date().getFullYear() - 60, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0] %>" title="Age must be between 18-60 years">
+                                                <input type="date" class="form-control date-input" required name="dateOfBirth" max="<%= new Date().toISOString().split('T')[0] %>" min="<%= new Date(new Date().getFullYear() - 60, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0] %>" title="Age must be between 18-60 years">
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             </div>
                                             <span class="help-block error-message" style="display:none; color:#a94442;">Required. Age must be between 18-60 years.</span>
@@ -317,7 +320,7 @@
                                         <label class="col-sm-2 control-label">Start Date:</label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="date" class="form-control" name="startDate" min="<%= new Date().toISOString().split('T')[0] %>" title="Must be on or after current date">
+                                                <input type="date" class="form-control date-input" name="startDate" min="<%= new Date().toISOString().split('T')[0] %>" title="Must be on or after current date">
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             </div>
                                         </div>
@@ -511,6 +514,38 @@
                 scrollTop: $('.text-danger').first().offset().top - 100
             }, 200);
         }
+        
+        // Convert date inputs to DD/MM/YY format
+        $('.date-input').each(function() {
+            // Store the ISO format for form submission
+            $(this).attr('data-iso-value', $(this).val());
+            
+            // Add change event to store ISO value when changed
+            $(this).on('change', function() {
+                $(this).attr('data-iso-value', $(this).val());
+                
+                // If there's a value, format it as DD/MM/YY for display
+                if ($(this).val()) {
+                    var date = new Date($(this).val());
+                    var day = ("0" + date.getDate()).slice(-2);
+                    var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    var year = date.getFullYear().toString().substr(-2);
+                    
+                    // Format for display only
+                    var formattedDate = day + '/' + month + '/' + year;
+                    $(this).attr('data-formatted', formattedDate);
+                }
+            });
+        });
+        
+        // Handle form submission to use ISO format
+        $('#employee-form').on('submit', function() {
+            $('.date-input').each(function() {
+                // Use the stored ISO value for submission
+                $(this).val($(this).attr('data-iso-value'));
+            });
+            return true;
+        });
     });
     
     // Danh sách tĩnh các tỉnh thành - sẵn sàng để sử dụng ngay lập tức
