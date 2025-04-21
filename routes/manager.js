@@ -8,6 +8,36 @@ var Attendance = require("../models/attendance");
 var moment = require("moment");
 var Project = require("../models/project");
 var PerformanceAppraisal = require("../models/performance_appraisal");
+var csrf = require("csurf");
+var csrfProtection = csrf();
+router.use(csrfProtection);
+
+// Function to calculate work hours from time strings
+function calculateWorkHours(checkInTime, checkOutTime) {
+  if (!checkInTime || !checkOutTime) return 0;
+  
+  const [inHours, inMinutes, inSeconds] = checkInTime.split(':').map(Number);
+  const [outHours, outMinutes, outSeconds] = checkOutTime.split(':').map(Number);
+  
+  const checkInDate = new Date();
+  checkInDate.setHours(inHours, inMinutes, inSeconds);
+  
+  const checkOutDate = new Date();
+  checkOutDate.setHours(outHours, outMinutes, outSeconds);
+  
+  // If checkout is earlier than checkin (next day), add 24 hours
+  if (checkOutDate < checkInDate) {
+    checkOutDate.setDate(checkOutDate.getDate() + 1);
+  }
+  
+  // Calculate the difference in milliseconds
+  const diffMs = checkOutDate - checkInDate;
+  
+  // Convert to hours (milliseconds to hours)
+  const hours = diffMs / (1000 * 60 * 60);
+  
+  return hours;
+}
 
 // Ensure user is logged in
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
@@ -403,6 +433,7 @@ router.get(
           attendance: attendanceChunks,
           moment: moment,
           userName: req.user.name,
+          calculateWorkHours: calculateWorkHours
         });
       });
   }
@@ -907,6 +938,7 @@ router.post("/view-attendance", function viewAttendance(req, res, next) {
         attendance: attendanceChunks,
         moment: moment,
         userName: req.user.name,
+        calculateWorkHours: calculateWorkHours
       });
     });
 });

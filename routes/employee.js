@@ -236,7 +236,7 @@ router.post(
 
         docs.forEach(record => {
           if (record.checkInTime && record.checkOutTime) {
-            const workHours = calculateWorkHoursFromStrings(record.checkInTime, record.checkOutTime);
+            const workHours = calculateWorkHours(record.checkInTime, record.checkOutTime);
             totalWorkHours += workHours;
             
             // Calculate overtime (any hours beyond standard work hours)
@@ -254,22 +254,24 @@ router.post(
         });
 
         res.render("Employee/viewAttendance", {
-          title: "Attendance Sheet",
-          attendance: docs,
-          userName: req.user.name,
-          found: found,
-          csrfToken: req.csrfToken(),
-          moment: require("moment"),
+          title: "My Attendance",
+          month: req.body.month,
           monthName: monthName,
           selectedYear: req.body.year,
+          currentDate: moment().format('MMMM Do YYYY'),
+          csrfToken: req.csrfToken(),
+          found: found,
+          attendance: docs,
+          moment: moment,
+          userName: req.user.name,
           attendanceRate: attendanceRate,
-          workingDaysInMonth: workingDaysInMonth,
           presentDays: presentDays,
+          workingDaysInMonth: workingDaysInMonth,
           totalWorkHours: totalWorkHours,
           overtimeHours: overtimeHours,
           onTimeDays: onTimeDays,
           lateDays: lateDays,
-          path: '/employee/view-attendance'
+          calculateWorkHours: calculateWorkHours
         });
       });
   }
@@ -294,7 +296,7 @@ function calculateWorkingDaysInMonth(month, year) {
 }
 
 // Function to calculate work hours from time strings
-function calculateWorkHoursFromStrings(checkInTime, checkOutTime) {
+function calculateWorkHours(checkInTime, checkOutTime) {
   if (!checkInTime || !checkOutTime) return 0;
   
   const [inHours, inMinutes, inSeconds] = checkInTime.split(':').map(Number);
@@ -392,7 +394,7 @@ router.get(
 
         docs.forEach(record => {
           if (record.checkInTime && record.checkOutTime) {
-            const workHours = calculateWorkHoursFromStrings(record.checkInTime, record.checkOutTime);
+            const workHours = calculateWorkHours(record.checkInTime, record.checkOutTime);
             totalWorkHours += workHours;
             
             // Calculate overtime (any hours beyond standard work hours)
@@ -410,22 +412,24 @@ router.get(
         });
 
         res.render("Employee/viewAttendance", {
-          title: "Attendance Sheet",
-          attendance: docs,
-          userName: req.user.name,
-          found: found,
-          csrfToken: req.csrfToken(),
-          moment: require("moment"),
+          title: "My Attendance",
+          month: req.body.month,
           monthName: monthName,
           selectedYear: currentYear,
+          currentDate: moment().format('MMMM Do YYYY'),
+          csrfToken: req.csrfToken(),
+          found: found,
+          attendance: docs,
+          moment: moment,
+          userName: req.user.name,
           attendanceRate: attendanceRate,
-          workingDaysInMonth: workingDaysInMonth,
           presentDays: presentDays,
+          workingDaysInMonth: workingDaysInMonth,
           totalWorkHours: totalWorkHours,
           overtimeHours: overtimeHours,
           onTimeDays: onTimeDays,
           lateDays: lateDays,
-          path: '/employee/view-attendance-current'
+          calculateWorkHours: calculateWorkHours
         });
       });
   }

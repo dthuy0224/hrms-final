@@ -216,28 +216,13 @@
                                                             <td>
                                                                 <% 
                                                                     if (item.checkInTime && item.checkOutTime) {
-                                                                        // Simple calculation - actual implementation may be more complex
-                                                                        var inTimeParts = item.checkInTime.split(':');
-                                                                        var outTimeParts = item.checkOutTime.split(':');
-                                                                        
-                                                                        if (inTimeParts.length >= 2 && outTimeParts.length >= 2) {
-                                                                            var inHours = parseInt(inTimeParts[0]);
-                                                                            var inMinutes = parseInt(inTimeParts[1]);
-                                                                            var outHours = parseInt(outTimeParts[0]);
-                                                                            var outMinutes = parseInt(outTimeParts[1]);
-                                                                            
-                                                                            var totalMinutes = (outHours * 60 + outMinutes) - (inHours * 60 + inMinutes);
-                                                                            var hours = Math.floor(totalMinutes / 60);
-                                                                            var minutes = totalMinutes % 60;
-                                                                            
-                                                                            %>
-                                                                            <%= hours %> hrs <%= minutes %> mins
-                                                                            <%
-                                                                        } else {
-                                                                            %>
-                                                                            8 hrs
-                                                                            <%
-                                                                        }
+                                                                        // Use the calculateWorkHours function passed from the controller
+                                                                        var workHours = calculateWorkHours(item.checkInTime, item.checkOutTime);
+                                                                        var hours = Math.floor(workHours);
+                                                                        var minutes = Math.round((workHours - hours) * 60);
+                                                                        %>
+                                                                        <%= hours %> hrs <%= minutes %> mins
+                                                                        <%
                                                                     } else {
                                                                         %>
                                                                         -
