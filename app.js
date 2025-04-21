@@ -285,7 +285,10 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
     }
     
     // Xử lý các trường mới
-    if (req.body.gender) user.gender = req.body.gender;
+    if (req.body.gender) {
+      // Đảm bảo gender luôn là chữ thường để phù hợp với model
+      user.gender = req.body.gender.toLowerCase();
+    }
     if (req.body.birthName) user.birthName = req.body.birthName;
     if (req.body.province) user.province = req.body.province;
     if (req.body.district) user.district = req.body.district;
