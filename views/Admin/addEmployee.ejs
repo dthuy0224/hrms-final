@@ -88,14 +88,21 @@
                                     <h4 class="panel-title">Personal Information</h4>
                                 </div>
                                 <div class="panel-body">
+                                    <!-- Form Legend - Required Fields -->
+                                    <div class="form-legend">
+                                        <span class="text-danger">* Indicates required field</span>
+                                    </div>
+                                
                                     <!-- Name Field -->
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Name:</label>
+                                        <label class="col-sm-2 control-label">Name: <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
-                                            <input type="text" class="form-control" placeholder="First name..." required name="firstName" onkeypress="return onlyAlphabets(event,this);">
+                                            <input type="text" class="form-control" placeholder="First name..." required name="firstName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. No numbers or symbols except hyphens.</span>
                                         </div>
                                         <div class="col-sm-5">
-                                            <input type="text" class="form-control" placeholder="Last name..." required name="lastName" onkeypress="return onlyAlphabets(event,this);">
+                                            <input type="text" class="form-control" placeholder="Last name..." required name="lastName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. No numbers or symbols except hyphens.</span>
                                         </div>
                                     </div>
                                     
@@ -103,38 +110,40 @@
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Birth Name:</label>
                                         <div class="col-sm-10">
-                                            <input type="text" class="form-control" placeholder="Full birth name..." name="birthName" onkeypress="return onlyAlphabets(event,this);">
+                                            <input type="text" class="form-control" placeholder="Full birth name..." name="birthName" maxlength="100" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
                                         </div>
                                     </div>
                                     
                                     <!-- Date of Birth Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">DOB:</label>
+                                        <label class="col-sm-2 control-label">DOB: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="date" class="form-control" required name="dateOfBirth">
+                                                <input type="date" class="form-control" required name="dateOfBirth" max="<%= new Date().toISOString().split('T')[0] %>" min="<%= new Date(new Date().getFullYear() - 60, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0] %>" title="Age must be between 18-60 years">
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Age must be between 18-60 years.</span>
                                         </div>
-                                        <label class="col-sm-2 control-label">Gender:</label>
+                                        <label class="col-sm-2 control-label">Gender: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
                                             <label class="radio-inline">
-                                                <input type="radio" name="gender" value="male" checked> Male
+                                                <input type="radio" name="gender" value="Male" checked> Male
                                             </label>
                                             <label class="radio-inline">
-                                                <input type="radio" name="gender" value="female"> Female
+                                                <input type="radio" name="gender" value="Female"> Female
                                             </label>
                                         </div>
                             </div>
                                     
                                     <!-- Personal Email Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">Email:</label>
+                                        <label class="col-sm-2 control-label">Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-10">
                                             <div class="input-group">
                                                 <input type="email" class="form-control" placeholder="email@example.com" required name="email">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid email address.</span>
                                 <% if(hasErrors){ %>
                                 <% messages.forEach(function(item){
                                                     if(item === "Email is already in use"){ %>
@@ -147,64 +156,76 @@
                                     
                                     <!-- Phone Number Field -->
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Phone Number:</label>
+                                        <label class="col-sm-2 control-label">Phone Number: <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon">+84</span>
-                                                <input type="text" class="form-control" placeholder="Phone number" required name="contactNumber">
+                                                <input type="text" class="form-control" placeholder="Phone number" required name="contactNumber" maxlength="20" pattern="^(0|\+84)[0-9]{9,10}$" title="Vietnamese phone format (10 digits starting with 0 or +84)">
                                             </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be 10 digits starting with 0 or +84.</span>
                                         </div>
                                     </div>
                                     
                                     <!-- Address Fields -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">Address:</label>
+                                        <label class="col-sm-2 control-label">Address: <span class="text-danger">*</span></label>
                                         <div class="col-sm-3">
-                                            <select class="form-control" name="province">
+                                            <select class="form-control" name="province" required>
                                                 <option value="">City/Province...</option>
                                             </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a province.</span>
                                         </div>
                                         <div class="col-sm-3">
-                                            <select class="form-control" name="district" disabled>
+                                            <select class="form-control" name="district" required disabled>
                                                 <option value="">Select province first...</option>
                                             </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a district.</span>
                                         </div>
                                         <div class="col-sm-4">
-                                            <input type="text" class="form-control" placeholder="Detailed address..." name="detailedAddress">
+                                            <input type="text" class="form-control" placeholder="Detailed address..." name="detailedAddress" required minlength="10" title="Minimum 10 characters (Vietnamese format)">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Minimum 10 characters.</span>
                                         </div>
                                     </div>
                                     
                                     <!-- Birthplace Field -->
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Birthplace:</label>
+                                        <label class="col-sm-2 control-label">Birthplace: <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
-                                            <select class="form-control" name="birthplace">
+                                            <select class="form-control" name="birthplace" required>
                                                 <option value="">City/Province...</option>
                                             </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a birthplace.</span>
                                         </div>
                             </div>
                                     
                                     <!-- ID Number Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">ID Number:</label>
+                                        <label class="col-sm-2 control-label">ID Number (CCCD): <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
-                                            <input type="text" class="form-control" placeholder="ID/CCCD number" name="idNumber">
+                                            <input type="text" class="form-control" placeholder="ID/CCCD number" name="idNumber" required maxlength="12" pattern="^\d{12}$" title="Must be exactly 12 digits">
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be exactly 12 digits.</span>
                                         </div>
                                     </div>
                                     
                                     <!-- Photo Upload Field -->
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Photo:</label>
-                                        <div class="col-sm-5">
+                                        <div class="col-sm-10">
                                             <div class="row">
-                                                <div class="col-sm-6">
+                                                <div class="col-sm-4">
                                                     <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
                                                         <img id="preview-image" src="https://via.placeholder.com/150" alt="Upload Photo" style="max-width: 100%; max-height: 100%;">
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-6">
-                                                    <input type="file" id="photo" name="photo" accept="image/*" class="file-input">
-                                                    <button type="button" class="btn btn-default" onclick="document.getElementById('photo').click();">Upload Photo</button>
+                                                <div class="col-sm-8">
+                                                    <div class="custom-file-upload">
+                                                        <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
+                                                        <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
+                                                            <i class="fa fa-upload"></i> Upload Photo
+                                                        </button>
+                                                        <span id="file-name-display" style="margin-left: 10px;">No file chosen</span>
+                                                    </div>
+                                                    <p class="help-block">Upload a profile photo (optional)</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -229,9 +250,9 @@
                                 <div class="panel-body">
                                     <!-- Job Title Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">Job Title:</label>
+                                        <label class="col-sm-2 control-label">Job Title: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
-                                            <select class="form-control" name="designation" required>
+                                            <select class="form-control" name="designation" required title="Must select from predefined list">
                                                 <option value="">Select job title...</option>
                                                 <option value="Software Engineer">Software Engineer</option>
                                                 <option value="System Analyst">System Analyst</option>
@@ -241,10 +262,11 @@
                                                 <option value="Accounts Manager">Accounts Manager</option>
                                                 <option value="HR Manager">HR Manager</option>
                                             </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a job title.</span>
                                         </div>
-                                        <label class="col-sm-2 control-label">Department:</label>
+                                        <label class="col-sm-2 control-label">Department: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
-                                            <select class="form-control" name="department" required>
+                                            <select class="form-control" name="department" required title="Must select from predefined list of departments">
                                                 <option value="">Select department...</option>
                                     <option value="Software Development">Software Development</option>
                                     <option value="Quality Assurance">Quality Assurance</option>
@@ -254,6 +276,7 @@
                                     <option value="Marketing">Marketing</option>
                                     <option value="Business Analysis">Business Analysis</option>
                                 </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a department.</span>
                                         </div>
                                     </div>
                                     
@@ -269,19 +292,20 @@
                             <div class="form-group">
                                         <label class="col-sm-2 control-label">Supervisor:</label>
                                         <div class="col-sm-4">
-                                            <input type="text" class="form-control" placeholder="Enter Supervisor Name" name="supervisor" onkeypress="return onlyAlphabets(event,this);">
+                                            <input type="text" class="form-control" placeholder="Enter Supervisor Name" name="supervisor" title="Must reference existing employee">
                                         </div>
                                     </div>
                                     
                                     <!-- Employee Type Field -->
                                     <div class="form-group">
-                                        <label class="col-sm-2 control-label">Employee Type:</label>
+                                        <label class="col-sm-2 control-label">Employee Type: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
-                                            <select class="form-control" name="employeeType" required>
+                                            <select class="form-control" name="employeeType" required title="Must select either Full-Time or Part-Time">
                                                 <option value="">Select type...</option>
                                                 <option value="Full-Time">Full-Time</option>
                                                 <option value="Part-Time">Part-Time</option>
                                 </select>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select an employee type.</span>
                                         </div>
                                         <div class="col-sm-6">
                                             <span class="help-block">Default password for new employee is <strong>123456</strong></span>
@@ -293,7 +317,7 @@
                                         <label class="col-sm-2 control-label">Start Date:</label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="date" class="form-control" name="startDate">
+                                                <input type="date" class="form-control" name="startDate" min="<%= new Date().toISOString().split('T')[0] %>" title="Must be on or after current date">
                                                 <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                             </div>
                                         </div>
@@ -397,7 +421,84 @@
                     $('#preview-image').attr('src', e.target.result);
                 }
                 reader.readAsDataURL(this.files[0]);
+                
+                // Hiển thị tên file đã chọn
+                $('#file-name-display').text(this.files[0].name);
+            } else {
+                // Reset về giá trị mặc định nếu không có file nào được chọn
+                $('#preview-image').attr('src', 'https://via.placeholder.com/150');
+                $('#file-name-display').text('No file chosen');
             }
+        });
+        
+        // Hiển thị thông báo lỗi khi validation thất bại
+        $('input, select').on('invalid', function(e) {
+            // Ngăn không cho browser hiển thị thông báo mặc định
+            e.preventDefault();
+            
+            // Hiển thị thông báo lỗi tương ứng
+            $(this).closest('.form-group').find('.error-message').show();
+            $(this).addClass('error-input');
+            
+            // Scroll đến trường lỗi đầu tiên
+            if (!window.scrolledToError) {
+                $('html, body').animate({
+                    scrollTop: $(this).offset().top - 100
+                }, 200);
+                window.scrolledToError = true;
+            }
+        });
+        
+        // Ẩn thông báo lỗi khi người dùng bắt đầu nhập
+        $('input, select').on('input change', function() {
+            if (this.validity.valid) {
+                $(this).closest('.form-group').find('.error-message').hide();
+                $(this).removeClass('error-input');
+            }
+        });
+        
+        // Reset trạng thái scrolledToError khi submit form
+        $('#employee-form').on('submit', function() {
+            window.scrolledToError = false;
+            
+            // Ẩn tất cả các thông báo lỗi
+            $('.error-message').hide();
+            $('.error-input').removeClass('error-input');
+        });
+        
+        // Xử lý validate form khi submit
+        $("#employee-form").on("submit", function() {
+            // Trim khoảng trắng đầu/cuối cho email
+            var emailInput = $('input[name="email"]');
+            emailInput.val($.trim(emailInput.val()));
+            
+            // Xử lý viết hoa chữ cái đầu cho first name, last name và birth name
+            var firstNameInput = $('input[name="firstName"]');
+            var lastNameInput = $('input[name="lastName"]');
+            var birthNameInput = $('input[name="birthName"]');
+            
+            // Hàm format viết hoa chữ cái đầu và các chữ sau dấu cách
+            function toTitleCase(str) {
+                if (!str) return str;
+                str = $.trim(str); // Trim khoảng trắng
+                return str.split(' ').map(function(word) {
+                    if (word.length > 0) {
+                        return word[0].toUpperCase() + word.substring(1).toLowerCase();
+                    }
+                    return '';
+                }).join(' ');
+            }
+            
+            // Áp dụng định dạng viết hoa chữ cái đầu
+            firstNameInput.val(toTitleCase(firstNameInput.val()));
+            lastNameInput.val(toTitleCase(lastNameInput.val()));
+            
+            // Chỉ xử lý birth name nếu có giá trị
+            if (birthNameInput.val()) {
+                birthNameInput.val(toTitleCase(birthNameInput.val()));
+            }
+            
+            return true; // cho phép form submit
         });
         
         // Gọi để tải dữ liệu tỉnh thành - đã được đưa xuống dưới để đảm bảo jQuery đã sẵn sàng
@@ -934,6 +1035,41 @@
         color: #a94442;
         background-color: #f2dede;
         border-color: #ebccd1;
+    }
+    .error-input {
+        border-color: #a94442;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    }
+    .error-message {
+        color: #a94442;
+        margin-top: 5px;
+    }
+    .required-field {
+        color: #a94442;
+        margin-left: 3px;
+    }
+    /* Add style for form legend */
+    .form-legend {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .form-legend .text-danger {
+        font-size: 14px;
+        font-weight: normal;
+        margin-left: 10px;
+    }
+    /* Custom file upload styles */
+    .custom-file-upload {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    #file-name-display {
+        display: inline-block;
+        vertical-align: middle;
+        color: #555;
+        font-style: italic;
     }
 </style>
 </body>

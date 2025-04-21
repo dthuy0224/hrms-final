@@ -47,4 +47,25 @@ $(document).ready(function() {
             return false;
         }
     });
+    
+    // Fix sidebar height when scrolling - applies to all pages with sidebar
+    function adjustSidebarHeight() {
+        var documentHeight = $(document).height();
+        var windowHeight = $(window).height();
+        var sidebarHeight = Math.max(documentHeight, windowHeight);
+        $("#sidebar-wrapper").css("min-height", sidebarHeight + "px");
+    }
+    
+    // Run on page load
+    adjustSidebarHeight();
+    
+    // Run when window is resized
+    $(window).resize(function() {
+        adjustSidebarHeight();
+    });
+    
+    // Run when scrolling
+    $(window).scroll(function() {
+        adjustSidebarHeight();
+    });
 });

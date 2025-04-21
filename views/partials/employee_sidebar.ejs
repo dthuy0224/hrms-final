@@ -1,5 +1,5 @@
 <!-- Sidebar -->
-<div id="sidebar-wrapper">
+<div id="sidebar-wrapper" style="min-height: 100vh;">
     <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
         <li <%= path === '/employee/dashboard' ? 'class="active"' : '' %>>
             <a href="/employee/dashboard"><span class="fa-stack fa-lg pull-left"><i
@@ -15,13 +15,13 @@
             <a href="/employee/apply-for-leave"><span class="fa-stack fa-lg pull-left"><i
                         class="fa fa-envelope-square fa-stack-1x"></i></span>Apply for Leave</a>
         </li>
-        <li <%= path === '/employee/view-attendance' || path === '/employee/view-attendance-current' ? 'class="active"' : '' %> data-toggle="modal" data-target="#myModal">
-            <a href="#">
+        <li <%= path === '/employee/view-attendance' || path === '/employee/view-attendance-current' ? 'class="active"' : '' %>>
+            <a href="#" data-toggle="modal" data-target="#myModal">
                 <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View
                 Attendance</a>
         </li>
-        <li data-toggle="modal" data-target="#myModal2">
-            <a href="#"><span class="fa-stack fa-lg pull-left"><i
+        <li>
+            <a href="#" data-toggle="modal" data-target="#myModal2"><span class="fa-stack fa-lg pull-left"><i
                         class="fa fa-check-circle fa-stack-1x"></i></span>Mark Attendance</a>
         </li>
         <li <%= path === '/employee/view-profile' ? 'class="active"' : '' %>>
