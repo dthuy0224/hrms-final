@@ -94,13 +94,24 @@ router.get("/home", function viewHome(req, res, next) {
  * Displays leave application form to the user.
  */
 
-router.get("/apply-for-leave", function applyForLeave(req, res, next) {
-  res.render("Employee/applyForLeave", {
-    title: "Apply for Leave",
-    csrfToken: req.csrfToken(),
-    userName: req.user.name,
-    path: req.path
-  });
+router.get("/apply-for-leave", async function applyForLeave(req, res, next) {
+  try {
+    const coworkers = await User.find({
+      department: req.user.department,
+      _id: { $ne: req.user._id },
+    });
+    console.log("Coworkers fetched:", coworkers);
+
+    res.render("Employee/applyForLeave", {
+      title: "Apply for Leave",
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      coworkers,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading coworkers");
+  }
 });
 
 /**
@@ -295,23 +306,43 @@ router.get("/view-project/:project_id", function viewProject(req, res, next) {
  * Saves the applied leave application form in Leave Schema.
  */
 
-router.post("/apply-for-leave", function applyForLeave(req, res, next) {
-  var newLeave = new Leave();
-  newLeave.applicantID = req.user._id;
-  newLeave.title = req.body.title;
-  newLeave.type = req.body.type;
-  newLeave.startDate = new Date(req.body.start_date);
-  newLeave.endDate = new Date(req.body.end_date);
-  newLeave.period = req.body.period;
-  newLeave.reason = req.body.reason;
-  newLeave.appliedDate = new Date();
-  newLeave.adminResponse = "Pending";
-  newLeave.save(function saveLeave(err) {
-    if (err) {
-      console.log(err);
+router.post("/apply-for-leave", async function (req, res, next) {
+  try {
+    const startDate = new Date(req.body.start_date);
+    const endDate = new Date(req.body.end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (
+      startDate <= today ||
+      endDate <= today ||
+      endDate <= startDate
+    ) {
+      return res.status(400).send("Invalid date selection.");
     }
+
+    const period = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    const newLeave = new Leave({
+      applicantID: req.user._id,
+      title: req.body.title,
+      type: req.body.type,
+      startDate: startDate,
+      endDate: endDate,
+      appliedDate: new Date(),
+      period: period,
+      reason: req.body.reason,
+      adminResponse: "Pending",
+      delegateTo: req.body.delegateTo,
+      delegateContent: req.body.delegateContent,
+    });
+
+    await newLeave.save();
     res.redirect("/employee/applied-leaves");
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
 });
 
 /**

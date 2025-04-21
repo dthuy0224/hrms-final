@@ -419,12 +419,24 @@ router.get(
  * Known Bugs: None
  */
 
-router.get("/apply-for-leave", function applyForLeave(req, res, next) {
-  res.render("Manager/managerApplyForLeave", {
-    title: "Apply for Leave",
-    csrfToken: req.csrfToken(),
-    userName: req.user.name,
-  });
+router.get("/apply-for-leave", async function applyForLeave(req, res, next) {
+  try {
+    const coworkers = await User.find({
+      department: req.user.department,
+      _id: { $ne: req.user._id },
+    });
+    console.log("Coworkers fetched:", coworkers);
+
+    res.render("Manager/managerApplyForLeave", {
+      title: "Apply for Leave",
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      coworkers,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading coworkers");
+  }
 });
 
 /**
@@ -663,23 +675,46 @@ router.get(
  * Known Bugs: None
  */
 
-router.post("/apply-for-leave", function applyForLeave(req, res, next) {
-  var newLeave = new Leave();
-  newLeave.applicantID = req.user._id;
-  newLeave.title = req.body.title;
-  newLeave.type = req.body.type;
-  newLeave.startDate = new Date(req.body.start_date);
-  newLeave.endDate = new Date(req.body.end_date);
-  newLeave.period = req.body.period;
-  newLeave.reason = req.body.reason;
-  newLeave.appliedDate = new Date();
-  newLeave.adminResponse = "Pending";
-  newLeave.save(function saveLeave(err) {
-    if (err) {
-      console.log(err);
+router.post("/apply-for-leave", async function (req, res, next) {
+  try {
+    // Chuẩn hóa startDate và endDate về 00:00 để so sánh theo ngày
+    const startDate = new Date(req.body.start_date);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(req.body.end_date);
+    endDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // reset giờ để so sánh ngày chính xác
+
+    // Kiểm tra ngày bắt đầu và kết thúc không được trong quá khứ và hợp lệ
+    if (startDate < today || endDate < today || endDate < startDate) {
+      return res.status(400).send("Invalid date selection.");
     }
+
+    // Tính số ngày nghỉ (bao gồm cả ngày bắt đầu và kết thúc)
+    const period = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+    const newLeave = new Leave({
+      applicantID: req.user._id,
+      title: req.body.title,
+      type: req.body.type,
+      startDate: startDate,
+      endDate: endDate,
+      appliedDate: new Date(),
+      period: period,
+      reason: req.body.reason,
+      adminResponse: "Pending",
+      delegateTo: req.body.delegateTo,
+      delegateContent: req.body.delegateContent,
+    });
+
+    await newLeave.save();
     res.redirect("/manager/applied-leaves");
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
 });
 
 /**
