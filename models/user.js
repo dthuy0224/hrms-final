@@ -9,6 +9,7 @@ var UserSchema = new Schema({
   employmentType: { type: String, enum: ['full-time', 'part-time', 'contract', 'intern', 'temporary'], default: 'full-time' },
   employeeType: { type: String },
   email: { type: mongoose.SchemaTypes.Email, required: true, unique: true },
+  officeEmail: { type: mongoose.SchemaTypes.Email, unique: true },
   password: { type: String, required: true },
   
   // Thông tin cá nhân

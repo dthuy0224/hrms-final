@@ -116,7 +116,13 @@ passport.use(
         return done(null, false, req.flash("error", messages));
       }
       try {
-        let user = await User.findOne({ email: email });
+        // Tìm user bằng email hoặc officeEmail
+        let user = await User.findOne({ 
+          $or: [
+            { email: email },
+            { officeEmail: email }
+          ] 
+        });
         if (!user) {
           return done(null, false, { message: "This account is not registered!" });
         }

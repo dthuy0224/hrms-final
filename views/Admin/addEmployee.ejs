@@ -119,11 +119,33 @@
                                     
                                     <!-- Date of Birth Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">DOB: <span class="text-danger">*</span></label>
+                                        <label class="col-sm-2 control-label">Date of Birth: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
-                                            <div class="input-group">
-                                                <input type="date" class="form-control date-input" required name="dateOfBirth" max="<%= new Date().toISOString().split('T')[0] %>" min="<%= new Date(new Date().getFullYear() - 60, new Date().getMonth(), new Date().getDate()).toISOString().split('T')[0] %>" title="Age must be between 18-60 years">
-                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <div class="row">
+                                                <div class="col-xs-3">
+                                                    <select name="dobDay" class="form-control" required>
+                                                        <option value="">Day</option>
+                                                        <% for(let i=1; i<=31; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <select name="dobMonth" class="form-control" required>
+                                                        <option value="">Month</option>
+                                                        <% for(let i=1; i<=12; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-5">
+                                                    <select name="dobYear" class="form-control" required>
+                                                        <option value="">Year</option>
+                                                        <% for(let i=new Date().getFullYear()-60; i<=new Date().getFullYear()-18; i++) { %>
+                                                            <option value="<%= i %>"><%= i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
                                             </div>
                                             <span class="help-block error-message" style="display:none; color:#a94442;">Required. Age must be between 18-60 years.</span>
                                         </div>
@@ -140,7 +162,7 @@
                                     
                                     <!-- Personal Email Field -->
                             <div class="form-group">
-                                        <label class="col-sm-2 control-label">Email: <span class="text-danger">*</span></label>
+                                        <label class="col-sm-2 control-label">Personal Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-10">
                                             <div class="input-group">
                                                 <input type="email" class="form-control" placeholder="email@example.com" required name="email">
@@ -163,13 +185,12 @@
                                         <div class="col-sm-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon">+84</span>
-                                                <input type="text" class="form-control" placeholder="Phone number" required name="contactNumber" maxlength="20" pattern="^(0|\+84)[0-9]{9,10}$" title="Vietnamese phone format (10 digits starting with 0 or +84)">
+                                                <input type="text" class="form-control" placeholder="9 digits (without first 0)" required name="contactNumber" maxlength="9" pattern="^[0-9]{9}$" title="Enter 9 digits without the first 0 (Example: 912345678 instead of 0912345678)">
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be 10 digits starting with 0 or +84.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be 9 digits.</span>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Address Fields -->
+                             <!-- Address Fields -->
                             <div class="form-group">
                                         <label class="col-sm-2 control-label">Address: <span class="text-danger">*</span></label>
                                         <div class="col-sm-3">
@@ -291,6 +312,25 @@
                                         </div>
                             </div>
                                     
+                                    <!-- Office Email Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Office Email: <span class="text-danger">*</span></label>
+                                        <div class="col-sm-4">
+                                            <div class="input-group">
+                                                <input type="email" class="form-control" placeholder="office.email@company.com" required name="officeEmail">
+                                                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                            </div>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid office email address.</span>
+                                            <% if(hasErrors){ %>
+                                            <% messages.forEach(function(item){
+                                                if(item === "Office Email is already in use"){ %>
+                                                    <span class="help-block text-danger"><%= item %></span>
+                                            <% }
+                                            }) %>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Supervisor Field -->
                             <div class="form-group">
                                         <label class="col-sm-2 control-label">Supervisor:</label>
@@ -319,9 +359,33 @@
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Start Date:</label>
                                         <div class="col-sm-4">
-                                            <div class="input-group">
-                                                <input type="date" class="form-control date-input" name="startDate" min="<%= new Date().toISOString().split('T')[0] %>" title="Must be on or after current date">
-                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            <div class="row">
+                                                <div class="col-xs-3">
+                                                    <select name="startDay" class="form-control">
+                                                        <option value="">Day</option>
+                                                        <% for(let i=1; i<=31; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <select name="startMonth" class="form-control">
+                                                        <option value="">Month</option>
+                                                        <% for(let i=1; i<=12; i++) { %>
+                                                            <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-5">
+                                                    <select name="startYear" class="form-control">
+                                                        <option value="">Year</option>
+                                                        <% 
+                                                        const currentYear = new Date().getFullYear();
+                                                        for(let i=currentYear; i<=currentYear+5; i++) { %>
+                                                            <option value="<%= i %>"><%= i %></option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -515,6 +579,64 @@
             }, 200);
         }
         
+        // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
+        $('#employee-form').on('submit', function(e) {
+            // Xử lý Date of Birth
+            const dobDay = $('select[name="dobDay"]').val();
+            const dobMonth = $('select[name="dobMonth"]').val();
+            const dobYear = $('select[name="dobYear"]').val();
+            
+            if (dobDay && dobMonth && dobYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedDay = dobDay.toString().padStart(2, '0');
+                const formattedMonth = dobMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'dateOfBirth',
+                    value: isoDate
+                }).appendTo(this);
+            } else if(dobDay || dobMonth || dobYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
+                return false;
+            }
+            
+            // Xử lý Start Date (nếu có)
+            const startDay = $('select[name="startDay"]').val();
+            const startMonth = $('select[name="startMonth"]').val();
+            const startYear = $('select[name="startYear"]').val();
+            
+            // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
+            if (startDay && startMonth && startYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedStartDay = startDay.toString().padStart(2, '0');
+                const formattedStartMonth = startMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'startDate',
+                    value: isoStartDate
+                }).appendTo(this);
+            } else if(startDay || startMonth || startYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
+                return false;
+            }
+            
+            return true;
+        });
+        
         // Convert date inputs to DD/MM/YY format
         $('.date-input').each(function() {
             // Store the ISO format for form submission
@@ -536,15 +658,6 @@
                     $(this).attr('data-formatted', formattedDate);
                 }
             });
-        });
-        
-        // Handle form submission to use ISO format
-        $('#employee-form').on('submit', function() {
-            $('.date-input').each(function() {
-                // Use the stored ISO value for submission
-                $(this).val($(this).attr('data-iso-value'));
-            });
-            return true;
         });
     });
     

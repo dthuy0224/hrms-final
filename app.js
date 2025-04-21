@@ -202,13 +202,15 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
       department, 
       designation, 
       skills,
-      employeeType
+      employeeType,
+      officeEmail
     } = req.body;
     
     console.log("Dữ liệu form:", {
       firstName, 
       lastName,
       email,
+      officeEmail,
       dateOfBirth: dateOfBirth ? dateOfBirth : 'Not set',
       contactNumber: contactNumber ? contactNumber : 'Not set', 
       password: password ? 'Set' : 'Not set',
@@ -228,6 +230,14 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
       return res.redirect("/admin/add-employee");
     }
     
+    // Kiểm tra office email đã tồn tại chưa
+    const existingOfficeEmail = await User.findOne({ officeEmail: officeEmail });
+    if (existingOfficeEmail) {
+      console.log("Office Email đã tồn tại:", officeEmail);
+      req.flash("error", "Office Email is already in use");
+      return res.redirect("/admin/add-employee");
+    }
+    
     // Xử lý các trường required
     if (!dateOfBirth) {
       console.log("dateOfBirth là required nhưng không có giá trị");
@@ -241,14 +251,22 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
       return res.redirect("/admin/add-employee");
     }
     
+    // Xử lý định dạng số điện thoại Việt Nam - đảm bảo format +84
+    const formattedPhone = contactNumber.startsWith('0') 
+      ? '+84' + contactNumber.substring(1) 
+      : contactNumber.includes('+84') 
+        ? contactNumber 
+        : '+84' + contactNumber;
+    
     const dob = new Date(dateOfBirth);
     
     // Tạo user mới
     const userData = {
       name,
       email,
+      officeEmail,
       dateOfBirth: dob,
-      contactNumber,
+      contactNumber: formattedPhone,
       department,
       designation,
       type: "employee", // Mặc định là nhân viên
