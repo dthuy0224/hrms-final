@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+
+    <body>
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+                    <%= userName %>
+                </a>
+            </div><!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
+                                class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
+                                    class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div><!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+            <!-- Include the sidebar partial with path parameter -->
+            <% 
+            // Define path if not defined
+            var currentPath = typeof path !== 'undefined' ? path : '/manager/view-all-personal-projects';
+            %>
+            <%- include('../partials/sidebar', {path: currentPath}) %>
+            <!-- Page Content -->
+            <div id="page-content-wrapper">
+                <div class="container-fluid xyz">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2><i class="fa fa-angle-right"></i> Add New Project</h2>
+                            <ol class="breadcrumb">
+                                <li><a href="/manager">Dashboard</a></li>
+                                <li><a href="/manager/view-all-personal-projects">Projects</a></li>
+                                <li class="active">Add New Project</li>
+                            </ol>
+
+                            <!-- Project Add Form -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-plus-circle"></i> Project Information</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <form id="addProjectForm" method="post" action="/manager/add-project">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="title">Project Title <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="title" name="title" required>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="type">Project Type <span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="type" name="type" required>
+                                                        <option value="Website">Website</option>
+                                                        <option value="Mobile App">Mobile App</option>
+                                                        <option value="Application">Application</option>
+                                                        <option value="Desktop">Desktop</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="status">Project Status <span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="status" name="status" required>
+                                                        <option value="Not started">Not started</option>
+                                                        <option value="On Going">On Going</option>
+                                                        <option value="Completed">Completed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="startDate">Start Date <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control" id="startDate" name="startDate" required>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="endDate">End Date <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control" id="endDate" name="endDate" required>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="description">Description</label>
+                                                    <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="teamMembers">Initial Team Members</label>
+                                                    <select multiple class="form-control" id="teamMembers" name="teamMembers">
+                                                        <% if (employees && employees.length > 0) { %>
+                                                            <% employees.forEach(function(employee) { %>
+                                                                <option value="<%= employee._id %>"><%= employee.name %> (<%= employee.email %>)</option>
+                                                            <% }) %>
+                                                        <% } %>
+                                                    </select>
+                                                    <p class="help-block">Hold Ctrl (or Cmd on Mac) to select multiple members</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        
+                                        <hr>
+                                        
+                                        <div class="form-group text-right">
+                                            <a href="/manager/view-all-personal-projects" class="btn btn-default">Cancel</a>
+                                            <button type="submit" class="btn btn-primary">Create Project</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /#page-content-wrapper -->
+        </div>
+        <!-- /#wrapper -->
+        
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+        <script src="/javascripts/sidebar_menu.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Form validation
+                $('#addProjectForm').submit(function(e) {
+                    var startDate = new Date($('#startDate').val());
+                    var endDate = new Date($('#endDate').val());
+                    
+                    if (startDate > endDate) {
+                        alert('End date must be after start date');
+                        e.preventDefault();
+                    }
+                });
+                
+                // Set today as default for start date
+                var today = new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').value = today;
+                
+                // Set date 1 month from now as default for end date
+                var nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                document.getElementById('endDate').value = nextMonth.toISOString().split('T')[0];
+            });
+        </script>
+    </body>
+    
+    <!-- Include modal templates -->
+    <%- include('../partials/modals') %>
+</html> 

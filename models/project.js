@@ -9,6 +9,8 @@ var ProjectSchema = new Schema({
   description: { type: String, required: true },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
+  teamMembers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  teamRoles: { type: Map, of: String }
 });
 
 module.exports = mongoose.model("Project", ProjectSchema);

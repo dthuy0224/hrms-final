@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<%- include('../partials/header') %>
+
+<body>
+  <nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header fixed-brand">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+        <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+      </button>
+      <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i> 
+        <%= userName %>
+      </a>
+    </div>
+    <!-- navbar-header-->
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active">
+          <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+          </button>
+        </li>
+        <li class="navbar-brand">
+          <form action="/logout" method="get">
+            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+              <i class="fa fa-user" aria-hidden="true"></i> Logout
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    <!-- bs-example-navbar-collapse-1 -->
+  </nav>
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+        <li>
+          <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+            Dashboard</a>
+        </li>
+        <li>
+          <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
+            Employees</a>
+          <ul class="nav-pills nav-stacked" style="list-style-type: none">
+            <li>
+              <a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
+                    class="fa fa-eye fa-stack-1x"></i></span>View Employees</a>
+            </li>
+            <li>
+              <a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
+                    class="fa fa-plus fa-stack-1x"></i></span>Add Employees</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
+                class="fa fa-envelope-square fa-stack-1x"></i></span>
+            Leave Applications</a>
+        </li>
+        <li class="active">
+          <a href="#" id="menu4"><span class="fa-stack fa-lg pull-left"><i class="fa fa-money fa-stack-1x"></i></span>
+            Salary Management</a>
+          <ul class="nav-pills nav-stacked" style="list-style-type: none">
+            <li>
+              <a href="/admin/view-employees-salary"><span class="fa-stack fa-lg pull-left"><i
+                    class="fa fa-list fa-stack-1x"></i></span>Manage Salaries</a>
+            </li>
+          </ul>
+        </li>
+        <li data-toggle="modal" data-target="#myModal">
+          <a href="#">
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View Attendance</a>
+        </li>
+        <li data-toggle="modal" data-target="#myModal2">
+          <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>Mark
+            Attendance</a>
+        </li>
+        <li>
+          <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
+                class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
+        </li>
+      </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div class="container-fluid xyz">
+        <div class="row">
+          <div class="col-lg-12">
+            <h1>
+              Pay Slip: <%= employee.name %>
+            </h1>
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <h3 class="panel-title">Generate Pay Slip</h3>
+              </div>
+              <div class="panel-body">
+                <form method="post" class="form-horizontal" action="/admin/generate-pay-slip">
+                  <div class="form-group">
+                    <label class="control-label col-sm-2">Employee Name:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" disabled value="<%= employee.name %>">
+                    </div>
+                    <label class="control-label col-sm-2">Bank Name:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" name="bankName" value="<%= pay_slip.bankName %>" placeholder="Bank Name">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-sm-2">Basic Pay:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" placeholder="Basic Pay" name="basicPay" value="<%= pay_slip.basicPay %>">
+                    </div>
+                    <label class="control-label col-sm-2">Bank Branch:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" name="branchAddress" value="<%= pay_slip.branchAddress %>" placeholder="Bank Branch Address">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label col-sm-2">Overtime:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" placeholder="Overtime" name="overtime" value="<%= pay_slip.overtime %>">
+                    </div>
+                    <label class="control-label col-sm-2">Conveyance Allowance:</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" placeholder="Conveyance Allowance" name="conveyanceAllowance" value="<%= pay_slip.conveyanceAllowance %>">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <hr>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-12">
+                      <input type="hidden" name="employee_id" value="<%= employee._id %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-primary btn-block">Generate Pay Slip</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+  </div>
+  <!-- /#wrapper -->
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+
+  <script src="/javascripts/sidebar_menu.js"></script>
+
+</body>
+
+</html> 

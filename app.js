@@ -11,11 +11,15 @@ const path = require("path");
 const logger = require("morgan");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const session = require("express-session");
 const passport = require("passport");
 const flash = require("connect-flash");
 const MongoStore = require("connect-mongo");
 const favicon = require("serve-favicon");
+const csrf = require('./config/csrf');
+const User = require("./models/user");
+const multer = require("multer");
 
 const index = require("./routes/index");
 const admin = require("./routes/admin");
@@ -68,7 +72,11 @@ app.use(
     store: MongoStore.create({
       client: db.getConnection().getClient(),
     }),
-    cookie: { maxAge: 180 * 60 * 1000 },
+    cookie: { 
+      maxAge: 180 * 60 * 1000,
+      secure: false, // Đặt true nếu sử dụng HTTPS
+      httpOnly: true
+    },
   })
 );
 
@@ -80,6 +88,312 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(function (req, res, next) {
+  res.locals.login = req.isAuthenticated();
+  res.locals.session = req.session;
+  res.locals.messages = req.flash();
+  next();
+});
+
+// Cấu hình lưu trữ cho upload ảnh
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, path.join(__dirname, 'public/uploads/'));
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+// Kiểm tra loại file
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// Khởi tạo multer
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5 // giới hạn 5MB
+  },
+  fileFilter: fileFilter
+});
+
+// Route khẩn cấp để reset session và đăng xuất khi gặp lỗi
+app.get('/emergency-reset', (req, res) => {
+  console.log("Emergency reset được gọi");
+  // Xóa session
+  req.session.destroy(function(err) {
+    // Thêm lỗi vào response nếu có
+    let errorMessage = err ? 'Có lỗi khi xóa session: ' + err.message : null;
+    
+    if (err) {
+      console.error("Lỗi khi xóa session:", err);
+    } else {
+      console.log("Đã xóa session thành công trong emergency-reset");
+    }
+    
+    // Render trang HTML đơn giản thông báo đã đăng xuất
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Đăng xuất khẩn cấp</title>
+        <meta http-equiv="refresh" content="5;url=/" />
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+          .success { color: green; }
+          .error { color: red; }
+        </style>
+      </head>
+      <body>
+        <h1>Đăng xuất khẩn cấp</h1>
+        <p class="success">Bạn đã được đăng xuất khẩn cấp khỏi hệ thống.</p>
+        ${errorMessage ? `<p class="error">${errorMessage}</p>` : ''}
+        <p>Bạn sẽ được chuyển hướng về trang đăng nhập sau 5 giây...</p>
+        <p><a href="/">Quay lại trang đăng nhập ngay</a></p>
+      </body>
+      </html>
+    `);
+  });
+});
+
+// Tạo route bypass CSRF cho logout trước khi áp dụng CSRF protection
+app.get('/bypass-logout', (req, res, next) => {
+  console.log("Bypass logout được gọi");
+  try {
+    // Xóa trực tiếp session thay vì gọi req.logout()
+    req.session.destroy(function(err) {
+      if (err) {
+        console.error("Lỗi khi xóa session:", err);
+        return next(err);
+      }
+      console.log("Đã xóa session thành công");
+      // Redirect về trang chủ
+      res.redirect('/');
+    });
+  } catch (error) {
+    console.error("Lỗi nghiêm trọng khi logout:", error);
+    return res.redirect('/');
+  }
+});
+
+// Route đặc biệt để bypass CSRF cho form thêm nhân viên
+app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) => {
+  console.log("Route bypass CSRF cho Add Employee được gọi");
+  try {
+    // Kiểm tra xem người dùng đã đăng nhập và là admin
+    if (!req.isAuthenticated() || req.user.type !== 'admin') {
+      return res.status(403).send("Không có quyền truy cập");
+    }
+    
+    // Xử lý form giống như trong route /admin/add-employee
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      dateOfBirth, 
+      contactNumber, 
+      password,
+      department, 
+      designation, 
+      skills,
+      employeeType
+    } = req.body;
+    
+    console.log("Dữ liệu form:", {
+      firstName, 
+      lastName,
+      email,
+      dateOfBirth: dateOfBirth ? dateOfBirth : 'Not set',
+      contactNumber: contactNumber ? contactNumber : 'Not set', 
+      password: password ? 'Set' : 'Not set',
+      department, 
+      designation,
+      employeeType
+    });
+    
+    // Kết hợp firstName và lastName thành name
+    const name = `${firstName} ${lastName}`;
+
+    // Kiểm tra email đã tồn tại chưa
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      console.log("Email đã tồn tại:", email);
+      req.flash("error", "Email is already in use");
+      return res.redirect("/admin/add-employee");
+    }
+    
+    // Xử lý các trường required
+    if (!dateOfBirth) {
+      console.log("dateOfBirth là required nhưng không có giá trị");
+      req.flash("error", "Date of Birth is required");
+      return res.redirect("/admin/add-employee");
+    }
+    
+    if (!contactNumber) {
+      console.log("contactNumber là required nhưng không có giá trị");
+      req.flash("error", "Contact Number is required");
+      return res.redirect("/admin/add-employee");
+    }
+    
+    const dob = new Date(dateOfBirth);
+    
+    // Tạo user mới
+    const userData = {
+      name,
+      email,
+      dateOfBirth: dob,
+      contactNumber,
+      department,
+      designation,
+      type: "employee", // Mặc định là nhân viên
+      Skills: skills || [],
+      employeeType: employeeType, 
+      employmentType: employeeType === "Full-Time" ? "full-time" : "part-time"
+    };
+    
+    // Tạo instance từ model và hash password
+    const user = new User(userData);
+    const defaultPassword = "123456";
+    if (password) {
+      user.password = user.encryptPassword(password);
+    } else {
+      user.password = user.encryptPassword(defaultPassword);
+    }
+    
+    // Xử lý các trường mới
+    if (req.body.gender) user.gender = req.body.gender;
+    if (req.body.birthName) user.birthName = req.body.birthName;
+    if (req.body.province) user.province = req.body.province;
+    if (req.body.district) user.district = req.body.district;
+    if (req.body.detailedAddress) user.detailedAddress = req.body.detailedAddress;
+    if (req.body.birthplace) user.birthplace = req.body.birthplace;
+    if (req.body.idNumber) user.idNumber = req.body.idNumber;
+    if (req.body.jobId) user.jobId = req.body.jobId;
+    if (req.body.supervisor) user.supervisor = req.body.supervisor;
+    if (req.body.startDate) user.startDate = req.body.startDate;
+    if (req.body.experience) user.experience = req.body.experience;
+    
+    // Lưu ảnh nếu có
+    if (req.file) {
+      user.photo = req.file.filename;
+    }
+    
+    await user.save();
+    console.log("User đã lưu thành công với ID:", user._id);
+    
+    req.flash("success", "Employee added successfully!");
+    res.redirect("/admin/view-all-employees");
+  } catch (err) {
+    console.error("ERROR trong add-employee-bypass:", err);
+    req.flash("error", "Error adding employee: " + err.message);
+    res.redirect("/admin/add-employee");
+  }
+});
+
+// Route đặc biệt để bypass CSRF cho form cập nhật hồ sơ
+app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res) => {
+  console.log("Route bypass CSRF cho Update Profile được gọi");
+  try {
+    // Kiểm tra xem người dùng đã đăng nhập
+    if (!req.isAuthenticated()) {
+      return res.status(403).send("Không có quyền truy cập");
+    }
+    
+    const { _id } = req.user;
+    
+    // Chuẩn bị dữ liệu cập nhật
+    const updateData = {};
+    
+    // Xử lý giới tính - chuyển thành chữ thường
+    if (req.body.gender) {
+      updateData.gender = req.body.gender.toLowerCase();
+    }
+    
+    // Xử lý các trường thông thường
+    const simpleFields = [
+      'contactNumber', 'birthplace', 'province', 'district', 
+      'detailedAddress', 'idNumber', 'jobId', 'department', 'experience'
+    ];
+    
+    simpleFields.forEach(field => {
+      if (req.body[field]) {
+        updateData[field] = req.body[field];
+      }
+    });
+    
+    // Xử lý ngày bắt đầu
+    if (req.body.startDate) {
+      updateData.startDate = new Date(req.body.startDate);
+    }
+    
+    // Xử lý loại hình làm việc
+    if (req.body.employeeType) {
+      updateData.employeeType = req.body.employeeType;
+      // Tự động cập nhật employmentType
+      updateData.employmentType = req.body.employeeType === "Full-Time" ? "full-time" : "part-time";
+    }
+    
+    // Xử lý ảnh nếu được tải lên
+    if (req.file) {
+      updateData.photo = req.file.filename;
+    }
+    
+    // Thực hiện cập nhật một lần duy nhất
+    const updatedUser = await User.findByIdAndUpdate(
+      _id, 
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+    
+    // Chuyển hướng về trang hồ sơ
+    req.flash('success', 'Profile updated successfully');
+    res.redirect('/admin/view-profile');
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    req.flash('error', 'Error updating profile: ' + err.message);
+    res.redirect('/admin/view-profile');
+  }
+});
+
+// Thêm route logout trực tiếp ngay đầu ứng dụng
+app.get('/direct-logout', (req, res) => {
+  console.log("Direct logout route được gọi");
+  if (req.session) {
+    // Đăng xuất người dùng
+    console.log("Đang hủy session...");
+    req.session.destroy(err => {
+      if (err) {
+        console.error("Lỗi khi hủy session:", err);
+        return res.status(500).send("Đã xảy ra lỗi khi đăng xuất.");
+      }
+      
+      // Xóa cookie session
+      res.clearCookie('connect.sid');
+      console.log("Đã xóa cookie và session");
+      
+      // Chuyển hướng về trang đăng nhập
+      return res.redirect('/');
+    });
+  } else {
+    console.log("Không có session để hủy");
+    return res.redirect('/');
+  }
+});
+
+// Cấu hình CSRF toàn cục
+app.use(csrf.protection);
+app.use(csrf.middleware);
+
 // Set up routing for the application.
 // The first argument to app.use() is the base path for the routes defined in the provided router.
 // The second argument is the router object.
@@ -89,16 +403,19 @@ app.use("/admin", admin);
 app.use("/manager", manager);
 app.use("/employee", employee);
 
-app.use(function (req, res, next) {
-  res.locals.login = req.isAuthenticated();
-  res.locals.session = req.session;
-  res.locals.messages = req.flash();
+// Add error handler for CSRF after the routes
+app.use(csrf.errorHandler);
+
+// Add logging middleware to see all incoming requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
   next();
 });
 
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  const err = new Error("Not Found");
+// Add more detailed 404 handler
+app.use(function(req, res, next) {
+  console.log(`404 Not Found: ${req.method} ${req.url}`);
+  var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });

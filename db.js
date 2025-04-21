@@ -15,6 +15,7 @@ const connect = (opts = {}) => {
       url = process.env.DB_URL;
   }
   
+  console.log("[DB] Kết nối đến MongoDB với URL:", url);
   
   return mongoose.connect(url, {
     ...opts,

@@ -1,0 +1,37 @@
+<!-- Sidebar -->
+<div id="sidebar-wrapper">
+    <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+        <li <%= path === '/employee/dashboard' ? 'class="active"' : '' %>>
+            <a href="/employee/dashboard"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-dashboard fa-stack-1x"></i></span>
+                Dashboard</a>
+        </li>
+        <li <%= path === '/employee/applied-leaves' ? 'class="active"' : '' %>>
+            <a href="/employee/applied-leaves"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-dashboard fa-stack-1x"></i></span>
+                View Leaves</a>
+        </li>
+        <li <%= path === '/employee/apply-for-leave' ? 'class="active"' : '' %>>
+            <a href="/employee/apply-for-leave"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-envelope-square fa-stack-1x"></i></span>Apply for Leave</a>
+        </li>
+        <li <%= path === '/employee/view-attendance' || path === '/employee/view-attendance-current' ? 'class="active"' : '' %> data-toggle="modal" data-target="#myModal">
+            <a href="#">
+                <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View
+                Attendance</a>
+        </li>
+        <li data-toggle="modal" data-target="#myModal2">
+            <a href="#"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-check-circle fa-stack-1x"></i></span>Mark Attendance</a>
+        </li>
+        <li <%= path === '/employee/view-profile' ? 'class="active"' : '' %>>
+            <a href="/employee/view-profile"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
+        </li>
+        <li <%= path === '/employee/view-personal-projects' || path.startsWith('/employee/view-project/') ? 'class="active"' : '' %>>
+            <a href="/employee/view-personal-projects"><span class="fa-stack fa-lg pull-left"><i
+                        class="fa fa-tasks fa-stack-1x"></i></span>Projects</a>
+        </li>
+    </ul>
+</div>
+<!-- /#sidebar-wrapper --> 

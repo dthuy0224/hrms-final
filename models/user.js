@@ -4,16 +4,47 @@ require("mongoose-type-email");
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-  type: { type: String },
+  // Thông tin cơ bản
+  type: { type: String, enum: ['employee', 'project_manager', 'accounts_manager', 'admin'], default: 'employee' },
+  employmentType: { type: String, enum: ['full-time', 'part-time', 'contract', 'intern', 'temporary'], default: 'full-time' },
+  employeeType: { type: String },
   email: { type: mongoose.SchemaTypes.Email, required: true, unique: true },
   password: { type: String, required: true },
+  
+  // Thông tin cá nhân
   name: { type: String, required: true },
+  birthName: { type: String },
   dateOfBirth: { type: Date, required: true },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
   contactNumber: { type: String, required: true },
-  department: String,
+  idNumber: { type: String },
+  photo: { type: String },
+  
+  // Địa chỉ
+  province: { type: String },
+  district: { type: String },
+  detailedAddress: { type: String },
+  birthplace: { type: String },
+  
+  // Thông tin công việc
+  department: { type: String },
+  designation: { type: String },
+  jobId: { type: String },
+  supervisor: { type: String },
   Skills: [String],
-  designation: String,
-  dateAdded: { type: Date },
+  experience: { type: String, enum: ['Fresher', 'Junior', 'Senior'] },
+  
+  // Thông tin hợp đồng
+  startDate: { type: Date },
+  endDate: { type: Date },
+  salary: { type: Number },
+  contractType: { type: String },
+  workingHours: { type: Number, default: 8 },
+  
+  // Metadata
+  dateAdded: { type: Date, default: Date.now },
+  lastUpdated: { type: Date, default: Date.now },
+  status: { type: String, enum: ['active', 'inactive', 'probation', 'terminated'], default: 'active' }
 });
 
 UserSchema.methods.encryptPassword = function (password) {

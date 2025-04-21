@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+
+    <body>
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+                    <%= userName %>
+                </a>
+            </div><!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
+                                class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
+                                    class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div><!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+            <!-- Include the sidebar partial with path parameter -->
+            <% 
+            // Define path if not defined
+            var currentPath = typeof path !== 'undefined' ? path : '/manager/view-all-personal-projects';
+            %>
+            <%- include('../partials/sidebar', {path: currentPath}) %>
+            <!-- Page Content -->
+            <div id="page-content-wrapper">
+                <div class="container-fluid xyz">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2><i class="fa fa-angle-right"></i> Edit Project</h2>
+                            <ol class="breadcrumb">
+                                <li><a href="/manager">Dashboard</a></li>
+                                <li><a href="/manager/view-all-personal-projects">Projects</a></li>
+                                <li class="active">Edit Project</li>
+                            </ol>
+
+                            <!-- Project Edit Form -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-edit"></i> Project Information</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <form id="editProjectForm" method="post" action="/manager/update-project/<%= project._id %>">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="title">Project Title <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="title" name="title" required value="<%= project.title %>">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="type">Project Type <span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="type" name="type" required>
+                                                        <option value="Website" <%= project.type === 'Website' ? 'selected' : '' %>>Website</option>
+                                                        <option value="Mobile App" <%= project.type === 'Mobile App' ? 'selected' : '' %>>Mobile App</option>
+                                                        <option value="Application" <%= project.type === 'Application' ? 'selected' : '' %>>Application</option>
+                                                        <option value="Desktop" <%= project.type === 'Desktop' ? 'selected' : '' %>>Desktop</option>
+                                                        <option value="Other" <%= project.type === 'Other' ? 'selected' : '' %>>Other</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="status">Project Status <span class="text-danger">*</span></label>
+                                                    <select class="form-control" id="status" name="status" required>
+                                                        <option value="Not started" <%= (project.status === 'Not started' || project.status === 'pending') ? 'selected' : '' %>>Not started</option>
+                                                        <option value="In Progress" <%= project.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
+                                                        <option value="Completed" <%= project.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="startDate">Start Date <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control" id="startDate" name="startDate" required 
+                                                        value="<%= project.startDate ? new Date(project.startDate).toISOString().split('T')[0] : '' %>">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="endDate">End Date <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control" id="endDate" name="endDate" required 
+                                                        value="<%= project.endDate ? new Date(project.endDate).toISOString().split('T')[0] : '' %>">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="description">Description</label>
+                                                    <textarea class="form-control" id="description" name="description" rows="4"><%= project.description || '' %></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        
+                                        <hr>
+                                        
+                                        <div class="form-group text-right">
+                                            <a href="/manager/view-all-personal-projects" class="btn btn-default">Cancel</a>
+                                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Team Management -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-users"></i> Project Team</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h4>Current Team Members</h4>
+                                            <% if (projectTeam && projectTeam.length > 0) { %>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Employee</th>
+                                                                <th>Role</th>
+                                                                <th>Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% projectTeam.forEach(function(member) { %>
+                                                                <tr>
+                                                                    <td><%= member.name %></td>
+                                                                    <td><%= member.role || 'Team Member' %></td>
+                                                                    <td>
+                                                                        <form method="post" action="/manager/remove-project-member/<%= project._id %>/<%= member._id %>" style="display: inline;">
+                                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure you want to remove this team member?')">
+                                                                                <i class="fa fa-times"></i> Remove
+                                                                            </button>
+                                                                        </form>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }) %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="alert alert-info">
+                                                    <i class="fa fa-info-circle"></i> No team members assigned to this project yet.
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <h4>Add Team Members</h4>
+                                            <form method="post" action="/manager/add-project-member/<%= project._id %>">
+                                                <div class="form-group">
+                                                    <label for="employee">Select Employee</label>
+                                                    <select class="form-control" id="employee" name="employeeId" required>
+                                                        <option value="">-- Select Employee --</option>
+                                                        <% if (availableEmployees && availableEmployees.length > 0) { %>
+                                                            <% availableEmployees.forEach(function(employee) { %>
+                                                                <option value="<%= employee._id %>"><%= employee.name %> (<%= employee.email %>)</option>
+                                                            <% }) %>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="role">Role in Project</label>
+                                                    <select class="form-control" id="role" name="role">
+                                                        <option value="Developer">Developer</option>
+                                                        <option value="Designer">Designer</option>
+                                                        <option value="Tester">Tester</option>
+                                                        <option value="Analyst">Analyst</option>
+                                                        <option value="Team Lead">Team Lead</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                
+                                                <div class="form-group">
+                                                    <button type="submit" class="btn btn-success">
+                                                        <i class="fa fa-plus"></i> Add to Project
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /#page-content-wrapper -->
+        </div>
+        <!-- /#wrapper -->
+        
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+        <script src="/javascripts/sidebar_menu.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Form validation
+                $('#editProjectForm').submit(function(e) {
+                    var startDate = new Date($('#startDate').val());
+                    var endDate = new Date($('#endDate').val());
+                    
+                    if (startDate > endDate) {
+                        alert('End date must be after start date');
+                        e.preventDefault();
+                    }
+                });
+                
+                // Populate year dropdown for modals
+                for (i = new Date().getFullYear(); i > 1900; i--) {
+                    $('#year').append($('<option />').val(i).html(i));
+                }
+            });
+        </script>
+    </body>
+    
+    <!-- Include modal templates -->
+    <%- include('../partials/modals') %>
+</html> 

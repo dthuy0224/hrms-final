@@ -117,8 +117,11 @@ passport.use(
       }
       try {
         let user = await User.findOne({ email: email });
-        if (!user || !user.validPassword(password)) {
-          return done(null, false, { message: "Incorrect email or password" });
+        if (!user) {
+          return done(null, false, { message: "This account is not registered!" });
+        }
+        if (!user.validPassword(password)) {
+          return done(null, false, { message: "Wrong password! Check Again!" });
         }
         return done(null, user);
       } catch (err) {

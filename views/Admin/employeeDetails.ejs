@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<%- include('../partials/header') %>
+
+<body>
+  <nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header fixed-brand">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+        <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+      </button>
+      <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+        <%= userName %>
+      </a>
+    </div>
+    <!-- navbar-header-->
+
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active">
+          <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+          </button>
+        </li>
+        <li class="navbar-brand">
+          <form action="/logout" method="get">
+            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+              <i class="fa fa-user" aria-hidden="true"></i> Logout
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    <!-- bs-example-navbar-collapse-1 -->
+  </nav>
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+      <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+        <li>
+          <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+            Dashboard</a>
+        </li>
+        <li>
+          <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
+            Employees</a>
+          <ul class="nav-pills nav-stacked" style="list-style-type: none">
+            <li class="active">
+              <a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
+                    class="fa fa-eye fa-stack-1x"></i></span>View Employees</a>
+            </li>
+            <li>
+              <a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
+                    class="fa fa-plus fa-stack-1x"></i></span>Add Employees</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
+                class="fa fa-envelope-square fa-stack-1x"></i></span>
+            Leave Applications</a>
+        </li>
+        <li>
+          <a href="/admin/employees-attendance">
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View Attendance</a>
+        </li>
+        <li data-toggle="modal" data-target="#myModal2">
+          <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>Mark
+            Attendance</a>
+        </li>
+        <li>
+          <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
+                class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
+        </li>
+      </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+      <div class="container-fluid xyz">
+        <div class="row">
+          <div class="col-lg-12">
+            <!-- Breadcrumb -->
+            <ol class="breadcrumb" style="margin-top: 20px;">
+              <li><a href="/admin"><i class="fa fa-dashboard"></i> Admin</a></li>
+              <li><a href="/admin/view-all-employees"><i class="fa fa-users"></i> Employees</a></li>
+              <li class="active">Employee Details</li>
+            </ol>
+
+            <!-- Employee Details Section -->
+            <div class="row">
+              <!-- Left Profile Section -->
+              <div class="col-md-4">
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <div class="text-center">
+                      <span class="label label-primary pull-right"><%= employee.employmentType === 'full-time' ? 'Full-Time' : 'Part-Time' %></span>
+                      <h3>Employee Profile</h3>
+                    </div>
+                  </div>
+                  <div class="panel-body">
+                    <div class="text-center">
+                      <div class="profile-img-container">
+                        <% if (employee.photo) { %>
+                          <img src="/uploads/<%= employee.photo %>" alt="Profile Image" class="img-circle" style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 15px;">
+                        <% } else { %>
+                          <img src="/uploads/default.png" alt="Profile Image" class="img-circle" style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 15px;">
+                        <% } %>
+                      </div>
+                      <h3 class="employee-name"><%= employee.name %></h3>
+                      <p class="text-muted">#<%= employee.employeeID || employee.jobId || 'N/A' %></p>
+                    </div>
+                    
+                    <div class="employee-basic-info" style="margin-top: 20px;">
+                      <p>
+                        <i class="fa fa-briefcase text-primary"></i> 
+                        <%= employee.designation || 'UI Designer' %>
+                      </p>
+                      <p>
+                        <i class="fa fa-building-o text-primary"></i> 
+                        Working at: <%= employee.department || 'IT Department' %>
+                      </p>
+                      <p>
+                        <i class="fa fa-envelope-o text-primary"></i> 
+                        <%= employee.email %>
+                      </p>
+                      <p>
+                        <i class="fa fa-phone text-primary"></i> 
+                        <%= employee.contactNumber || 'N/A' %>
+                      </p>
+                      <% if (employee.supervisor) { %>
+                      <p>
+                        <i class="fa fa-user text-primary"></i> 
+                        Report to: <%= employee.supervisor %>
+                      </p>
+                      <% } %>
+                      <p>
+                        <i class="fa fa-calendar text-primary"></i> 
+                        Birthday on: <%= employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString() : 'N/A' %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Right Details Section -->
+              <div class="col-md-8">
+                <!-- Personal Information Box -->
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Personal information</h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Name:</label>
+                        <p><%= employee.name %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Gender:</label>
+                        <p><%= employee.gender || 'N/A' %></p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Birthplace:</label>
+                        <p><%= employee.birthplace || 'N/A' %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Address:</label>
+                        <p>
+                          <%= employee.detailedAddress ? employee.detailedAddress : '' %>
+                          <%= employee.district ? (employee.detailedAddress ? ', ' : '') + employee.district : '' %>
+                          <%= employee.province ? ((employee.detailedAddress || employee.district) ? ', ' : '') + employee.province : '' %>
+                          <%= !employee.detailedAddress && !employee.district && !employee.province ? 'N/A' : '' %>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">ID Number:</label>
+                        <p><%= employee.idNumber || 'N/A' %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Personal Email:</label>
+                        <p><%= employee.email %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Job Information Box -->
+                <div class="panel panel-info">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Job information</h3>
+                  </div>
+                  <div class="panel-body">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">ID:</label>
+                        <p><%= employee.employeeID || employee.jobId || 'N/A' %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Job Title:</label>
+                        <p><%= employee.designation || 'N/A' %></p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Designation:</label>
+                        <p><%= employee.type === "project_manager" ? "Project Manager" : 
+                                employee.type === "accounts_manager" ? "Accounts Manager" : "Employee" %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Department:</label>
+                        <p><%= employee.department || 'N/A' %></p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Work Email:</label>
+                        <p><%= employee.workEmail || employee.email || 'N/A' %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Start Date:</label>
+                        <p><%= employee.startDate ? new Date(employee.startDate).toLocaleDateString() : 'N/A' %></p>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Type:</label>
+                        <p><%= employee.employmentType === 'full-time' ? 'Full-Time' : 'Part-Time' %></p>
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="control-label">Work Experience:</label>
+                        <p><%= employee.experience || 'N/A' %></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="row text-right" style="margin-bottom: 20px;">
+                  <div class="col-md-12">
+                    <a href="/admin/edit-employee/<%= employee._id %>" class="btn btn-primary">
+                      <i class="fa fa-edit"></i> Edit
+                    </a>
+                    <button data-toggle="modal" data-target="#deleteEmployeeModal" class="btn btn-danger">
+                      <i class="fa fa-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+  </div>
+  <!-- /#wrapper -->
+  
+  <!-- Delete Employee Modal -->
+  <div id="deleteEmployeeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <form method="post" action="/admin/delete-employee/<%= employee._id %>">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+            <h2 class="modal-title">Delete Employee</h2>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete <%= employee.name %>?</p>
+            <p>This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              No
+            </button>
+            <button type="submit" class="btn btn-danger">Yes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Attendance Modal -->
+  <div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <form method="post" action="/admin/mark-attendance">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">
+              &times;
+            </button>
+            <h4 class="modal-title">Mark Attendance</h4>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to mark attendance?</p>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button type="reset" class="btn btn-default" data-dismiss="modal">
+              No
+            </button>
+            <button type="submit" class="btn btn-primary">Yes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+  <script src="/javascripts/sidebar_menu.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Đảm bảo menu Employees được mở khi load trang
+      $("#menu3").click();
+    });
+  </script>
+</body>
+</html> 

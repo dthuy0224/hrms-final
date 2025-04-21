@@ -9,8 +9,27 @@ var moment = require("moment");
 var Project = require("../models/project");
 var PerformanceAppraisal = require("../models/performance_appraisal");
 
+// Ensure user is logged in
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
   next();
+});
+
+// Ensure user has manager role
+router.use("/", function isManager(req, res, next) {
+  if (req.user.type === "project_manager" || req.user.type === "accounts_manager") {
+    next();
+  } else {
+    console.log("Unauthorized access attempt to manager route by:", req.user.type);
+    req.flash("error", "You don't have permission to access this page");
+    
+    if (req.user.type === "admin") {
+      res.redirect("/admin/");
+    } else if (req.user.type === "employee") {
+      res.redirect("/employee/");
+    } else {
+      res.redirect("/");
+    }
+  }
 });
 
 /**
@@ -18,10 +37,90 @@ router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
  */
 
 router.get("/", function viewHomePage(req, res, next) {
-  res.render("Manager/managerHome", {
-    title: "Manager Home",
+  // Set date variables first to ensure they're always available
+  const dateVars = {
+    title: "Manager Dashboard",
     csrfToken: req.csrfToken(),
     userName: req.user.name,
+    user: req.user,
+    path: req.path,
+    teamCount: 0,
+    activeProjectsCount: 0,
+    pendingLeavesCount: 0,
+    todayAttendanceCount: 0,
+    completedProjectsCount: 0,
+    inProgressProjectsCount: 0,
+    moment: moment
+  };
+  
+  // Get team members count
+  User.countDocuments({ type: "employee" }, function(err, teamCount) {
+    if (!err) {
+      dateVars.teamCount = teamCount || 0;
+      console.log("Team count:", teamCount);
+    }
+    
+    // Get active projects count - với nhiều loại status khác nhau và không phân biệt chữ hoa/chữ thường
+    Project.countDocuments({ 
+      status: { 
+        $regex: /(on going|ongoing|in progress)/i 
+      } 
+    }, function(err, activeProjectsCount) {
+      if (!err) {
+        dateVars.activeProjectsCount = activeProjectsCount || 0;
+        console.log("Active projects count:", activeProjectsCount);
+      }
+      
+      // Get completed projects count - không phân biệt chữ hoa/chữ thường
+      Project.countDocuments({ 
+        status: { $regex: /completed/i } 
+      }, function(err, completedProjectsCount) {
+        if (!err) {
+          dateVars.completedProjectsCount = completedProjectsCount || 0;
+          console.log("Completed projects count:", completedProjectsCount);
+        }
+        
+        // Get in-progress projects count - không phân biệt chữ hoa/chữ thường
+        Project.countDocuments({ 
+          status: { $regex: /(on going|ongoing|in progress)/i } 
+        }, function(err, inProgressProjectsCount) {
+          if (!err) {
+            dateVars.inProgressProjectsCount = inProgressProjectsCount || 0;
+            console.log("In progress projects count:", inProgressProjectsCount);
+          }
+          
+          // Get pending leaves count - không phân biệt chữ hoa/chữ thường
+          Leave.countDocuments({ 
+            status: { $regex: /pending/i }
+          }, function(err, pendingLeavesCount) {
+            if (!err) {
+              dateVars.pendingLeavesCount = pendingLeavesCount || 0;
+              console.log("Pending leaves count:", pendingLeavesCount);
+            }
+            
+            // Get today's attendance count
+            var today = moment().startOf('day');
+            var tomorrow = moment(today).add(1, 'days');
+            
+            Attendance.countDocuments({
+              date: {
+                $gte: today.toDate(),
+                $lt: tomorrow.toDate()
+              }
+            }, function(err, todayAttendanceCount) {
+              if (!err) {
+                dateVars.todayAttendanceCount = todayAttendanceCount || 0;
+                console.log("Today's attendance count:", todayAttendanceCount);
+              }
+              
+              // Hiển thị tổng quan về dữ liệu dashboard
+              console.log("Final dashboard data:", JSON.stringify(dateVars, null, 2));
+              res.render("Manager/managerHome", dateVars);
+            });
+          });
+        });
+      });
+    });
   });
 });
 
@@ -49,6 +148,7 @@ router.get("/view-employees", function viewEmployees(req, res) {
           users: userChunks,
           errors: 0,
           userName: req.user.name,
+          path: req.path
         });
       });
   } else if (req.user.type === "accounts_manager") {
@@ -110,6 +210,7 @@ router.get("/view-employees", function viewEmployees(req, res) {
         users: userChunks,
         salary: salaryChunks,
         userName: req.user.name,
+        path: req.path
       });
     }
   }
@@ -431,8 +532,42 @@ router.get(
   "/view-all-personal-projects",
   function viewAllPersonalProjects(req, res, next) {
     var projectChunks = [];
-    Project.find({ employeeID: req.user._id })
-      .sort({ _id: -1 })
+    // Check if filter parameter exists
+    var activeFilter = req.query.filter === 'active';
+    
+    // Create query object
+    var query = { employeeID: req.user._id };
+    
+    // Add status filter if active filter is applied
+    if (activeFilter) {
+      query.status = { $in: ['On Going', 'on going'] }; 
+    }
+    
+    // Check for sort parameter
+    var sortOption = {};
+    if (req.query.sort) {
+      switch(req.query.sort) {
+        case 'title':
+          sortOption = { title: 1 }; // Sort by title A-Z
+          break;
+        case 'startDate':
+          sortOption = { startDate: 1 }; // Sort by start date (oldest first)
+          break;
+        case 'endDate':
+          sortOption = { endDate: 1 }; // Sort by end date (earliest first)
+          break;
+        case 'status':
+          sortOption = { status: 1 }; // Sort by status A-Z
+          break;
+        default:
+          sortOption = { _id: -1 }; // Default sort by most recent
+      }
+    } else {
+      sortOption = { _id: -1 }; // Default sort by most recent
+    }
+    
+    Project.find(query)
+      .sort(sortOption)
       .exec(function getProject(err, docs) {
         var hasProject = 0;
         if (docs.length > 0) {
@@ -447,6 +582,8 @@ router.get(
           projects: projectChunks,
           csrfToken: req.csrfToken(),
           userName: req.user.name,
+          activeFilter: activeFilter,
+          sortBy: req.query.sort || null
         });
       });
   }
@@ -782,6 +919,333 @@ router.post(
     );
   }
 );
+
+// Check-out route to mark the time when a manager leaves for the day
+router.post("/check-out", async (req, res) => {
+  const { _id } = req.user;
+  const currentDate = new Date();
+  const date = currentDate.getDate();
+  const month = currentDate.getMonth() + 1;
+  const year = currentDate.getFullYear();
+  
+  // Format the current time as HH:MM:SS
+  const hours = currentDate.getHours().toString().padStart(2, '0');
+  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+  const checkOutTime = `${hours}:${minutes}:${seconds}`;
+  
+  try {
+    // Find today's attendance record for the user
+    const attendance = await Attendance.findOne({
+      employeeID: _id,
+      date,
+      month,
+      year,
+    });
+
+    if (attendance) {
+      // Update the attendance record with check-out time
+      attendance.checkOutTime = checkOutTime;
+      await attendance.save();
+      req.session.checkedOut = true; // Mark that the user has checked out
+      res.redirect("/manager/view-attendance-current");
+    } else {
+      // No check-in record found for today
+      res.status(400).send("No check-in record found for today. Please check-in first.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error recording check-out time");
+  }
+});
+
+/**
+ * Description:
+ * Hiển thị form chỉnh sửa dự án và quản lý thành viên dự án 
+ */
+router.get("/edit-project/:project_id", function editProject(req, res, next) {
+  var projectId = req.params.project_id;
+  
+  console.log("Đang truy cập edit-project với ID:", projectId);
+  
+  // Kiểm tra project_id có hợp lệ không
+  if (!projectId || projectId.length !== 24) {
+    console.log("ID không hợp lệ:", projectId);
+    req.flash("error", "Invalid project ID");
+    return res.redirect("/manager/view-all-personal-projects");
+  }
+  
+  Project.findById(projectId, function getProject(err, project) {
+    if (err) {
+      console.error("Lỗi khi tìm project:", err);
+      req.flash("error", "Error finding project");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    if (!project) {
+      console.log("Không tìm thấy project với ID:", projectId);
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    console.log("Đã tìm thấy project:", project.title);
+    
+    // Lấy danh sách thành viên hiện tại của dự án
+    User.find({ _id: { $in: project.teamMembers || [] } }, function(err, projectTeam) {
+      if (err) {
+        console.log(err);
+        projectTeam = [];
+      }
+      
+      console.log("Số lượng team members:", projectTeam ? projectTeam.length : 0);
+      
+      // Lấy danh sách nhân viên có thể thêm vào dự án
+      User.find({ 
+        type: "employee",
+        _id: { $nin: project.teamMembers || [] }
+      }, function(err, availableEmployees) {
+        if (err) {
+          console.log(err);
+          availableEmployees = [];
+        }
+        
+        console.log("Số lượng nhân viên có thể thêm:", availableEmployees ? availableEmployees.length : 0);
+        
+        res.render("Manager/editProject", {
+          title: "Edit Project",
+          project: project,
+          projectTeam: projectTeam,
+          availableEmployees: availableEmployees,
+          moment: moment,
+          csrfToken: req.csrfToken(),
+          userName: req.user.name,
+          path: '/manager/view-all-personal-projects'
+        });
+      });
+    });
+  });
+});
+
+/**
+ * Description:
+ * Cập nhật thông tin dự án
+ */
+router.post("/update-project/:project_id", function updateProject(req, res, next) {
+  var projectId = req.params.project_id;
+  
+  Project.findById(projectId, function getProject(err, project) {
+    if (err || !project) {
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    // Cập nhật thông tin dự án
+    project.title = req.body.title;
+    project.type = req.body.type;
+    project.status = req.body.status;
+    project.startDate = req.body.startDate;
+    project.endDate = req.body.endDate;
+    project.description = req.body.description;
+    
+    project.save(function(err) {
+      if (err) {
+        console.log(err);
+        req.flash("error", "Error updating project");
+      } else {
+        req.flash("success", "Project updated successfully");
+      }
+      res.redirect("/manager/edit-project/" + projectId);
+    });
+  });
+});
+
+/**
+ * Description:
+ * Thêm thành viên vào dự án
+ */
+router.post("/add-project-member/:project_id", function addProjectMember(req, res, next) {
+  var projectId = req.params.project_id;
+  var employeeId = req.body.employeeId;
+  var role = req.body.role;
+  
+  if (!employeeId) {
+    req.flash("error", "No employee selected");
+    return res.redirect("/manager/edit-project/" + projectId);
+  }
+  
+  Project.findById(projectId, function(err, project) {
+    if (err || !project) {
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    // Khởi tạo mảng teamMembers nếu chưa có
+    if (!project.teamMembers) {
+      project.teamMembers = [];
+    }
+    
+    // Kiểm tra xem thành viên đã có trong dự án chưa
+    if (project.teamMembers.indexOf(employeeId) !== -1) {
+      req.flash("error", "Employee is already in the project");
+      return res.redirect("/manager/edit-project/" + projectId);
+    }
+    
+    // Thêm thành viên vào dự án
+    project.teamMembers.push(employeeId);
+    
+    // Tùy chọn: có thể lưu vai trò của thành viên nếu cần
+    // project.teamRoles = project.teamRoles || {};
+    // project.teamRoles[employeeId] = role;
+    
+    project.save(function(err) {
+      if (err) {
+        console.log(err);
+        req.flash("error", "Error adding team member");
+      } else {
+        req.flash("success", "Team member added successfully");
+      }
+      res.redirect("/manager/edit-project/" + projectId);
+    });
+  });
+});
+
+/**
+ * Description:
+ * Xóa thành viên khỏi dự án
+ */
+router.post("/remove-project-member/:project_id/:member_id", function removeProjectMember(req, res, next) {
+  var projectId = req.params.project_id;
+  var memberId = req.params.member_id;
+  
+  Project.findById(projectId, function(err, project) {
+    if (err || !project) {
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    // Xóa thành viên khỏi mảng teamMembers
+    if (project.teamMembers && project.teamMembers.length > 0) {
+      project.teamMembers = project.teamMembers.filter(id => id.toString() !== memberId);
+    }
+    
+    // Xóa vai trò của thành viên nếu có
+    // if (project.teamRoles && project.teamRoles[memberId]) {
+    //   delete project.teamRoles[memberId];
+    // }
+    
+    project.save(function(err) {
+      if (err) {
+        console.log(err);
+        req.flash("error", "Error removing team member");
+      } else {
+        req.flash("success", "Team member removed successfully");
+      }
+      res.redirect("/manager/edit-project/" + projectId);
+    });
+  });
+});
+
+/**
+ * Description:
+ * Hiển thị danh sách thành viên dự án
+ */
+router.get("/view-project-team/:project_id", function viewProjectTeam(req, res, next) {
+  var projectId = req.params.project_id;
+  
+  console.log("Đang truy cập view-project-team với ID:", projectId);
+  
+  // Kiểm tra project_id có hợp lệ không
+  if (!projectId || projectId.length !== 24) {
+    console.log("ID không hợp lệ:", projectId);
+    req.flash("error", "Invalid project ID");
+    return res.redirect("/manager/view-all-personal-projects");
+  }
+  
+  Project.findById(projectId, function getProject(err, project) {
+    if (err) {
+      console.error("Lỗi khi tìm project:", err);
+      req.flash("error", "Error finding project");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    if (!project) {
+      console.log("Không tìm thấy project với ID:", projectId);
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
+    // Lấy danh sách thành viên dự án
+    User.find({ _id: { $in: project.teamMembers || [] } }, function(err, projectTeam) {
+      if (err) {
+        console.log(err);
+        projectTeam = [];
+      }
+      
+      // Chuyển hướng đến trang edit project vì đã có chức năng xem team ở đó
+      res.redirect("/manager/edit-project/" + projectId);
+    });
+  });
+});
+
+/**
+ * Description:
+ * Hiển thị form tạo dự án mới
+ */
+router.get("/add-project", function(req, res, next) {
+  // Lấy danh sách nhân viên có thể thêm vào dự án
+  User.find({ type: "employee" }, function(err, employees) {
+    if (err) {
+      console.log(err);
+      employees = [];
+    }
+    
+    res.render("Manager/addProject", {
+      title: "Add New Project",
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      employees: employees,
+      moment: moment,
+      path: '/manager/view-all-personal-projects'
+    });
+  });
+});
+
+/**
+ * Description:
+ * Xử lý tạo dự án mới
+ */
+router.post("/add-project", function(req, res, next) {
+  var newProject = new Project();
+  
+  newProject.employeeID = req.user._id; // Người tạo dự án
+  newProject.title = req.body.title;
+  newProject.type = req.body.type;
+  newProject.status = req.body.status;
+  newProject.startDate = req.body.startDate;
+  newProject.endDate = req.body.endDate;
+  newProject.description = req.body.description;
+  
+  // Khởi tạo mảng thành viên nếu có
+  if (req.body.teamMembers && Array.isArray(req.body.teamMembers)) {
+    newProject.teamMembers = req.body.teamMembers;
+  } else if (req.body.teamMembers) {
+    newProject.teamMembers = [req.body.teamMembers];
+  } else {
+    newProject.teamMembers = [];
+  }
+  
+  newProject.save(function(err) {
+    if (err) {
+      console.log(err);
+      req.flash("error", "Error creating project");
+      return res.redirect("/manager/add-project");
+    }
+    
+    req.flash("success", "Project created successfully");
+    res.redirect("/manager/view-all-personal-projects");
+  });
+});
+
 module.exports = router;
 
 function isLoggedIn(req, res, next) {

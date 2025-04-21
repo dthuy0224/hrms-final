@@ -32,66 +32,219 @@
             </div><!-- bs-example-navbar-collapse-1 -->
         </nav>
         <div id="wrapper">
-            <!-- Sidebar -->
-            <div id="sidebar-wrapper">
-                <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-
-                    <li>
-                        <a href="/manager/applied-leaves"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-dashboard fa-stack-1x "></i></span> View Leaves</a>
-                    </li>
-                    <li>
-                        <a href="/manager/view-employees">
-                            <button type="submit" style="background: transparent; border: transparent;"><i
-                                    class="fa fa-users fa-lg " aria-hidden="true"></i> View Employees
-                            </button>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/manager/apply-for-leave"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-envelope-square fa-stack-1x "></i></span>Apply for Leave</a>
-                    </li>
-                    <li data-toggle="modal" data-target="#myModal">
-                        <a href="#"> <span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-list-ol fa-stack-1x "></i></span>View
-                            Attendance</a>
-                    </li>
-                    <li data-toggle="modal" data-target="#myModal2">
-                        <a href="#"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-check-circle fa-stack-1x "></i></span>Mark Attendance</a>
-                    </li>
-                    <li>
-                        <a href="/manager/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-user fa-stack-1x "></i></span>View Profile</a>
-                    </li>
-                </ul>
-            </div><!-- /#sidebar-wrapper -->
+            <!-- Include the sidebar partial with path parameter -->
+            <% 
+            // Define path if not defined
+            var currentPath = typeof path !== 'undefined' ? path : '/manager';
+            %>
+            <%- include('../partials/sidebar', {path: currentPath}) %>
             <!-- Page Content -->
             <div id="page-content-wrapper">
                 <div class="container-fluid xyz">
                     <div class="row">
                         <div class="col-lg-12">
-                            <h1>Welcome!</h1>
+                            <h2><i class="fa fa-angle-right"></i> Manager Dashboard</h2>
+                            <p class="text-muted">
+                                <%= moment().format('dddd') %><br>
+                                <%= moment().format('Do of MMMM YYYY hh:mm:ss A') %>
+                            </p>
+                            <div class="dropdown pull-right" style="margin-top: -50px;">
+                                <button class="btn btn-default" type="button" id="calendarBtn">
+                                    <i class="fa fa-calendar"></i> <%= moment().format('MMMM, YYYY') %>
+                                </button>
+                                <div id="calendarContainer" style="display: none; position: absolute; right: 0; z-index: 1000; background: white; padding: 15px; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 6px 12px rgba(0,0,0,.175);">
+                                    <div id="datepicker"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <!-- Stats Cards Row -->
+                    <div class="row">
+                        <!-- Team Members Card -->
+                        <div class="col-md-3">
+                            <div class="panel panel-primary" style="border-color: #0c1445;">
+                                <div class="panel-body text-center" style="background-color: #0c1445; color: white;">
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            <i class="fa fa-users fa-4x"></i>
+                                        </div>
+                                        <div class="col-xs-8 text-right">
+                                            <h1 style="margin-top: 0; font-size: 36px;"><%= teamCount %></h1>
+                                            <div>Team Members</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-footer text-right">
+                                    <a href="/manager/view-employees" class="btn btn-link">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Active Projects Card -->
+                        <div class="col-md-3">
+                            <div class="panel panel-info" style="border-color: #5bc0de;">
+                                <div class="panel-body text-center" style="background-color: #5bc0de; color: white;">
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            <i class="fa fa-list fa-4x"></i>
+                                        </div>
+                                        <div class="col-xs-8 text-right">
+                                            <h1 style="margin-top: 0; font-size: 36px;"><%= activeProjectsCount %></h1>
+                                            <div>Active Projects</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-footer text-right">
+                                    <a href="/manager/view-all-personal-projects" class="btn btn-link">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pending Leaves Card -->
+                        <div class="col-md-3">
+                            <div class="panel panel-warning" style="border-color: #f0ad4e;">
+                                <div class="panel-body text-center" style="background-color: #c9bd8d; color: white;">
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            <i class="fa fa-calendar fa-4x"></i>
+                                        </div>
+                                        <div class="col-xs-8 text-right">
+                                            <h1 style="margin-top: 0; font-size: 36px;"><%= pendingLeavesCount %></h1>
+                                            <div>Pending Leaves</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-footer text-right">
+                                    <a href="/manager/applied-leaves" class="btn btn-link">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Today's Attendance Card -->
+                        <div class="col-md-3">
+                            <div class="panel panel-success" style="border-color: #a3be8c;">
+                                <div class="panel-body text-center" style="background-color: #a3be8c; color: white;">
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            <i class="fa fa-check-circle fa-4x"></i>
+                                        </div>
+                                        <div class="col-xs-8 text-right">
+                                            <h1 style="margin-top: 0; font-size: 36px;"><%= todayAttendanceCount %></h1>
+                                            <div>Today's Attendance</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-footer text-right">
+                                    <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-link">Detail <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Project Status and Quick Actions -->
+                    <div class="row">
+                        <!-- Project Status Section -->
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-list"></i> Project Status</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="list-group">
+                                        <a href="#" class="list-group-item">
+                                            <i class="fa fa-check text-success"></i> Completed Projects
+                                            <span class="badge"><%= completedProjectsCount %></span>
+                                        </a>
+                                        <a href="#" class="list-group-item">
+                                            <i class="fa fa-spinner fa-spin text-primary"></i> In Progress Projects
+                                            <span class="badge"><%= inProgressProjectsCount %></span>
+                                        </a>
+                                    </div>
+                                    <a href="/manager/view-all-personal-projects" class="pull-right">All Projects <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions Section -->
+                        <div class="col-md-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title"><i class="fa fa-bolt"></i> Quick Actions</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="list-group">
+                                        <a href="/manager/apply-for-leave" class="list-group-item">
+                                            <i class="fa fa-calendar"></i> Apply for Leave
+                                        </a>
+                                        <a href="#" data-toggle="modal" data-target="#myModal2" class="list-group-item">
+                                            <i class="fa fa-check-circle"></i> Mark Attendance
+                                        </a>
+                                        <a href="/manager/view-profile" class="list-group-item">
+                                            <i class="fa fa-user"></i> View Profile
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <!-- /#page-content-wrapper -->
-
         </div>
         <!-- /#wrapper -->
         <!-- jQuery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
-
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
         <script src="/javascripts/sidebar_menu.js"></script>
         <script>
-
             $(document).ready(function () {
+                // Populate year dropdown
                 for (i = new Date().getFullYear(); i > 1900; i--) {
                     $('#year').append($('<option />').val(i).html(i));
                 }
+                
+                // Initialize datepicker
+                $("#datepicker").datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: 'MM dd, yy',
+                    onSelect: function(dateText) {
+                        $("#calendarBtn").html('<i class="fa fa-calendar"></i> ' + dateText);
+                        $("#calendarContainer").hide();
+                    }
+                });
+                
+                // Toggle calendar display
+                $("#calendarBtn").click(function() {
+                    $("#calendarContainer").toggle();
+                });
+                
+                // Hide calendar when clicking outside
+                $(document).mouseup(function(e) {
+                    var container = $("#calendarContainer");
+                    if (!container.is(e.target) && 
+                        !$("#calendarBtn").is(e.target) && 
+                        $("#calendarBtn").has(e.target).length === 0 && 
+                        container.has(e.target).length === 0) {
+                        container.hide();
+                    }
+                });
+                
+                // Real-time clock with seconds
+                function updateClock() {
+                    var now = moment();
+                    $('.text-muted').html(
+                        now.format('dddd') + '<br>' +
+                        now.format('Do of MMMM YYYY') + ' <span id="time-display">' + now.format('hh:mm:ss A') + '</span>'
+                    );
+                    setTimeout(updateClock, 1000);
+                }
+                updateClock();
             });
         </script>
     </body>

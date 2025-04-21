@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Reset Password</title>
+  <link rel="stylesheet" href="/stylesheets/normalize.css" />
+  <link rel="stylesheet" href="/stylesheets/login.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    .confirmation-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .thank-you {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .instructions {
+      font-size: 16px;
+      color: #555;
+      line-height: 1.5;
+    }
+    
+    .no-email {
+      margin: 25px 0 15px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+    
+    .button-group-item {
+      flex: 1;
+      width: 50%;
+    }
+    
+    .btn-resend {
+      width: 100%;
+      background-color: #000;
+      color: white;
+      border: none;
+      padding: 12px 15px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-resend:hover {
+      background-color: #333;
+    }
+    
+    .btn-cancel {
+      width: 100%;
+      background-color: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    
+    .btn-cancel:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .help-text {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+    
+    .help-link {
+      color: #000;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    
+    .help-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="login-form">
+      <h1>Reset Password</h1>
+      
+      <div class="confirmation-container">
+        <p class="thank-you">Thank you!</p>
+        <p class="instructions">Please check your email for further instructions.</p>
+      </div>
+      
+      <div class="no-email">
+        Didn't get the reset email?
+      </div>
+      
+      <div class="button-group">
+        <div class="button-group-item">
+          <form action="/resend-reset" method="post">
+            <input type="hidden" name="email" value="<%= email %>" />
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button type="submit" class="btn-resend">
+              Resend
+            </button>
+          </form>
+        </div>
+        <div class="button-group-item">
+          <a href="/" class="btn-cancel">
+            Cancel
+          </a>
+        </div>
+      </div>
+      
+      <div class="help-center">
+        <span>Contact to <a href="mailto:admin@example.com" class="help-link">Admin</a> if you have any questions?</span>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html> 

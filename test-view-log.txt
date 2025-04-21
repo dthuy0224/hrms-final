@@ -1,0 +1,17 @@
+Kiểm tra URL: http://localhost:3000/admin/employee-details/680561285e886d42548449d9
+Mã trạng thái: 200
+Headers: {
+  "x-powered-by": "Express",
+  "set-cookie": [
+    "_csrf=fgZoOKpuFU4tUQ0FpQx-18OZ; Path=/",
+    "connect.sid=s%3AskbnIWmI7lmuNsKlgPJaPNV58WlFNnRT.uCxMjuHAyK0S4BLYiWLqgfUEGSf82rwJKtvn8XJJRWI; Path=/; Expires=Mon, 21 Apr 2025 01:49:22 GMT; HttpOnly"
+  ],
+  "content-type": "text/html; charset=utf-8",
+  "content-length": "3620",
+  "etag": "W/\"e24-mPR0hZpjMuL9jRjYWL5gTEP8g5o\"",
+  "date": "Sun, 20 Apr 2025 22:49:22 GMT",
+  "connection": "keep-alive",
+  "keep-alive": "timeout=5"
+}
+Độ dài nội dung: 3620
+Đã lưu nội dung HTML vào response.html

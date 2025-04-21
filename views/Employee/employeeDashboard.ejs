@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<%- include('../partials/header') %>
+
+<body>
+    <nav class="navbar navbar-default no-margin">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header fixed-brand">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+            </button>
+            <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+                <%= userName %>
+            </a>
+        </div>
+        <!-- navbar-header-->
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active">
+                    <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                    </button>
+                </li>
+                <li class="navbar-brand">
+                    <form action="/logout" method="get">
+                        <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                            <i class="fa fa-user" aria-hidden="true"></i> Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <!-- bs-example-navbar-collapse-1 -->
+    </nav>
+    <div id="wrapper">
+        <!-- Include the sidebar partial -->
+        <%- include('../partials/employee_sidebar') %>
+        
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid xyz">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2><i class="fa fa-angle-right"></i> Employee Dashboard</h2>
+                        <div class="date-info">
+                            <p>
+                                <%= moment().format('dddd') %><br>
+                                <span><%= moment().format('Do') %> of <%= moment().format('MMMM YYYY') %> 
+                                <%= moment().format('hh:mm:ss A') %></span>
+                            </p>
+                        </div>
+                        <div class="pull-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                    <%= moment().format('MMMM, YYYY') %> <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">January, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">February, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">March, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">April, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">May, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">June, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">July, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">August, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">September, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">October, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">November, <%= moment().format('YYYY') %></a></li>
+                                    <li><a href="#">December, <%= moment().format('YYYY') %></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <!-- Dashboard Cards -->
+                    <div class="col-md-3">
+                        <div class="panel panel-info">
+                            <div class="panel-heading bg-info">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-tasks fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"><%= projectCount %></div>
+                                        <div>My Projects</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/employee/view-personal-projects">
+                                <div class="panel-footer">
+                                    <span class="pull-left">Detail</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="panel panel-warning">
+                            <div class="panel-heading bg-warning">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-calendar fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"><%= pendingLeaves %></div>
+                                        <div>Pending Leaves</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/employee/applied-leaves">
+                                <div class="panel-footer">
+                                    <span class="pull-left">Detail</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="panel panel-success">
+                            <div class="panel-heading bg-success">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-check-circle fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"><%= isPresent ? 'Present' : 'Absent' %></div>
+                                        <div>Today's Status</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/employee/view-attendance">
+                                <div class="panel-footer">
+                                    <span class="pull-left">Detail</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-list-alt fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge"><%= monthlyAttendance %></div>
+                                        <div>Monthly Attendance</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/employee/view-attendance">
+                                <div class="panel-footer">
+                                    <span class="pull-left">Detail</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Section -->
+                <div class="row mt-4">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><i class="fa fa-rocket"></i> Quick Actions</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="list-group">
+                                    <a href="/employee/apply-for-leave" class="list-group-item">
+                                        <i class="fa fa-calendar"></i> Apply for Leave
+                                    </a>
+                                    <% if (!isPresent) { %>
+                                    <a href="#" data-toggle="modal" data-target="#markAttendanceModal" class="list-group-item">
+                                        <i class="fa fa-check-circle"></i> Mark Attendance
+                                    </a>
+                                    <% } else { %>
+                                    <a href="#" data-toggle="modal" data-target="#checkOutModal" class="list-group-item">
+                                        <i class="fa fa-sign-out"></i> Check Out
+                                    </a>
+                                    <% } %>
+                                    <a href="/employee/view-profile" class="list-group-item">
+                                        <i class="fa fa-user"></i> View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Mark Attendance Modal -->
+    <div id="markAttendanceModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/employee/mark-employee-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Mark Attendance</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to mark attendance?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            No
+                        </button>
+                        <button type="submit" class="btn btn-default">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Check Out Modal -->
+    <div id="checkOutModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/employee/check-out">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Check Out</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to check out for the day?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            No
+                        </button>
+                        <button type="submit" class="btn btn-default">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+    <script src="/javascripts/sidebar_menu.js"></script>
+
+    <style>
+        .mt-4 {
+            margin-top: 20px;
+        }
+        .panel-heading {
+            padding: 15px;
+        }
+        .panel-info .panel-heading {
+            background-color: #5bc0de;
+            color: white;
+        }
+        .panel-warning .panel-heading {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .panel-success .panel-heading {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .panel-primary .panel-heading {
+            background-color: #337ab7;
+            color: white;
+        }
+        .huge {
+            font-size: 36px;
+        }
+        .panel-footer {
+            padding: 10px 15px;
+        }
+        .date-info {
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</body>
+
+</html> 

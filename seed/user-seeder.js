@@ -35,14 +35,6 @@ let users = [
     contactNumber: "0333-1234567",
   }),
   new User({
-    type: "accounts_manager",
-    email: "am@am.com",
-    password: bcrypt.hashSync("am1234", bcrypt.genSaltSync(5), null),
-    name: "Accounts Manager",
-    dateOfBirth: new Date("1990-08-26"),
-    contactNumber: "0300-5432011",
-  }),
-  new User({
     type: "employee",
     email: "employee1@employee.com",
     password: bcrypt.hashSync("123456", bcrypt.genSaltSync(5), null),

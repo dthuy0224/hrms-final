@@ -33,7 +33,10 @@
     <!-- Sidebar -->
     <div id="sidebar-wrapper">
         <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-
+            <li>
+                <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+                    Dashboard</a>
+            </li>
             <li>
                 <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i
                                 class="fa fa-users fa-stack-1x "></i></span> Employees</a>
@@ -47,8 +50,9 @@
             <li>
                 <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
                                 class="fa fa-envelope-square fa-stack-1x "></i></span> Leave Applications</a></li>
-            <li data-toggle="modal" data-target="#myModal">
-                <a href="#"> <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x "></i></span>View
+            <li>
+                <a href="/admin/employees-attendance">
+                    <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x "></i></span>View
                     Attendance</a>
             </li>
             <li data-toggle="modal" data-target="#myModal2">
@@ -66,231 +70,279 @@
         <div class="container-fluid xyz">
             <div class="row">
                 <div class="col-lg-12">
-                    <h1>Employee Details</h1>
-                    <div id="menu1" style=" height:717px ;overflow: auto;">
+                    <div class="page-header">
+                        <ol class="breadcrumb">
+                            <li><a href="/admin">Employee</a></li>
+                            <li class="active">Add Employee</li>
+                        </ol>
+                        <h3>Add Employee</h3>
+                    </div>
 
-                        <form class="form-group-sm" action="/admin/add-employee" method="post">
+                    <div id="menu1" style="height:717px; overflow: auto;">
+                        <form id="employee-form" class="form-horizontal" action="/admin/add-employee-bypass" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            
+                            <!-- Personal Information Section -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Personal Information</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <!-- Name Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Name:</label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="First name..." required name="firstName" onkeypress="return onlyAlphabets(event,this);">
+                                        </div>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="Last name..." required name="lastName" onkeypress="return onlyAlphabets(event,this);">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Birth Name Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Birth Name:</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" placeholder="Full birth name..." name="birthName" onkeypress="return onlyAlphabets(event,this);">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Date of Birth Field -->
                             <div class="form-group">
-                                <label for="name">Name:</label>
-                                <% if (hasErrors){ %>
-                                <input type="text" onkeypress="return onlyAlphabets(event,this);" class="form-control"
-                                       value="<%= user.name %>" required="required" id="name" name="name">
-                                <% }else{ %>
-                                <input type="text" onkeypress="return onlyAlphabets(event,this);" class="form-control"
-                                       required="required" id="name" name="name">
-                                <% } %>
+                                        <label class="col-sm-2 control-label">DOB:</label>
+                                        <div class="col-sm-4">
+                                            <div class="input-group">
+                                                <input type="date" class="form-control" required name="dateOfBirth">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            </div>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Gender:</label>
+                                        <div class="col-sm-4">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="gender" value="male" checked> Male
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="gender" value="female"> Female
+                                            </label>
+                                        </div>
                             </div>
+                                    
+                                    <!-- Personal Email Field -->
                             <div class="form-group">
-                                <label for="email">Email Address:</label>
-                                <% if (hasErrors){ %>
-                                <input type="email" class="form-control" value="<%= user.email %>" required="required"
-                                       id="email" name="email">
-                                <% }else{ %>
-                                <input type="email" class="form-control" required="required" id="email" name="email">
-                                <% } %>
+                                        <label class="col-sm-2 control-label">Email:</label>
+                                        <div class="col-sm-10">
+                                            <div class="input-group">
+                                                <input type="email" class="form-control" placeholder="email@example.com" required name="email">
+                                                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                            </div>
                                 <% if(hasErrors){ %>
                                 <% messages.forEach(function(item){
-                                if(item === "Email is already in use"){
-                                %>
-                                <label style="color: red;" id="message"><%= item %></label>
+                                                    if(item === "Email is already in use"){ %>
+                                                        <span class="help-block text-danger"><%= item %></span>
                                 <% }
                                 }) %>
-
                                 <% } %>
                             </div>
+                                    </div>
+                                    
+                                    <!-- Phone Number Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Phone Number:</label>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">+84</span>
+                                                <input type="text" class="form-control" placeholder="Phone number" required name="contactNumber">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Address Fields -->
                             <div class="form-group">
-                                <label for="DOB">Date of Birth:</label>
-                                <% if (hasErrors){ %>
-                                <input type="date" class="form-control"
-                                       value="<%= new Date(user.dateOfBirth).toISOString().substring(0, 10); %>"
-                                       required="required" id="DOB" name="DOB">
-                                <% }else{ %>
-                                <input type="date" class="form-control" required="required" id="DOB" name="DOB">
-                                <% } %>
-
+                                        <label class="col-sm-2 control-label">Address:</label>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" name="province">
+                                                <option value="">City/Province...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" name="district" disabled>
+                                                <option value="">Select province first...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Detailed address..." name="detailedAddress">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Birthplace Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Birthplace:</label>
+                                        <div class="col-sm-5">
+                                            <select class="form-control" name="birthplace">
+                                                <option value="">City/Province...</option>
+                                            </select>
+                                        </div>
                             </div>
+                                    
+                                    <!-- ID Number Field -->
                             <div class="form-group">
-                                <label for="pwd">Password:</label>
-
-                                <input type="password" minlength="6" required="required" class="form-control"
-                                       id="password" name="password">
-
+                                        <label class="col-sm-2 control-label">ID Number:</label>
+                                        <div class="col-sm-5">
+                                            <input type="text" class="form-control" placeholder="ID/CCCD number" name="idNumber">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Photo Upload Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Photo:</label>
+                                        <div class="col-sm-5">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
+                                                        <img id="preview-image" src="https://via.placeholder.com/150" alt="Upload Photo" style="max-width: 100%; max-height: 100%;">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="file" id="photo" name="photo" accept="image/*" class="file-input">
+                                                    <button type="button" class="btn btn-default" onclick="document.getElementById('photo').click();">Upload Photo</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Password Field (Hidden but required) -->
+                                    <div class="form-group" style="display: none;">
+                                        <label class="col-sm-2 control-label">Password:</label>
+                                        <div class="col-sm-4">
+                                            <input type="password" class="form-control" name="password" value="123456" minlength="6">
+                                            <span class="help-block">Default password will be set and can be changed later</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="number">Contact Number:</label>
-                                <% if (hasErrors){ %>
-                                <input type="text" pattern="03[0-9]{2}-(?!1234567)(?!1111111)(?!7654321)[0-9]{7}"
-                                       value="<%= user.contactNumber %>" class="form-control" required="required"
-                                       placeholder="e.g. XXXX-XXXXXXX" id="number" name="number">
-                                <% }else{ %>
-                                <input type="text" pattern="03[0-9]{2}-(?!1234567)(?!1111111)(?!7654321)[0-9]{7}"
-                                       class="form-control" required="required" placeholder="e.g. XXXX-XXXXXXX"
-                                       id="number" name="number">
-                                <% } %>
-
+                            
+                            <!-- Job Information Section -->
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">Job Information</h4>
                             </div>
+                                <div class="panel-body">
+                                    <!-- Job Title Field -->
                             <div class="form-group">
-                                <label for="department">Department:</label>
-                                <% if (hasErrors){ %>
-                                <select class="form-control" id="department" name="department">
-                                    <option value="<%= user.department %>"><%= user.department %></option>
-                                    <% if (user.department != "N/A"){ %>
-                                    <option value="N/A">N/A</option>
-                                    <% } %>
-                                    <% if (user.department != "Human Resource"){ %>
-                                    <option value="Human Resource">Human Resource</option>
-                                    <% } %>
-                                    <% if (user.department != "Software Development"){ %>
+                                        <label class="col-sm-2 control-label">Job Title:</label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="designation" required>
+                                                <option value="">Select job title...</option>
+                                                <option value="Software Engineer">Software Engineer</option>
+                                                <option value="System Analyst">System Analyst</option>
+                                                <option value="Project Manager">Project Manager</option>
+                                                <option value="Quality Assurance Engineer">Quality Assurance Engineer</option>
+                                                <option value="UI/UX Designer">UI/UX Designer</option>
+                                                <option value="Accounts Manager">Accounts Manager</option>
+                                                <option value="HR Manager">HR Manager</option>
+                                            </select>
+                                        </div>
+                                        <label class="col-sm-2 control-label">Department:</label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="department" required>
+                                                <option value="">Select department...</option>
                                     <option value="Software Development">Software Development</option>
-                                    <% } %>
-                                    <% if (user.department != "IT consulting"){ %>
-                                    <option value="IT consulting">IT consulting</option>
-                                    <% } %>
-                                    <% if (user.department != "Quality Assurance"){ %>
                                     <option value="Quality Assurance">Quality Assurance</option>
-                                    <% } %>
-                                    <% if (user.department != "Accounts"){ %>
-                                    <option value="Accounts">Accounts</option>
-                                    <% } %>
-                                    <% if (user.department != "Marketing"){ %>
-                                    <option value="Marketing">Marketing</option>
-                                    <% } %>
-                                    <% if (user.department != "Business Analysis"){ %>
-                                    <option value="Business Analysis">Business Analysis</option>
-                                    <% } %>
-                                </select>
-
-                                <% }else{ %>
-                                <select class="form-control" id="department" name="department">
-                                    <option value="N/A">N/A</option>
                                     <option value="Human Resource">Human Resource</option>
-                                    <option value="Software Development">Software Development</option>
-                                    <option value="IT consulting">IT consulting</option>
-                                    <option value="Quality Assurance">Quality Assurance</option>
+                                                <option value="IT consulting">IT Consulting</option>
                                     <option value="Accounts">Accounts</option>
                                     <option value="Marketing">Marketing</option>
                                     <option value="Business Analysis">Business Analysis</option>
                                 </select>
-                                <% } %>
-
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Job ID Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Job ID:</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Job ID" name="jobId">
+                                        </div>
                             </div>
+                                    
+                                    <!-- Supervisor Field -->
                             <div class="form-group">
-                                <label for="skills">Skills:</label><br>
-                                <% if (hasErrors && typeof user.Skills != "undefined"){ %>
-
-                                <select class="selectpicker" id="skills" name="skills[]" multiple>
-                                    <%
-                                    user.Skills.forEach(function(val){
-                                    if(val != ""){ %>
-                                    <option selected="selected"><%= val %></option>
-                                    <% }
-                                    });
-                                    %>
-                                    <% if (user.Skills.indexOf("Front End") < 0){ %>
-                                    <option>Front End</option>
-                                    <% } %>
-
-                                    <% if (user.Skills.indexOf("ROR") < 0){ %>
-                                    <option>ROR</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf(".NET") < 0){ %>
-                                    <option>.NET</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf("PHP") < 0){ %>
-                                    <option>PHP</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf("Python Django (ERP)") < 0){ %>
-                                    <option>Python Django (ERP)</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf("Mobile Development") < 0){ %>
-                                    <option>Mobile Development</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf("Big Data Analytics") < 0){ %>
-                                    <option>Big Data Analytics</option>
-                                    <% } %>
-                                    <% if (user.Skills.indexOf("Firmware") < 0){ %>
-                                    <option>Firmware</option>
-                                    <% } %>
+                                        <label class="col-sm-2 control-label">Supervisor:</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" placeholder="Enter Supervisor Name" name="supervisor" onkeypress="return onlyAlphabets(event,this);">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Employee Type Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Employee Type:</label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" name="employeeType" required>
+                                                <option value="">Select type...</option>
+                                                <option value="Full-Time">Full-Time</option>
+                                                <option value="Part-Time">Part-Time</option>
                                 </select>
-
-                                <% }else{ %>
-
-                                <select class="selectpicker" id="skills" name="skills[]" multiple>
-                                    <option>N/A</option>
-                                    <option>ROR</option>
-                                    <option>.NET</option>
-                                    <option>PHP</option>
-                                    <option>Python Django (ERP)</option>
-                                    <option>Mobile Development</option>
-                                    <option>Big Data Analytics</option>
-                                    <option>Firmware</option>
-
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <span class="help-block">Default password for new employee is <strong>123456</strong></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Start Date Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Start Date:</label>
+                                        <div class="col-sm-4">
+                                            <div class="input-group">
+                                                <input type="date" class="form-control" name="startDate">
+                                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Work Experience Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Work Experience:</label>
+                                        <div class="col-sm-6">
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Fresher" checked> Fresher
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Junior"> Junior
+                                            </label>
+                                            <label class="radio-inline">
+                                                <input type="radio" name="experience" value="Senior"> Senior
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Skills Field -->
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Skills:</label>
+                                        <div class="col-sm-10">
+                                            <select class="selectpicker form-control" multiple name="skills[]" data-live-search="true">
+                                                <option value="N/A">N/A</option>
+                                                <option value="ROR">ROR</option>
+                                                <option value=".NET">.NET</option>
+                                                <option value="PHP">PHP</option>
+                                                <option value="Python Django">Python Django</option>
+                                                <option value="Mobile Development">Mobile Development</option>
+                                                <option value="Big Data Analytics">Big Data Analytics</option>
+                                                <option value="Firmware">Firmware</option>
+                                                <option value="Front End">Front End</option>
+                                                <option value="UI/UX Design">UI/UX Design</option>
                                 </select>
-
-                                <% } %>
-
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
+                            <!-- Form Buttons -->
                             <div class="form-group">
-                                <label for="designation">Designation:</label>
-                                <% if (hasErrors){ %>
-
-                                <select class="form-control" id="designation" name="designation">
-                                    <option value="<%= user.designation %>"><%= user.designation %></option>
-                                    <% if (user.designation != "N/A"){ %>
-                                    <option value="N/A">N/A</option>
-                                    <% } %>
-                                    <% if (user.designation != "System Analyst"){ %>
-                                    <option value="System Analyst">System Analyst</option>
-                                    <% } %>
-                                    <% if (user.designation != "Accounts Manager"){ %>
-                                    <option value="Accounts Manager">Accounts Manager</option>
-                                    <% } %>
-                                    <% if (user.designation != "Project Manager"){ %>
-                                    <option value="Project Manager">Project Manager</option>
-                                    <% } %>
-                                    <% if (user.designation != "Software Engineer"){ %>
-                                    <option value="Software Engineer">Software Engineer</option>
-                                    <% } %>
-                                    <% if (user.designation != "Sr.Software Engineer"){ %>
-                                    <option value="Software Engineer">Software Engineer</option>
-                                    <% } %>
-                                    <% if (user.designation != "Project Lead"){ %>
-                                    <option value="Project Lead">Project Lead</option>
-                                    <% } %>
-                                    <% if (user.designation != "Business Analyst"){ %>
-                                    <option value="Business Analyst">Business Analyst</option>
-                                    <% } %>
-                                    <% if (user.designation != "Human Resource Manager"){ %>
-                                    <option value="Human Resource Manager">Human Resource Manager</option>
-                                    <% } %>
-                                    <% if (user.designation != "Software Developer"){ %>
-                                    <option value="Software Developer">Software Developer</option>
-                                    <% } %>
-                                    <% if (user.designation != "Quality Analyst"){ %>
-                                    <option value="Quality Analyst">Quality Analyst</option>
-                                    <% } %>
-                                </select>
-
-                                <% }else{ %>
-
-                                <select class="form-control" id="designation" name="designation">
-                                    <option value="N/A">N/A</option>
-                                    <option value="System Analyst">System Analyst</option>
-                                    <option value="Accounts Manager">Accounts Manager</option>
-                                    <option value="Project Manager">Project Manager</option>
-                                    <option value="Software Engineer">Software Engineer</option>
-                                    <option value="Software Engineer">Software Engineer</option>
-                                    <option value="Project Lead">Project Lead</option>
-                                    <option value="Business Analyst">Business Analyst</option>
-                                    <option value="Human Resource Manager">Human Resource Manager</option>
-                                    <option value="Software Developer">Software Developer</option>
-                                    <option value="Quality Analyst">Quality Analyst</option>
-                                </select>
-                                <% } %>
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default">Cancel</button>
+                                    <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                                </div>
                             </div>
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <button type="button" onclick="history.go(-1);" class="btn btn-default">Cancel</button>
-                            <button type="submit" class="btn btn-default">Register</button>
                         </form>
                     </div>
                 </div>
@@ -303,47 +355,587 @@
 <!-- /#wrapper -->
 <!-- jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
 <script src="/javascripts/sidebar_menu.js"></script>
-<script src="/javascripts/bootstrap-select.min.js"></script>
-<script language="Javascript" type="text/javascript">
 
+<!-- Bootstrap Select -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+<script>
+    // CSRF Token Refresh
+    $(document).ready(function() {
+        // Thêm token vào tất cả các AJAX requests
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-Token': '<%= csrfToken %>'
+            }
+        });
+        
+        // Đặt token vào form chính
+        var csrfToken = '<%= csrfToken %>';
+        $('input[name="_csrf"]').val(csrfToken);
+        
+        // Kiểm tra và làm mới token mỗi 10 phút
+        setInterval(function() {
+            $.get('/refresh-csrf', function(data) {
+                $('input[name="_csrf"]').val(data.csrfToken);
+            });
+        }, 10 * 60 * 1000); // 10 phút
+        
+        // Phần khởi tạo Bootstrap Select và các xử lý khác
+        $('.selectpicker').selectpicker({
+            style: 'btn-default',
+            size: 8
+        });
+        
+        // Image preview
+        $("#photo").change(function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview-image').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Gọi để tải dữ liệu tỉnh thành - đã được đưa xuống dưới để đảm bảo jQuery đã sẵn sàng
+        console.log("jQuery ready, loading provinces data now...");
+        loadProvincesDataImmediately();
+        
+        // Auto-scroll to form validation errors if any
+        if ($('.text-danger').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.text-danger').first().offset().top - 100
+            }, 200);
+        }
+    });
+    
+    // Danh sách tĩnh các tỉnh thành - sẵn sàng để sử dụng ngay lập tức
+    var STATIC_PROVINCES = [
+        {code: "01", name: "Hà Nội", districts: [
+            {code: "001", name: "Ba Đình"}, {code: "002", name: "Hoàn Kiếm"}, {code: "003", name: "Tây Hồ"}
+        ]},
+        {code: "02", name: "Hà Giang", districts: [
+            {code: "024", name: "Hà Giang"}, {code: "026", name: "Đồng Văn"}, {code: "027", name: "Mèo Vạc"}
+        ]},
+        {code: "04", name: "Cao Bằng", districts: [
+            {code: "040", name: "Cao Bằng"}, {code: "042", name: "Bảo Lâm"}, {code: "043", name: "Bảo Lạc"}
+        ]},
+        {code: "06", name: "Bắc Kạn", districts: [
+            {code: "058", name: "Bắc Kạn"}, {code: "060", name: "Pác Nặm"}, {code: "061", name: "Ba Bể"}
+        ]},
+        {code: "08", name: "Tuyên Quang", districts: [
+            {code: "070", name: "Tuyên Quang"}, {code: "071", name: "Lâm Bình"}, {code: "072", name: "Na Hang"}
+        ]},
+        {code: "10", name: "Lào Cai", districts: [
+            {code: "080", name: "Lào Cai"}, {code: "082", name: "Bát Xát"}, {code: "083", name: "Mường Khương"}
+        ]},
+        {code: "11", name: "Điện Biên", districts: [
+            {code: "094", name: "Điện Biên"}, {code: "095", name: "Điện Biên Đông"}, {code: "096", name: "Mường Ảng"}
+        ]},
+        {code: "12", name: "Lai Châu", districts: [
+            {code: "105", name: "Lai Châu"}, {code: "106", name: "Tam Đường"}, {code: "107", name: "Mường Tè"}
+        ]},
+        {code: "14", name: "Sơn La", districts: [
+            {code: "116", name: "Sơn La"}, {code: "118", name: "Quỳnh Nhai"}, {code: "119", name: "Thuận Châu"}
+        ]},
+        {code: "15", name: "Yên Bái", districts: [
+            {code: "132", name: "Yên Bái"}, {code: "133", name: "Lục Yên"}, {code: "135", name: "Văn Yên"}
+        ]},
+        {code: "17", name: "Hoà Bình", districts: [
+            {code: "148", name: "Hòa Bình"}, {code: "150", name: "Đà Bắc"}, {code: "151", name: "Kỳ Sơn"}
+        ]},
+        {code: "19", name: "Thái Nguyên", districts: [
+            {code: "164", name: "Thái Nguyên"}, {code: "165", name: "Sông Công"}, {code: "167", name: "Định Hóa"}
+        ]},
+        {code: "20", name: "Lạng Sơn", districts: [
+            {code: "178", name: "Lạng Sơn"}, {code: "180", name: "Tràng Định"}, {code: "181", name: "Bình Gia"}
+        ]},
+        {code: "22", name: "Quảng Ninh", districts: [
+            {code: "193", name: "Hạ Long"}, {code: "194", name: "Móng Cái"}, {code: "195", name: "Cẩm Phả"}
+        ]},
+        {code: "24", name: "Bắc Giang", districts: [
+            {code: "213", name: "Bắc Giang"}, {code: "215", name: "Yên Thế"}, {code: "216", name: "Tân Yên"}
+        ]},
+        {code: "25", name: "Phú Thọ", districts: [
+            {code: "227", name: "Việt Trì"}, {code: "228", name: "Phú Thọ"}, {code: "230", name: "Đoan Hùng"}
+        ]},
+        {code: "26", name: "Vĩnh Phúc", districts: [
+            {code: "243", name: "Vĩnh Yên"}, {code: "244", name: "Phúc Yên"}, {code: "246", name: "Lập Thạch"}
+        ]},
+        {code: "27", name: "Bắc Ninh", districts: [
+            {code: "256", name: "Bắc Ninh"}, {code: "258", name: "Yên Phong"}, {code: "259", name: "Quế Võ"}
+        ]},
+        {code: "30", name: "Hải Dương", districts: [
+            {code: "288", name: "Hải Dương"}, {code: "290", name: "Chí Linh"}, {code: "291", name: "Nam Sách"}
+        ]},
+        {code: "31", name: "Hải Phòng", districts: [
+            {code: "303", name: "Hồng Bàng"}, {code: "304", name: "Ngô Quyền"}, {code: "305", name: "Lê Chân"}
+        ]},
+        {code: "33", name: "Hưng Yên", districts: [
+            {code: "323", name: "Hưng Yên"}, {code: "325", name: "Văn Lâm"}, {code: "326", name: "Văn Giang"}
+        ]},
+        {code: "34", name: "Thái Bình", districts: [
+            {code: "336", name: "Thái Bình"}, {code: "338", name: "Quỳnh Phụ"}, {code: "339", name: "Hưng Hà"}
+        ]},
+        {code: "35", name: "Hà Nam", districts: [
+            {code: "347", name: "Phủ Lý"}, {code: "349", name: "Duy Tiên"}, {code: "350", name: "Kim Bảng"}
+        ]},
+        {code: "36", name: "Nam Định", districts: [
+            {code: "356", name: "Nam Định"}, {code: "358", name: "Mỹ Lộc"}, {code: "359", name: "Vụ Bản"}
+        ]},
+        {code: "37", name: "Ninh Bình", districts: [
+            {code: "369", name: "Ninh Bình"}, {code: "370", name: "Tam Điệp"}, {code: "372", name: "Nho Quan"}
+        ]},
+        {code: "38", name: "Thanh Hóa", districts: [
+            {code: "380", name: "Thanh Hóa"}, {code: "381", name: "Bỉm Sơn"}, {code: "382", name: "Sầm Sơn"}
+        ]},
+        {code: "40", name: "Nghệ An", districts: [
+            {code: "412", name: "Vinh"}, {code: "413", name: "Cửa Lò"}, {code: "414", name: "Thái Hoà"}
+        ]},
+        {code: "42", name: "Hà Tĩnh", districts: [
+            {code: "436", name: "Hà Tĩnh"}, {code: "437", name: "Hồng Lĩnh"}, {code: "439", name: "Hương Sơn"}
+        ]},
+        {code: "44", name: "Quảng Bình", districts: [
+            {code: "450", name: "Đồng Hới"}, {code: "452", name: "Minh Hóa"}, {code: "453", name: "Tuyên Hóa"}
+        ]},
+        {code: "45", name: "Quảng Trị", districts: [
+            {code: "461", name: "Đông Hà"}, {code: "462", name: "Quảng Trị"}, {code: "464", name: "Vĩnh Linh"}
+        ]},
+        {code: "46", name: "Thừa Thiên Huế", districts: [
+            {code: "474", name: "Huế"}, {code: "476", name: "Phong Điền"}, {code: "477", name: "Quảng Điền"}
+        ]},
+        {code: "48", name: "Đà Nẵng", districts: [
+            {code: "490", name: "Liên Chiểu"}, {code: "491", name: "Thanh Khê"}, {code: "492", name: "Hải Châu"}
+        ]},
+        {code: "49", name: "Quảng Nam", districts: [
+            {code: "502", name: "Tam Kỳ"}, {code: "503", name: "Hội An"}, {code: "504", name: "Tây Giang"}
+        ]},
+        {code: "51", name: "Quảng Ngãi", districts: [
+            {code: "522", name: "Quảng Ngãi"}, {code: "524", name: "Bình Sơn"}, {code: "525", name: "Trà Bồng"}
+        ]},
+        {code: "52", name: "Bình Định", districts: [
+            {code: "540", name: "Quy Nhơn"}, {code: "542", name: "An Lão"}, {code: "543", name: "Hoài Nhơn"}
+        ]},
+        {code: "54", name: "Phú Yên", districts: [
+            {code: "555", name: "Tuy Hòa"}, {code: "557", name: "Sông Cầu"}, {code: "558", name: "Đồng Xuân"}
+        ]},
+        {code: "56", name: "Khánh Hòa", districts: [
+            {code: "568", name: "Nha Trang"}, {code: "569", name: "Cam Ranh"}, {code: "570", name: "Cam Lâm"}
+        ]},
+        {code: "58", name: "Ninh Thuận", districts: [
+            {code: "582", name: "Phan Rang-Tháp Chàm"}, {code: "584", name: "Bác Ái"}, {code: "585", name: "Ninh Sơn"}
+        ]},
+        {code: "60", name: "Bình Thuận", districts: [
+            {code: "593", name: "Phan Thiết"}, {code: "594", name: "La Gi"}, {code: "595", name: "Tuy Phong"}
+        ]},
+        {code: "62", name: "Kon Tum", districts: [
+            {code: "608", name: "Kon Tum"}, {code: "610", name: "Đắk Glei"}, {code: "611", name: "Ngọc Hồi"}
+        ]},
+        {code: "64", name: "Gia Lai", districts: [
+            {code: "622", name: "Pleiku"}, {code: "623", name: "An Khê"}, {code: "624", name: "Ayun Pa"}
+        ]},
+        {code: "66", name: "Đắk Lắk", districts: [
+            {code: "643", name: "Buôn Ma Thuột"}, {code: "644", name: "Buôn Hồ"}, {code: "645", name: "Ea H'leo"}
+        ]},
+        {code: "67", name: "Đắk Nông", districts: [
+            {code: "660", name: "Gia Nghĩa"}, {code: "661", name: "Đăk Glong"}, {code: "662", name: "Cư Jút"}
+        ]},
+        {code: "68", name: "Lâm Đồng", districts: [
+            {code: "672", name: "Đà Lạt"}, {code: "673", name: "Bảo Lộc"}, {code: "674", name: "Đam Rông"}
+        ]},
+        {code: "70", name: "Bình Phước", districts: [
+            {code: "688", name: "Đồng Xoài"}, {code: "689", name: "Phước Long"}, {code: "690", name: "Bình Long"}
+        ]},
+        {code: "72", name: "Tây Ninh", districts: [
+            {code: "703", name: "Tây Ninh"}, {code: "705", name: "Tân Biên"}, {code: "706", name: "Tân Châu"}
+        ]},
+        {code: "74", name: "Bình Dương", districts: [
+            {code: "718", name: "Thủ Dầu Một"}, {code: "719", name: "Bàu Bàng"}, {code: "720", name: "Dầu Tiếng"}
+        ]},
+        {code: "75", name: "Đồng Nai", districts: [
+            {code: "731", name: "Biên Hòa"}, {code: "732", name: "Long Khánh"}, {code: "734", name: "Vĩnh Cửu"}
+        ]},
+        {code: "77", name: "Bà Rịa - Vũng Tàu", districts: [
+            {code: "747", name: "Vũng Tàu"}, {code: "748", name: "Bà Rịa"}, {code: "750", name: "Châu Đức"}
+        ]},
+        {code: "79", name: "Hồ Chí Minh", districts: [
+            {code: "760", name: "Quận 1"}, {code: "761", name: "Quận 12"}, {code: "762", name: "Thủ Đức"}
+        ]},
+        {code: "80", name: "Long An", districts: [
+            {code: "794", name: "Tân An"}, {code: "795", name: "Kiến Tường"}, {code: "796", name: "Tân Hưng"}
+        ]},
+        {code: "82", name: "Tiền Giang", districts: [
+            {code: "815", name: "Mỹ Tho"}, {code: "816", name: "Gò Công"}, {code: "817", name: "Cai Lậy"}
+        ]},
+        {code: "83", name: "Bến Tre", districts: [
+            {code: "829", name: "Bến Tre"}, {code: "831", name: "Châu Thành"}, {code: "832", name: "Chợ Lách"}
+        ]},
+        {code: "84", name: "Trà Vinh", districts: [
+            {code: "842", name: "Trà Vinh"}, {code: "844", name: "Càng Long"}, {code: "845", name: "Cầu Kè"}
+        ]},
+        {code: "86", name: "Vĩnh Long", districts: [
+            {code: "855", name: "Vĩnh Long"}, {code: "857", name: "Long Hồ"}, {code: "858", name: "Mang Thít"}
+        ]},
+        {code: "87", name: "Đồng Tháp", districts: [
+            {code: "866", name: "Cao Lãnh"}, {code: "867", name: "Sa Đéc"}, {code: "868", name: "Hồng Ngự"}
+        ]},
+        {code: "89", name: "An Giang", districts: [
+            {code: "883", name: "Long Xuyên"}, {code: "884", name: "Châu Đốc"}, {code: "886", name: "An Phú"}
+        ]},
+        {code: "91", name: "Kiên Giang", districts: [
+            {code: "899", name: "Rạch Giá"}, {code: "900", name: "Hà Tiên"}, {code: "902", name: "Kiên Lương"}
+        ]},
+        {code: "92", name: "Cần Thơ", districts: [
+            {code: "916", name: "Ninh Kiều"}, {code: "917", name: "Ô Môn"}, {code: "918", name: "Bình Thủy"}
+        ]},
+        {code: "93", name: "Hậu Giang", districts: [
+            {code: "930", name: "Vị Thanh"}, {code: "931", name: "Ngã Bảy"}, {code: "932", name: "Châu Thành A"}
+        ]},
+        {code: "94", name: "Sóc Trăng", districts: [
+            {code: "941", name: "Sóc Trăng"}, {code: "942", name: "Châu Thành"}, {code: "943", name: "Kế Sách"}
+        ]},
+        {code: "95", name: "Bạc Liêu", districts: [
+            {code: "954", name: "Bạc Liêu"}, {code: "956", name: "Hồng Dân"}, {code: "957", name: "Phước Long"}
+        ]},
+        {code: "96", name: "Cà Mau", districts: [
+            {code: "964", name: "Cà Mau"}, {code: "966", name: "U Minh"}, {code: "967", name: "Thới Bình"}
+        ]}
+    ];
+    
+    // Hàm tải dữ liệu tỉnh thành ngay lập tức
+    function loadProvincesDataImmediately() {
+        console.log("Loading provinces immediately using static data");
+        
+        try {
+            // Thiết lập dữ liệu tĩnh ngay lập tức
+            window.provincesData = STATIC_PROVINCES;
+            
+            // Populate dropdowns ngay lập tức với dữ liệu tĩnh
+            let provinceSelect = $('select[name="province"]');
+            let birthplaceSelect = $('select[name="birthplace"]');
+            let districtSelect = $('select[name="district"]');
+            
+            if (!provinceSelect.length || !birthplaceSelect.length) {
+                console.error("Cannot find province or birthplace select elements");
+                return;
+            }
+            
+            console.log("Select elements found, populating...");
+            
+            // Xóa tùy chọn hiện tại
+            provinceSelect.empty();
+            birthplaceSelect.empty();
+            districtSelect.empty();
+            
+            // Thêm tùy chọn mặc định
+            provinceSelect.append('<option value="">City/Province...</option>');
+            birthplaceSelect.append('<option value="">City/Province...</option>');
+            districtSelect.html('<option value="">Select province first...</option>');
+            
+            // Thêm tất cả tỉnh thành vào các dropdown
+            $.each(STATIC_PROVINCES, function(index, province) {
+                provinceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
+                birthplaceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
+            });
+            
+            // Kích hoạt các dropdown
+            provinceSelect.attr('disabled', false);
+            birthplaceSelect.attr('disabled', false);
+            districtSelect.attr('disabled', true);
+            
+            // Thiết lập sự kiện change cho dropdown tỉnh
+            provinceSelect.change(function() {
+                updateDistricts($(this).val());
+            });
+            
+            console.log("Static provinces loaded successfully: " + STATIC_PROVINCES.length + " provinces");
+            
+            // Tải dữ liệu đầy đủ từ API
+            setTimeout(function() {
+                tryLoadFullAPIData();
+            }, 500);
+        } catch (e) {
+            console.error("Error in loadProvincesDataImmediately:", e);
+        }
+    }
+    
+    // Tải dữ liệu đầy đủ từ các API khác nhau
+    function tryLoadFullAPIData() {
+        console.log("Attempting to load full data from API...");
+        // Thử API Việt Nam trước vì nó đáng tin cậy nhất
+        tryVietnamAPI();
+    }
+    
+    // Try Vietnam-specific province API
+    function tryVietnamAPI() {
+        console.log("Trying Vietnam API...");
+        $.ajax({
+            url: 'https://provinces.open-api.vn/api/?depth=2',
+            type: 'GET',
+            dataType: 'json',
+            timeout: 5000,
+            success: function(data) {
+                if (Array.isArray(data) && data.length > 0) {
+                    console.log("Vietnam API successful with " + data.length + " provinces");
+                    
+                    // Process Vietnam API data format
+                    var provinces = data.map(function(p) {
+                        return {
+                            code: p.code,
+                            name: p.name,
+                            districts: p.districts.map(function(d) {
+                                return {
+                                    code: d.code,
+                                    name: d.name
+                                };
+                            })
+                        };
+                    });
+                    
+                    // Chỉ cập nhật dữ liệu nếu có nhiều tỉnh/thành hơn dữ liệu tĩnh
+                    if (provinces.length > STATIC_PROVINCES.length) {
+                        // Store and update UI
+                        window.provincesData = provinces;
+                        updateProvinceDropdowns(provinces);
+                        console.log('Successfully loaded data from Vietnam API with ' + provinces.length + ' provinces');
+                    }
+                } else {
+                    console.log("Vietnam API returned invalid data, trying GitHub...");
+                    tryLoadDataFromGitHubRaw();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log("Vietnam API failed:", error);
+                tryLoadDataFromGitHubRaw();
+            }
+        });
+    }
+    
+    // Try loading data from GitHub raw content
+    function tryLoadDataFromGitHubRaw() {
+        console.log("Trying GitHub raw API...");
+        $.ajax({
+            url: 'https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json',
+            type: 'GET',
+            dataType: 'json',
+            timeout: 5000,
+            cache: true,
+            success: function(data) {
+                processGitHubData(data);
+            },
+            error: function(xhr, status, error) {
+                console.log('GitHub raw API failed:', error);
+                // Try alternate source using JSONP to avoid CORS issues
+                tryLoadDataFromJSONP();
+            }
+        });
+    }
+    
+    // Try loading via JSONP proxy to avoid CORS issues
+    function tryLoadDataFromJSONP() {
+        console.log("Trying JSONP proxy...");
+        // Using a JSONP-enabled proxy service
+        $.ajax({
+            url: 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json'),
+            type: 'GET',
+            dataType: 'json',
+            timeout: 5000,
+            success: function(response) {
+                if (response && response.contents) {
+                    try {
+                        var data = JSON.parse(response.contents);
+                        processGitHubData(data);
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
+                        // Đã thử tất cả các API, giữ nguyên dữ liệu tĩnh
+                    }
+                }
+            },
+            error: function() {
+                console.log('All APIs failed. Using static data only.');
+                // Đã thử tất cả các API, giữ nguyên dữ liệu tĩnh
+            }
+        });
+    }
+    
+    // Process data from GitHub
+    function processGitHubData(data) {
+        if (Array.isArray(data) && data.length > 0) {
+            console.log('GitHub data retrieved successfully with ' + data.length + ' provinces');
+            
+            // Process and format data for our use
+            var provinces = data.map(function(province) {
+                return {
+                    code: province.Id,
+                    name: province.Name,
+                    districts: province.Districts.map(function(district) {
+                        return {
+                            code: district.Id,
+                            name: district.Name,
+                            wards: district.Wards
+                        };
+                    })
+                };
+            });
+            
+            // Sort provinces by name
+            provinces.sort(function(a, b) {
+                return a.name.localeCompare(b.name);
+            });
+            
+            // Chỉ cập nhật dữ liệu nếu có nhiều tỉnh/thành hơn dữ liệu tĩnh
+            if (provinces.length > STATIC_PROVINCES.length) {
+                // Store provinces data for later use
+                window.provincesData = provinces;
+                
+                // Update UI with better data
+                updateProvinceDropdowns(provinces);
+                
+                console.log('Successfully updated UI with GitHub data: ' + provinces.length + ' provinces');
+            }
+        }
+    }
+    
+    // Cập nhật UI dropdown với dữ liệu mới từ API mà không ảnh hưởng đến trải nghiệm người dùng
+    function updateProvinceDropdowns(provinces) {
+        let provinceSelect = $('select[name="province"]');
+        let birthplaceSelect = $('select[name="birthplace"]');
+        
+        // Lưu lại giá trị đã chọn
+        let selectedProvince = provinceSelect.val();
+        let selectedBirthplace = birthplaceSelect.val();
+        
+        // Clear và populate danh sách tỉnh/thành
+        provinceSelect.empty();
+        birthplaceSelect.empty();
+        
+        // Thêm option mặc định
+        provinceSelect.append('<option value="">City/Province...</option>');
+        birthplaceSelect.append('<option value="">City/Province...</option>');
+        
+        // Thêm tất cả tỉnh/thành từ API
+        $.each(provinces, function(index, province) {
+            provinceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
+            birthplaceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
+        });
+        
+        // Khôi phục lại giá trị đã chọn (nếu có)
+        if (selectedProvince) {
+            provinceSelect.val(selectedProvince);
+            // Cập nhật lại danh sách quận/huyện theo tỉnh đã chọn
+            updateDistricts(selectedProvince);
+        }
+        
+        if (selectedBirthplace) {
+            birthplaceSelect.val(selectedBirthplace);
+        }
+    }
+
+    // Function to only allow alphabets in text fields
     function onlyAlphabets(e, t) {
         try {
             if (window.event) {
                 var charCode = window.event.keyCode;
-            }
-            else if (e) {
+            } else if (e) {
                 var charCode = e.which;
-            }
-            else {
+            } else {
                 return true;
             }
-            if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123 || charCode === 32))
+            
+            if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123) || charCode == 32)
                 return true;
             else
                 return false;
-        }
-        catch (err) {
+        } catch (err) {
             alert(err.Description);
         }
     }
 
-</script>
-<script>
-
-    $(document).ready(function () {
-        $('.selectpicker').selectpicker();
-        $('#menu3').click();
-        var box1height = $('#menu1').height();
-        // Set box2 height equal to box1
-        $('#sidebar-wrapper').height(box1height * 1.2);
-        for (i = new Date().getFullYear(); i > 1950; i--) {
-            $('#year').append($('<option />').val(i).html(i));
+    // Load provinces data from API - deprecated, using loadProvincesDataImmediately instead
+    function loadProvincesData() {
+        loadProvincesDataImmediately();
+    }
+    
+    // Update districts based on selected province
+    function updateDistricts(provinceCode) {
+        console.log("Updating districts for province code:", provinceCode);
+        let districtSelect = $('select[name="district"]');
+        
+        // Clear current options
+        districtSelect.empty();
+        districtSelect.append('<option value="">District...</option>');
+        
+        if (provinceCode && window.provincesData) {
+            // Enable district dropdown
+            districtSelect.attr('disabled', false);
+            
+            // Find selected province data
+            let selectedProvince = window.provincesData.find(p => p.code == provinceCode);
+            
+            if (selectedProvince && selectedProvince.districts) {
+                console.log("Found province with " + selectedProvince.districts.length + " districts");
+                
+                // Sort districts by name
+                selectedProvince.districts.sort(function(a, b) {
+                    return a.name.localeCompare(b.name);
+                });
+                
+                // Add districts to dropdown
+                $.each(selectedProvince.districts, function(index, district) {
+                    districtSelect.append('<option value="' + district.code + '">' + district.name + '</option>');
+                });
+            } else {
+                console.log("No districts found for province code:", provinceCode);
+                districtSelect.html('<option value="">No districts available</option>');
+            }
+        } else {
+            // Disable district dropdown if no province is selected
+            districtSelect.attr('disabled', true);
+            districtSelect.html('<option value="">Select province first...</option>');
         }
-
-    });
+    }
 </script>
+
+<style>
+    .file-input {
+        display: none;
+    }
+    .thumbnail {
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+    }
+    .breadcrumb {
+        background-color: transparent;
+        padding-left: 0;
+    }
+    .panel-title {
+        font-weight: bold;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .panel {
+        margin-bottom: 20px;
+    }
+    .help-block {
+        margin-top: 5px;
+        margin-bottom: 0;
+    }
+    .text-danger {
+        color: #a94442;
+    }
+    .api-error {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+</style>
 </body>
 
 <div id="myModal2" class="modal fade" role="dialog">
@@ -352,64 +944,23 @@
             <!-- Modal content-->
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
                     <h4 class="modal-title">Mark Attendance</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to mark attendance.</p>
+                    <p>Are you sure you want to mark attendance?</p>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="reset" class="btn btn-default" data-dismiss="modal">No</button>
+                    <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
+                    <button type="reset" class="btn btn-default" data-dismiss="modal">
+                        No
+                    </button>
                     <button type="submit" class="btn btn-default">Yes</button>
                 </div>
-
             </div>
         </form>
-    </div>
-</div>
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <form method="post" action="/admin/view-attendance">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Select Month/Year</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="Month">Month:</label>
-                        <select class="form-control" id="month" name="month">
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="year">Year:</label>
-                        <select class="form-control" id="year" name="year">
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-default">View</button>
-                </div>
-            </form>
-        </div>
-
     </div>
 </div>
 </html>
