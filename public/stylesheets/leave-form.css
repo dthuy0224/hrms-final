@@ -1,0 +1,157 @@
+﻿#wrapper.toggled #sidebar-wrapper {
+  width: 0;
+}
+
+#sidebar-wrapper {
+  margin-top: 58px; /* đảm bảo không bị đè bởi navbar */
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #000000;
+}
+
+
+nav.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* đảm bảo navbar hiển thị trên cùng */
+}
+.page-header  {
+  font-size: 1.5em;
+  color: #000000;
+  text-align: center;
+  margin-top: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  margin-top: 50px;
+  margin-right: 1000px;
+}
+
+.container {
+  width: 1050px;
+  margin: 0 auto; /* căn giữa */
+  padding: 20px 0;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 13px;
+  font-weight: 400;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+#formApply {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: space-between;
+}
+
+.form-row {
+  max-width: 1000px;
+  width: 100%;
+  height: 490px;
+  margin: 0 auto; /* căn giữa */
+  display: flex;
+  flex-wrap: nowrap; /* hoặc wrap nếu muốn responsive */
+  gap: 40px;
+  justify-content: space-between;
+  background-color:#f9f9f9 ;
+}
+/* Hai khối form chia đều không gian */
+.leave-form {
+  flex: 1; /* chiếm 50% chiều rộng */
+  padding: 20px;
+  background: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.leave-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.leave-form input[type="text"],
+.leave-form input[type="date"],
+.leave-form select,
+.leave-form textarea {
+  width: 100%;
+  padding: 5px 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.leave-form input:focus,
+.leave-form select:focus,
+.leave-form textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.2);
+  outline: none;
+}
+
+.leave-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+
+
+
+
+.form-buttons {
+  margin-top: -30px;
+  margin-left: 50px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+}
+/* Style cho nút Apply chỉ trong leave-form */
+.form-buttons .btn-apply {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.form-buttons .btn-apply:hover {
+  background-color: #0056b3;
+}
+
+/* Cancel giữ style cũ nhưng có thể tùy chỉnh nếu muốn */
+.form-buttons .btn-default {
+  margin-left: 10px;
+}
+.error-message {
+  color: red;
+  font-size: 0.85em;
+  margin-bottom: 10px;
+  display: block;
+}
+.invalid {
+  border: 2px solid red !important;
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  background-color: #eee;
+}
+.invalid {
+  border: 2px solid red !important;
+}
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+  display: block;
+}
