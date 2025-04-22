@@ -308,7 +308,7 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
     await user.save();
     console.log("User đã lưu thành công với ID:", user._id);
     
-    req.flash("success", "Employee added successfully!");
+    req.flash("success", `Employee ${name} added successfully! Employee ID: ${user._id}`);
     res.redirect("/admin/view-all-employees");
   } catch (err) {
     console.error("ERROR trong add-employee-bypass:", err);

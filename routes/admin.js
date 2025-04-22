@@ -178,6 +178,7 @@ router.get("/view-all-employees", async (req, res, next) => {
       csrfToken: req.csrfToken(),
       users: formattedUsers,
       userName: req.user.name,
+      messages: req.flash() || {}
     });
   } catch (err) {
     console.error(err);
@@ -1538,7 +1539,7 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       email: savedUser.email
     });
     
-    req.flash("success", "Employee added successfully!");
+    req.flash("success", `Employee ${name} added successfully! Employee ID: ${savedUser._id}`);
     res.redirect("/admin/view-all-employees");
   } catch (err) {
     console.error("ERROR trong add-employee:", err);

@@ -190,7 +190,7 @@
                                             <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be 9 digits.</span>
                                         </div>
                                     </div>
-                             <!-- Address Fields -->
+                                    <!-- Address Fields -->
                             <div class="form-group">
                                         <label class="col-sm-2 control-label">Address: <span class="text-danger">*</span></label>
                                         <div class="col-sm-3">
@@ -317,7 +317,7 @@
                                         <label class="col-sm-2 control-label">Office Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="email" class="form-control" placeholder="office.email@company.com" required name="officeEmail">
+                                                <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
                                             <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid office email address.</span>
@@ -329,7 +329,7 @@
                                             }) %>
                                             <% } %>
                                         </div>
-                                    </div>
+                            </div>
                                     
                                     <!-- Supervisor Field -->
                             <div class="form-group">
@@ -367,7 +367,7 @@
                                                             <option value="<%= i %>"><%= i < 10 ? '0'+i : i %></option>
                                                         <% } %>
                                                     </select>
-                                                </div>
+                                            </div>
                                                 <div class="col-xs-4">
                                                     <select name="startMonth" class="form-control">
                                                         <option value="">Month</option>
@@ -453,10 +453,119 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
 
+<!-- Toastr for notifications -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<!-- Flash Messages -->
+<script>
+$(document).ready(function() {
+    // Enhanced Toastr configuration
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-center", // Changed from toast-top-right for better visibility
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "500", // Increased from 300
+        "hideDuration": "1000",
+        "timeOut": "7000", // Increased from 5000 to give more time to read
+        "extendedTimeOut": "2000", // Increased from 1000
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut",
+        "tapToDismiss": false // Require clicking the X to dismiss
+    };
+    
+    <%# Check if messages exist and display them %>
+    <% if (typeof messages !== 'undefined') { %>
+        <% if (messages.success && messages.success.length > 0) { %>
+            toastr.success("<%= messages.success[0] %>", "Success!", {
+                "iconClass": 'toast-success animated bounceIn'
+            });
+        <% } %>
+        
+        <% if (messages.error && messages.error.length > 0) { %>
+            toastr.error("<%= messages.error[0] %>", "Error!", {
+                "iconClass": 'toast-error animated shake'
+            });
+        <% } %>
+    <% } %>
+});
+</script>
+
+<!-- Add CSS for animations -->
+<style>
+@keyframes bounceIn {
+  from, 20%, 40%, 60%, 80%, to {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+  }
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+.bounceIn {
+  animation-duration: 0.75s;
+  animation-name: bounceIn;
+}
+@keyframes shake {
+  from, to {
+    transform: translate3d(0, 0, 0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+.shake {
+  animation-name: shake;
+  animation-duration: 0.8s;
+}
+.animated {
+  animation-fill-mode: both;
+}
+/* Custom toast styling */
+.toast-success, .toast-error {
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.toast-success {
+  background-color: #51A351;
+}
+.toast-error {
+  background-color: #BD362F;
+}
+</style>
+
+<!-- CSRF Token Refresh Script -->
 <script>
     // CSRF Token Refresh
     $(document).ready(function() {
-        // Thêm token vào tất cả các AJAX requests
         $.ajaxSetup({
             headers: {
                 'X-CSRF-Token': '<%= csrfToken %>'
@@ -578,64 +687,64 @@
                 scrollTop: $('.text-danger').first().offset().top - 100
             }, 200);
         }
+    
+    // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
+    $('#employee-form').on('submit', function(e) {
+        // Xử lý Date of Birth
+        const dobDay = $('select[name="dobDay"]').val();
+        const dobMonth = $('select[name="dobMonth"]').val();
+        const dobYear = $('select[name="dobYear"]').val();
         
-        // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
-        $('#employee-form').on('submit', function(e) {
-            // Xử lý Date of Birth
-            const dobDay = $('select[name="dobDay"]').val();
-            const dobMonth = $('select[name="dobMonth"]').val();
-            const dobYear = $('select[name="dobYear"]').val();
+        if (dobDay && dobMonth && dobYear) {
+            // Format tháng và ngày để đảm bảo có 2 chữ số
+            const formattedDay = dobDay.toString().padStart(2, '0');
+            const formattedMonth = dobMonth.toString().padStart(2, '0');
             
-            if (dobDay && dobMonth && dobYear) {
-                // Format tháng và ngày để đảm bảo có 2 chữ số
-                const formattedDay = dobDay.toString().padStart(2, '0');
-                const formattedMonth = dobMonth.toString().padStart(2, '0');
-                
-                // Tạo ngày ISO (yyyy-mm-dd)
-                const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
-                
-                // Tạo input ẩn chứa giá trị ISO
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'dateOfBirth',
-                    value: isoDate
-                }).appendTo(this);
-            } else if(dobDay || dobMonth || dobYear) {
-                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
-                e.preventDefault();
-                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
-                return false;
-            }
+            // Tạo ngày ISO (yyyy-mm-dd)
+            const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
             
-            // Xử lý Start Date (nếu có)
-            const startDay = $('select[name="startDay"]').val();
-            const startMonth = $('select[name="startMonth"]').val();
-            const startYear = $('select[name="startYear"]').val();
+            // Tạo input ẩn chứa giá trị ISO
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'dateOfBirth',
+                value: isoDate
+            }).appendTo(this);
+        } else if(dobDay || dobMonth || dobYear) {
+            // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+            e.preventDefault();
+            alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
+            return false;
+        }
+        
+        // Xử lý Start Date (nếu có)
+        const startDay = $('select[name="startDay"]').val();
+        const startMonth = $('select[name="startMonth"]').val();
+        const startYear = $('select[name="startYear"]').val();
+        
+        // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
+        if (startDay && startMonth && startYear) {
+            // Format tháng và ngày để đảm bảo có 2 chữ số
+            const formattedStartDay = startDay.toString().padStart(2, '0');
+            const formattedStartMonth = startMonth.toString().padStart(2, '0');
             
-            // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
-            if (startDay && startMonth && startYear) {
-                // Format tháng và ngày để đảm bảo có 2 chữ số
-                const formattedStartDay = startDay.toString().padStart(2, '0');
-                const formattedStartMonth = startMonth.toString().padStart(2, '0');
-                
-                // Tạo ngày ISO (yyyy-mm-dd)
-                const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
-                
-                // Tạo input ẩn chứa giá trị ISO
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'startDate',
-                    value: isoStartDate
-                }).appendTo(this);
-            } else if(startDay || startMonth || startYear) {
-                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
-                e.preventDefault();
-                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
-                return false;
-            }
+            // Tạo ngày ISO (yyyy-mm-dd)
+            const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
             
-            return true;
-        });
+            // Tạo input ẩn chứa giá trị ISO
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'startDate',
+                value: isoStartDate
+            }).appendTo(this);
+        } else if(startDay || startMonth || startYear) {
+            // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+            e.preventDefault();
+            alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
+            return false;
+        }
+        
+        return true;
+    });
         
         // Convert date inputs to DD/MM/YY format
         $('.date-input').each(function() {
@@ -659,493 +768,7 @@
                 }
             });
         });
-    });
-    
-    // Danh sách tĩnh các tỉnh thành - sẵn sàng để sử dụng ngay lập tức
-    var STATIC_PROVINCES = [
-        {code: "01", name: "Hà Nội", districts: [
-            {code: "001", name: "Ba Đình"}, {code: "002", name: "Hoàn Kiếm"}, {code: "003", name: "Tây Hồ"}
-        ]},
-        {code: "02", name: "Hà Giang", districts: [
-            {code: "024", name: "Hà Giang"}, {code: "026", name: "Đồng Văn"}, {code: "027", name: "Mèo Vạc"}
-        ]},
-        {code: "04", name: "Cao Bằng", districts: [
-            {code: "040", name: "Cao Bằng"}, {code: "042", name: "Bảo Lâm"}, {code: "043", name: "Bảo Lạc"}
-        ]},
-        {code: "06", name: "Bắc Kạn", districts: [
-            {code: "058", name: "Bắc Kạn"}, {code: "060", name: "Pác Nặm"}, {code: "061", name: "Ba Bể"}
-        ]},
-        {code: "08", name: "Tuyên Quang", districts: [
-            {code: "070", name: "Tuyên Quang"}, {code: "071", name: "Lâm Bình"}, {code: "072", name: "Na Hang"}
-        ]},
-        {code: "10", name: "Lào Cai", districts: [
-            {code: "080", name: "Lào Cai"}, {code: "082", name: "Bát Xát"}, {code: "083", name: "Mường Khương"}
-        ]},
-        {code: "11", name: "Điện Biên", districts: [
-            {code: "094", name: "Điện Biên"}, {code: "095", name: "Điện Biên Đông"}, {code: "096", name: "Mường Ảng"}
-        ]},
-        {code: "12", name: "Lai Châu", districts: [
-            {code: "105", name: "Lai Châu"}, {code: "106", name: "Tam Đường"}, {code: "107", name: "Mường Tè"}
-        ]},
-        {code: "14", name: "Sơn La", districts: [
-            {code: "116", name: "Sơn La"}, {code: "118", name: "Quỳnh Nhai"}, {code: "119", name: "Thuận Châu"}
-        ]},
-        {code: "15", name: "Yên Bái", districts: [
-            {code: "132", name: "Yên Bái"}, {code: "133", name: "Lục Yên"}, {code: "135", name: "Văn Yên"}
-        ]},
-        {code: "17", name: "Hoà Bình", districts: [
-            {code: "148", name: "Hòa Bình"}, {code: "150", name: "Đà Bắc"}, {code: "151", name: "Kỳ Sơn"}
-        ]},
-        {code: "19", name: "Thái Nguyên", districts: [
-            {code: "164", name: "Thái Nguyên"}, {code: "165", name: "Sông Công"}, {code: "167", name: "Định Hóa"}
-        ]},
-        {code: "20", name: "Lạng Sơn", districts: [
-            {code: "178", name: "Lạng Sơn"}, {code: "180", name: "Tràng Định"}, {code: "181", name: "Bình Gia"}
-        ]},
-        {code: "22", name: "Quảng Ninh", districts: [
-            {code: "193", name: "Hạ Long"}, {code: "194", name: "Móng Cái"}, {code: "195", name: "Cẩm Phả"}
-        ]},
-        {code: "24", name: "Bắc Giang", districts: [
-            {code: "213", name: "Bắc Giang"}, {code: "215", name: "Yên Thế"}, {code: "216", name: "Tân Yên"}
-        ]},
-        {code: "25", name: "Phú Thọ", districts: [
-            {code: "227", name: "Việt Trì"}, {code: "228", name: "Phú Thọ"}, {code: "230", name: "Đoan Hùng"}
-        ]},
-        {code: "26", name: "Vĩnh Phúc", districts: [
-            {code: "243", name: "Vĩnh Yên"}, {code: "244", name: "Phúc Yên"}, {code: "246", name: "Lập Thạch"}
-        ]},
-        {code: "27", name: "Bắc Ninh", districts: [
-            {code: "256", name: "Bắc Ninh"}, {code: "258", name: "Yên Phong"}, {code: "259", name: "Quế Võ"}
-        ]},
-        {code: "30", name: "Hải Dương", districts: [
-            {code: "288", name: "Hải Dương"}, {code: "290", name: "Chí Linh"}, {code: "291", name: "Nam Sách"}
-        ]},
-        {code: "31", name: "Hải Phòng", districts: [
-            {code: "303", name: "Hồng Bàng"}, {code: "304", name: "Ngô Quyền"}, {code: "305", name: "Lê Chân"}
-        ]},
-        {code: "33", name: "Hưng Yên", districts: [
-            {code: "323", name: "Hưng Yên"}, {code: "325", name: "Văn Lâm"}, {code: "326", name: "Văn Giang"}
-        ]},
-        {code: "34", name: "Thái Bình", districts: [
-            {code: "336", name: "Thái Bình"}, {code: "338", name: "Quỳnh Phụ"}, {code: "339", name: "Hưng Hà"}
-        ]},
-        {code: "35", name: "Hà Nam", districts: [
-            {code: "347", name: "Phủ Lý"}, {code: "349", name: "Duy Tiên"}, {code: "350", name: "Kim Bảng"}
-        ]},
-        {code: "36", name: "Nam Định", districts: [
-            {code: "356", name: "Nam Định"}, {code: "358", name: "Mỹ Lộc"}, {code: "359", name: "Vụ Bản"}
-        ]},
-        {code: "37", name: "Ninh Bình", districts: [
-            {code: "369", name: "Ninh Bình"}, {code: "370", name: "Tam Điệp"}, {code: "372", name: "Nho Quan"}
-        ]},
-        {code: "38", name: "Thanh Hóa", districts: [
-            {code: "380", name: "Thanh Hóa"}, {code: "381", name: "Bỉm Sơn"}, {code: "382", name: "Sầm Sơn"}
-        ]},
-        {code: "40", name: "Nghệ An", districts: [
-            {code: "412", name: "Vinh"}, {code: "413", name: "Cửa Lò"}, {code: "414", name: "Thái Hoà"}
-        ]},
-        {code: "42", name: "Hà Tĩnh", districts: [
-            {code: "436", name: "Hà Tĩnh"}, {code: "437", name: "Hồng Lĩnh"}, {code: "439", name: "Hương Sơn"}
-        ]},
-        {code: "44", name: "Quảng Bình", districts: [
-            {code: "450", name: "Đồng Hới"}, {code: "452", name: "Minh Hóa"}, {code: "453", name: "Tuyên Hóa"}
-        ]},
-        {code: "45", name: "Quảng Trị", districts: [
-            {code: "461", name: "Đông Hà"}, {code: "462", name: "Quảng Trị"}, {code: "464", name: "Vĩnh Linh"}
-        ]},
-        {code: "46", name: "Thừa Thiên Huế", districts: [
-            {code: "474", name: "Huế"}, {code: "476", name: "Phong Điền"}, {code: "477", name: "Quảng Điền"}
-        ]},
-        {code: "48", name: "Đà Nẵng", districts: [
-            {code: "490", name: "Liên Chiểu"}, {code: "491", name: "Thanh Khê"}, {code: "492", name: "Hải Châu"}
-        ]},
-        {code: "49", name: "Quảng Nam", districts: [
-            {code: "502", name: "Tam Kỳ"}, {code: "503", name: "Hội An"}, {code: "504", name: "Tây Giang"}
-        ]},
-        {code: "51", name: "Quảng Ngãi", districts: [
-            {code: "522", name: "Quảng Ngãi"}, {code: "524", name: "Bình Sơn"}, {code: "525", name: "Trà Bồng"}
-        ]},
-        {code: "52", name: "Bình Định", districts: [
-            {code: "540", name: "Quy Nhơn"}, {code: "542", name: "An Lão"}, {code: "543", name: "Hoài Nhơn"}
-        ]},
-        {code: "54", name: "Phú Yên", districts: [
-            {code: "555", name: "Tuy Hòa"}, {code: "557", name: "Sông Cầu"}, {code: "558", name: "Đồng Xuân"}
-        ]},
-        {code: "56", name: "Khánh Hòa", districts: [
-            {code: "568", name: "Nha Trang"}, {code: "569", name: "Cam Ranh"}, {code: "570", name: "Cam Lâm"}
-        ]},
-        {code: "58", name: "Ninh Thuận", districts: [
-            {code: "582", name: "Phan Rang-Tháp Chàm"}, {code: "584", name: "Bác Ái"}, {code: "585", name: "Ninh Sơn"}
-        ]},
-        {code: "60", name: "Bình Thuận", districts: [
-            {code: "593", name: "Phan Thiết"}, {code: "594", name: "La Gi"}, {code: "595", name: "Tuy Phong"}
-        ]},
-        {code: "62", name: "Kon Tum", districts: [
-            {code: "608", name: "Kon Tum"}, {code: "610", name: "Đắk Glei"}, {code: "611", name: "Ngọc Hồi"}
-        ]},
-        {code: "64", name: "Gia Lai", districts: [
-            {code: "622", name: "Pleiku"}, {code: "623", name: "An Khê"}, {code: "624", name: "Ayun Pa"}
-        ]},
-        {code: "66", name: "Đắk Lắk", districts: [
-            {code: "643", name: "Buôn Ma Thuột"}, {code: "644", name: "Buôn Hồ"}, {code: "645", name: "Ea H'leo"}
-        ]},
-        {code: "67", name: "Đắk Nông", districts: [
-            {code: "660", name: "Gia Nghĩa"}, {code: "661", name: "Đăk Glong"}, {code: "662", name: "Cư Jút"}
-        ]},
-        {code: "68", name: "Lâm Đồng", districts: [
-            {code: "672", name: "Đà Lạt"}, {code: "673", name: "Bảo Lộc"}, {code: "674", name: "Đam Rông"}
-        ]},
-        {code: "70", name: "Bình Phước", districts: [
-            {code: "688", name: "Đồng Xoài"}, {code: "689", name: "Phước Long"}, {code: "690", name: "Bình Long"}
-        ]},
-        {code: "72", name: "Tây Ninh", districts: [
-            {code: "703", name: "Tây Ninh"}, {code: "705", name: "Tân Biên"}, {code: "706", name: "Tân Châu"}
-        ]},
-        {code: "74", name: "Bình Dương", districts: [
-            {code: "718", name: "Thủ Dầu Một"}, {code: "719", name: "Bàu Bàng"}, {code: "720", name: "Dầu Tiếng"}
-        ]},
-        {code: "75", name: "Đồng Nai", districts: [
-            {code: "731", name: "Biên Hòa"}, {code: "732", name: "Long Khánh"}, {code: "734", name: "Vĩnh Cửu"}
-        ]},
-        {code: "77", name: "Bà Rịa - Vũng Tàu", districts: [
-            {code: "747", name: "Vũng Tàu"}, {code: "748", name: "Bà Rịa"}, {code: "750", name: "Châu Đức"}
-        ]},
-        {code: "79", name: "Hồ Chí Minh", districts: [
-            {code: "760", name: "Quận 1"}, {code: "761", name: "Quận 12"}, {code: "762", name: "Thủ Đức"}
-        ]},
-        {code: "80", name: "Long An", districts: [
-            {code: "794", name: "Tân An"}, {code: "795", name: "Kiến Tường"}, {code: "796", name: "Tân Hưng"}
-        ]},
-        {code: "82", name: "Tiền Giang", districts: [
-            {code: "815", name: "Mỹ Tho"}, {code: "816", name: "Gò Công"}, {code: "817", name: "Cai Lậy"}
-        ]},
-        {code: "83", name: "Bến Tre", districts: [
-            {code: "829", name: "Bến Tre"}, {code: "831", name: "Châu Thành"}, {code: "832", name: "Chợ Lách"}
-        ]},
-        {code: "84", name: "Trà Vinh", districts: [
-            {code: "842", name: "Trà Vinh"}, {code: "844", name: "Càng Long"}, {code: "845", name: "Cầu Kè"}
-        ]},
-        {code: "86", name: "Vĩnh Long", districts: [
-            {code: "855", name: "Vĩnh Long"}, {code: "857", name: "Long Hồ"}, {code: "858", name: "Mang Thít"}
-        ]},
-        {code: "87", name: "Đồng Tháp", districts: [
-            {code: "866", name: "Cao Lãnh"}, {code: "867", name: "Sa Đéc"}, {code: "868", name: "Hồng Ngự"}
-        ]},
-        {code: "89", name: "An Giang", districts: [
-            {code: "883", name: "Long Xuyên"}, {code: "884", name: "Châu Đốc"}, {code: "886", name: "An Phú"}
-        ]},
-        {code: "91", name: "Kiên Giang", districts: [
-            {code: "899", name: "Rạch Giá"}, {code: "900", name: "Hà Tiên"}, {code: "902", name: "Kiên Lương"}
-        ]},
-        {code: "92", name: "Cần Thơ", districts: [
-            {code: "916", name: "Ninh Kiều"}, {code: "917", name: "Ô Môn"}, {code: "918", name: "Bình Thủy"}
-        ]},
-        {code: "93", name: "Hậu Giang", districts: [
-            {code: "930", name: "Vị Thanh"}, {code: "931", name: "Ngã Bảy"}, {code: "932", name: "Châu Thành A"}
-        ]},
-        {code: "94", name: "Sóc Trăng", districts: [
-            {code: "941", name: "Sóc Trăng"}, {code: "942", name: "Châu Thành"}, {code: "943", name: "Kế Sách"}
-        ]},
-        {code: "95", name: "Bạc Liêu", districts: [
-            {code: "954", name: "Bạc Liêu"}, {code: "956", name: "Hồng Dân"}, {code: "957", name: "Phước Long"}
-        ]},
-        {code: "96", name: "Cà Mau", districts: [
-            {code: "964", name: "Cà Mau"}, {code: "966", name: "U Minh"}, {code: "967", name: "Thới Bình"}
-        ]}
-    ];
-    
-    // Hàm tải dữ liệu tỉnh thành ngay lập tức
-    function loadProvincesDataImmediately() {
-        console.log("Loading provinces immediately using static data");
-        
-        try {
-            // Thiết lập dữ liệu tĩnh ngay lập tức
-            window.provincesData = STATIC_PROVINCES;
-            
-            // Populate dropdowns ngay lập tức với dữ liệu tĩnh
-            let provinceSelect = $('select[name="province"]');
-            let birthplaceSelect = $('select[name="birthplace"]');
-            let districtSelect = $('select[name="district"]');
-            
-            if (!provinceSelect.length || !birthplaceSelect.length) {
-                console.error("Cannot find province or birthplace select elements");
-                return;
-            }
-            
-            console.log("Select elements found, populating...");
-            
-            // Xóa tùy chọn hiện tại
-            provinceSelect.empty();
-            birthplaceSelect.empty();
-            districtSelect.empty();
-            
-            // Thêm tùy chọn mặc định
-            provinceSelect.append('<option value="">City/Province...</option>');
-            birthplaceSelect.append('<option value="">City/Province...</option>');
-            districtSelect.html('<option value="">Select province first...</option>');
-            
-            // Thêm tất cả tỉnh thành vào các dropdown
-            $.each(STATIC_PROVINCES, function(index, province) {
-                provinceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
-                birthplaceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
-            });
-            
-            // Kích hoạt các dropdown
-            provinceSelect.attr('disabled', false);
-            birthplaceSelect.attr('disabled', false);
-            districtSelect.attr('disabled', true);
-            
-            // Thiết lập sự kiện change cho dropdown tỉnh
-            provinceSelect.change(function() {
-                updateDistricts($(this).val());
-            });
-            
-            console.log("Static provinces loaded successfully: " + STATIC_PROVINCES.length + " provinces");
-            
-            // Tải dữ liệu đầy đủ từ API
-            setTimeout(function() {
-                tryLoadFullAPIData();
-            }, 500);
-        } catch (e) {
-            console.error("Error in loadProvincesDataImmediately:", e);
-        }
-    }
-    
-    // Tải dữ liệu đầy đủ từ các API khác nhau
-    function tryLoadFullAPIData() {
-        console.log("Attempting to load full data from API...");
-        // Thử API Việt Nam trước vì nó đáng tin cậy nhất
-        tryVietnamAPI();
-    }
-    
-    // Try Vietnam-specific province API
-    function tryVietnamAPI() {
-        console.log("Trying Vietnam API...");
-        $.ajax({
-            url: 'https://provinces.open-api.vn/api/?depth=2',
-            type: 'GET',
-            dataType: 'json',
-            timeout: 5000,
-            success: function(data) {
-                if (Array.isArray(data) && data.length > 0) {
-                    console.log("Vietnam API successful with " + data.length + " provinces");
-                    
-                    // Process Vietnam API data format
-                    var provinces = data.map(function(p) {
-                        return {
-                            code: p.code,
-                            name: p.name,
-                            districts: p.districts.map(function(d) {
-                                return {
-                                    code: d.code,
-                                    name: d.name
-                                };
-                            })
-                        };
-                    });
-                    
-                    // Chỉ cập nhật dữ liệu nếu có nhiều tỉnh/thành hơn dữ liệu tĩnh
-                    if (provinces.length > STATIC_PROVINCES.length) {
-                        // Store and update UI
-                        window.provincesData = provinces;
-                        updateProvinceDropdowns(provinces);
-                        console.log('Successfully loaded data from Vietnam API with ' + provinces.length + ' provinces');
-                    }
-                } else {
-                    console.log("Vietnam API returned invalid data, trying GitHub...");
-                    tryLoadDataFromGitHubRaw();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.log("Vietnam API failed:", error);
-                tryLoadDataFromGitHubRaw();
-            }
-        });
-    }
-    
-    // Try loading data from GitHub raw content
-    function tryLoadDataFromGitHubRaw() {
-        console.log("Trying GitHub raw API...");
-        $.ajax({
-            url: 'https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json',
-            type: 'GET',
-            dataType: 'json',
-            timeout: 5000,
-            cache: true,
-            success: function(data) {
-                processGitHubData(data);
-            },
-            error: function(xhr, status, error) {
-                console.log('GitHub raw API failed:', error);
-                // Try alternate source using JSONP to avoid CORS issues
-                tryLoadDataFromJSONP();
-            }
-        });
-    }
-    
-    // Try loading via JSONP proxy to avoid CORS issues
-    function tryLoadDataFromJSONP() {
-        console.log("Trying JSONP proxy...");
-        // Using a JSONP-enabled proxy service
-        $.ajax({
-            url: 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json'),
-            type: 'GET',
-            dataType: 'json',
-            timeout: 5000,
-            success: function(response) {
-                if (response && response.contents) {
-                    try {
-                        var data = JSON.parse(response.contents);
-                        processGitHubData(data);
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
-                        // Đã thử tất cả các API, giữ nguyên dữ liệu tĩnh
-                    }
-                }
-            },
-            error: function() {
-                console.log('All APIs failed. Using static data only.');
-                // Đã thử tất cả các API, giữ nguyên dữ liệu tĩnh
-            }
-        });
-    }
-    
-    // Process data from GitHub
-    function processGitHubData(data) {
-        if (Array.isArray(data) && data.length > 0) {
-            console.log('GitHub data retrieved successfully with ' + data.length + ' provinces');
-            
-            // Process and format data for our use
-            var provinces = data.map(function(province) {
-                return {
-                    code: province.Id,
-                    name: province.Name,
-                    districts: province.Districts.map(function(district) {
-                        return {
-                            code: district.Id,
-                            name: district.Name,
-                            wards: district.Wards
-                        };
-                    })
-                };
-            });
-            
-            // Sort provinces by name
-            provinces.sort(function(a, b) {
-                return a.name.localeCompare(b.name);
-            });
-            
-            // Chỉ cập nhật dữ liệu nếu có nhiều tỉnh/thành hơn dữ liệu tĩnh
-            if (provinces.length > STATIC_PROVINCES.length) {
-                // Store provinces data for later use
-                window.provincesData = provinces;
-                
-                // Update UI with better data
-                updateProvinceDropdowns(provinces);
-                
-                console.log('Successfully updated UI with GitHub data: ' + provinces.length + ' provinces');
-            }
-        }
-    }
-    
-    // Cập nhật UI dropdown với dữ liệu mới từ API mà không ảnh hưởng đến trải nghiệm người dùng
-    function updateProvinceDropdowns(provinces) {
-        let provinceSelect = $('select[name="province"]');
-        let birthplaceSelect = $('select[name="birthplace"]');
-        
-        // Lưu lại giá trị đã chọn
-        let selectedProvince = provinceSelect.val();
-        let selectedBirthplace = birthplaceSelect.val();
-        
-        // Clear và populate danh sách tỉnh/thành
-        provinceSelect.empty();
-        birthplaceSelect.empty();
-        
-        // Thêm option mặc định
-        provinceSelect.append('<option value="">City/Province...</option>');
-        birthplaceSelect.append('<option value="">City/Province...</option>');
-        
-        // Thêm tất cả tỉnh/thành từ API
-        $.each(provinces, function(index, province) {
-            provinceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
-            birthplaceSelect.append('<option value="' + province.code + '">' + province.name + '</option>');
-        });
-        
-        // Khôi phục lại giá trị đã chọn (nếu có)
-        if (selectedProvince) {
-            provinceSelect.val(selectedProvince);
-            // Cập nhật lại danh sách quận/huyện theo tỉnh đã chọn
-            updateDistricts(selectedProvince);
-        }
-        
-        if (selectedBirthplace) {
-            birthplaceSelect.val(selectedBirthplace);
-        }
-    }
-
-    // Function to only allow alphabets in text fields
-    function onlyAlphabets(e, t) {
-        try {
-            if (window.event) {
-                var charCode = window.event.keyCode;
-            } else if (e) {
-                var charCode = e.which;
-            } else {
-                return true;
-            }
-            
-            if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123) || charCode == 32)
-                return true;
-            else
-                return false;
-        } catch (err) {
-            alert(err.Description);
-        }
-    }
-
-    // Load provinces data from API - deprecated, using loadProvincesDataImmediately instead
-    function loadProvincesData() {
-        loadProvincesDataImmediately();
-    }
-    
-    // Update districts based on selected province
-    function updateDistricts(provinceCode) {
-        console.log("Updating districts for province code:", provinceCode);
-        let districtSelect = $('select[name="district"]');
-        
-        // Clear current options
-        districtSelect.empty();
-        districtSelect.append('<option value="">District...</option>');
-        
-        if (provinceCode && window.provincesData) {
-            // Enable district dropdown
-            districtSelect.attr('disabled', false);
-            
-            // Find selected province data
-            let selectedProvince = window.provincesData.find(p => p.code == provinceCode);
-            
-            if (selectedProvince && selectedProvince.districts) {
-                console.log("Found province with " + selectedProvince.districts.length + " districts");
-                
-                // Sort districts by name
-                selectedProvince.districts.sort(function(a, b) {
-                    return a.name.localeCompare(b.name);
-                });
-                
-                // Add districts to dropdown
-                $.each(selectedProvince.districts, function(index, district) {
-                    districtSelect.append('<option value="' + district.code + '">' + district.name + '</option>');
-                });
-            } else {
-                console.log("No districts found for province code:", provinceCode);
-                districtSelect.html('<option value="">No districts available</option>');
-            }
-        } else {
-            // Disable district dropdown if no province is selected
-            districtSelect.attr('disabled', true);
-            districtSelect.html('<option value="">Select province first...</option>');
-        }
-    }
+});
 </script>
 
 <style>
