@@ -101,11 +101,11 @@
                                         <label class="col-sm-2 control-label">Name: <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
                                             <input type="text" class="form-control" placeholder="First name..." required name="firstName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. No numbers or symbols except hyphens.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">First name is required!</span>
                                         </div>
                                         <div class="col-sm-5">
                                             <input type="text" class="form-control" placeholder="Last name..." required name="lastName" maxlength="50" pattern="^[A-Za-zÀ-ỹ\s\-]+$" title="Alphabetical + Vietnamese chars only. No numbers or symbols except hyphens.">
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. No numbers or symbols except hyphens.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Last name is required!</span>
                                         </div>
                                     </div>
                                     
@@ -147,7 +147,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Age must be between 18-60 years.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Date of birth is required!</span>
                                         </div>
                                         <label class="col-sm-2 control-label">Gender: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
@@ -168,7 +168,7 @@
                                                 <input type="email" class="form-control" placeholder="username@gmail.com" required name="email">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid gmail address.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Email address is required!</span>
                                 <% if(hasErrors){ %>
                                 <% messages.forEach(function(item){
                                                     if(item === "Email is already in use"){ %>
@@ -187,7 +187,7 @@
                                                 <span class="input-group-addon">+84</span>
                                                 <input type="text" class="form-control" placeholder="9 digits (without first 0)" required name="contactNumber" maxlength="9" pattern="^[0-9]{9}$" title="Enter 9 digits without the first 0 (Example: 912345678 instead of 0912345678)">
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be 9 digits.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Phone number is required!</span>
                                         </div>
                                     </div>
                                     <!-- Address Fields -->
@@ -197,17 +197,17 @@
                                             <select class="form-control" name="province" required>
                                                 <option value="">City/Province...</option>
                                             </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a province.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Province is required!</span>
                                         </div>
                                         <div class="col-sm-3">
                                             <select class="form-control" name="district" required disabled>
                                                 <option value="">Select province first...</option>
                                             </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a district.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">District is required!</span>
                                         </div>
                                         <div class="col-sm-4">
                                             <input type="text" class="form-control" placeholder="Detailed address..." name="detailedAddress" required minlength="10" title="Minimum 10 characters (Vietnamese format)">
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Minimum 10 characters.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Detailed address is required!</span>
                                         </div>
                                     </div>
                                     
@@ -218,7 +218,7 @@
                                             <select class="form-control" name="birthplace" required>
                                                 <option value="">City/Province...</option>
                                             </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a birthplace.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Birthplace is required!</span>
                                         </div>
                             </div>
                                     
@@ -227,7 +227,7 @@
                                         <label class="col-sm-2 control-label">ID Number (CCCD): <span class="text-danger">*</span></label>
                                         <div class="col-sm-5">
                                             <input type="text" class="form-control" placeholder="ID/CCCD number" name="idNumber" required maxlength="12" pattern="^\d{12}$" title="Must be exactly 12 digits">
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Must be exactly 12 digits.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">ID number is required!</span>
                                         </div>
                                     </div>
                                     
@@ -286,7 +286,7 @@
                                                 <option value="Accounts Manager">Accounts Manager</option>
                                                 <option value="HR Manager">HR Manager</option>
                                             </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a job title.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Job title is required!</span>
                                         </div>
                                         <label class="col-sm-2 control-label">Department: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
@@ -300,7 +300,7 @@
                                     <option value="Marketing">Marketing</option>
                                     <option value="Business Analysis">Business Analysis</option>
                                 </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select a department.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Department is required!</span>
                                         </div>
                                     </div>
                                     
@@ -320,7 +320,7 @@
                                                 <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid office gmail address.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Office email is required!</span>
                                             <% if(hasErrors){ %>
                                             <% messages.forEach(function(item){
                                                 if(item === "Office Email is already in use"){ %>
@@ -348,7 +348,7 @@
                                                 <option value="Full-Time">Full-Time</option>
                                                 <option value="Part-Time">Part-Time</option>
                                 </select>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please select an employee type.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Employee type is required!</span>
                                         </div>
                                         <div class="col-sm-6">
                                             <span class="help-block">Default password for new employee is <strong>123456</strong></span>
@@ -410,18 +410,40 @@
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Skills:</label>
                                         <div class="col-sm-10">
-                                            <select class="selectpicker form-control" multiple name="skills[]" data-live-search="true">
-                                                <option value="N/A">N/A</option>
-                                                <option value="ROR">ROR</option>
-                                                <option value=".NET">.NET</option>
-                                                <option value="PHP">PHP</option>
-                                                <option value="Python Django">Python Django</option>
-                                                <option value="Mobile Development">Mobile Development</option>
-                                                <option value="Big Data Analytics">Big Data Analytics</option>
-                                                <option value="Firmware">Firmware</option>
-                                                <option value="Front End">Front End</option>
-                                                <option value="UI/UX Design">UI/UX Design</option>
-                                </select>
+                                            <div class="checkbox-scroll-container">
+                                                <div class="checkbox-scroll">
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="N/A">N/A</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="ROR">ROR</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value=".NET">.NET</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="PHP">PHP</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Python Django">Python Django</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Mobile Development">Mobile Development</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Big Data Analytics">Big Data Analytics</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Firmware">Firmware</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="Front End">Front End</label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="skills[]" value="UI/UX Design">UI/UX Design</label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -448,10 +470,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
 <script src="/javascripts/sidebar_menu.js"></script>
-
-<!-- Bootstrap Select -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
 
 <!-- Toastr for notifications -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -583,12 +601,6 @@ $(document).ready(function() {
             });
         }, 10 * 60 * 1000); // 10 phút
         
-        // Phần khởi tạo Bootstrap Select và các xử lý khác
-        $('.selectpicker').selectpicker({
-            style: 'btn-default',
-            size: 8
-        });
-        
         // Image preview
         $("#photo").change(function() {
             if (this.files && this.files[0]) {
@@ -607,43 +619,57 @@ $(document).ready(function() {
             }
         });
         
-        // Hiển thị thông báo lỗi khi validation thất bại
-        $('input, select').on('invalid', function(e) {
-            // Ngăn không cho browser hiển thị thông báo mặc định
-            e.preventDefault();
-            
-            // Hiển thị thông báo lỗi tương ứng
-            $(this).closest('.form-group').find('.error-message').show();
-            $(this).addClass('error-input');
-            
-            // Scroll đến trường lỗi đầu tiên
-            if (!window.scrolledToError) {
-                $('html, body').animate({
-                    scrollTop: $(this).offset().top - 100
-                }, 200);
-                window.scrolledToError = true;
-            }
-        });
+        // Auto-scroll to form validation errors if any
+        if ($('.text-danger').length > 0) {
+            $('html, body').animate({
+                scrollTop: $('.text-danger').first().offset().top - 100
+            }, 200);
+        }
         
-        // Ẩn thông báo lỗi khi người dùng bắt đầu nhập
-        $('input, select').on('input change', function() {
-            if (this.validity.valid) {
-                $(this).closest('.form-group').find('.error-message').hide();
+        // Real-time validation for required fields
+        $('input[required], select[required]').on('blur', function() {
+            if (!this.value.trim()) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').show();
+            } else {
                 $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
             }
         });
         
-        // Reset trạng thái scrolledToError khi submit form
-        $('#employee-form').on('submit', function() {
-            window.scrolledToError = false;
-            
-            // Ẩn tất cả các thông báo lỗi
-            $('.error-message').hide();
-            $('.error-input').removeClass('error-input');
+        // Show validation message on required select fields
+        $('select[required]').on('change', function() {
+            if (!this.value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
         });
         
-        // Xử lý validate form khi submit
-        $("#employee-form").on("submit", function() {
+        // Validate form fields before submit
+        $('#employee-form').on('submit', function(e) {
+            let hasErrors = false;
+            
+            // Check all required fields
+            $(this).find('input[required], select[required]').each(function() {
+                if (!this.value.trim()) {
+                    $(this).addClass('error-input');
+                    $(this).closest('.form-group').find('.error-message').show();
+                    hasErrors = true;
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                // Scroll to first error
+                $('html, body').animate({
+                    scrollTop: $('.error-input').first().offset().top - 100
+                }, 200);
+                return false;
+            }
+            
             // Trim khoảng trắng đầu/cuối cho email
             var emailInput = $('input[name="email"]');
             emailInput.val($.trim(emailInput.val()));
@@ -677,74 +703,76 @@ $(document).ready(function() {
             return true; // cho phép form submit
         });
         
+        // Apply error validation on page load for required fields that are empty
+        setTimeout(function() {
+            $('form input[required]:visible, form select[required]:visible').filter(function() {
+                return !this.value.trim();
+            }).each(function() {
+                $(this).addClass('error-input');
+            });
+        }, 500);
+        
         // Gọi để tải dữ liệu tỉnh thành - đã được đưa xuống dưới để đảm bảo jQuery đã sẵn sàng
         console.log("jQuery ready, loading provinces data now...");
         loadProvincesDataImmediately();
         
-        // Auto-scroll to form validation errors if any
-        if ($('.text-danger').length > 0) {
-            $('html, body').animate({
-                scrollTop: $('.text-danger').first().offset().top - 100
-            }, 200);
-        }
-    
-    // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
-    $('#employee-form').on('submit', function(e) {
-        // Xử lý Date of Birth
-        const dobDay = $('select[name="dobDay"]').val();
-        const dobMonth = $('select[name="dobMonth"]').val();
-        const dobYear = $('select[name="dobYear"]').val();
-        
-        if (dobDay && dobMonth && dobYear) {
-            // Format tháng và ngày để đảm bảo có 2 chữ số
-            const formattedDay = dobDay.toString().padStart(2, '0');
-            const formattedMonth = dobMonth.toString().padStart(2, '0');
+        // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
+        $('#employee-form').on('submit', function(e) {
+            // Xử lý Date of Birth
+            const dobDay = $('select[name="dobDay"]').val();
+            const dobMonth = $('select[name="dobMonth"]').val();
+            const dobYear = $('select[name="dobYear"]').val();
             
-            // Tạo ngày ISO (yyyy-mm-dd)
-            const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
+            if (dobDay && dobMonth && dobYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedDay = dobDay.toString().padStart(2, '0');
+                const formattedMonth = dobMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'dateOfBirth',
+                    value: isoDate
+                }).appendTo(this);
+            } else if(dobDay || dobMonth || dobYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
+                return false;
+            }
             
-            // Tạo input ẩn chứa giá trị ISO
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'dateOfBirth',
-                value: isoDate
-            }).appendTo(this);
-        } else if(dobDay || dobMonth || dobYear) {
-            // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
-            e.preventDefault();
-            alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày sinh');
-            return false;
-        }
-        
-        // Xử lý Start Date (nếu có)
-        const startDay = $('select[name="startDay"]').val();
-        const startMonth = $('select[name="startMonth"]').val();
-        const startYear = $('select[name="startYear"]').val();
-        
-        // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
-        if (startDay && startMonth && startYear) {
-            // Format tháng và ngày để đảm bảo có 2 chữ số
-            const formattedStartDay = startDay.toString().padStart(2, '0');
-            const formattedStartMonth = startMonth.toString().padStart(2, '0');
+            // Xử lý Start Date (nếu có)
+            const startDay = $('select[name="startDay"]').val();
+            const startMonth = $('select[name="startMonth"]').val();
+            const startYear = $('select[name="startYear"]').val();
             
-            // Tạo ngày ISO (yyyy-mm-dd)
-            const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
+            // Chỉ xử lý nếu cả 3 giá trị đều có hoặc đều không có
+            if (startDay && startMonth && startYear) {
+                // Format tháng và ngày để đảm bảo có 2 chữ số
+                const formattedStartDay = startDay.toString().padStart(2, '0');
+                const formattedStartMonth = startMonth.toString().padStart(2, '0');
+                
+                // Tạo ngày ISO (yyyy-mm-dd)
+                const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
+                
+                // Tạo input ẩn chứa giá trị ISO
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'startDate',
+                    value: isoStartDate
+                }).appendTo(this);
+            } else if(startDay || startMonth || startYear) {
+                // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
+                e.preventDefault();
+                alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
+                return false;
+            }
             
-            // Tạo input ẩn chứa giá trị ISO
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'startDate',
-                value: isoStartDate
-            }).appendTo(this);
-        } else if(startDay || startMonth || startYear) {
-            // Nếu chỉ nhập một phần của ngày, hiển thị lỗi
-            e.preventDefault();
-            alert('Vui lòng nhập đầy đủ ngày, tháng, năm cho ngày bắt đầu');
-            return false;
-        }
-        
-        return true;
-    });
+            return true;
+        });
         
         // Convert date inputs to DD/MM/YY format
         $('.date-input').each(function() {
@@ -811,10 +839,19 @@ $(document).ready(function() {
         border-color: #a94442;
         -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
         box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+        background-color: #fff8f8;
     }
     .error-message {
         color: #a94442;
         margin-top: 5px;
+        display: none;
+        font-size: 12px;
+        font-weight: bold;
+        animation: fadeIn 0.3s;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
     .required-field {
         color: #a94442;
@@ -841,6 +878,24 @@ $(document).ready(function() {
         vertical-align: middle;
         color: #555;
         font-style: italic;
+    }
+    /* Checkbox scroll container styles */
+    .checkbox-scroll-container {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+    .checkbox-scroll {
+        max-height: 150px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+    .checkbox-scroll .checkbox {
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+    .checkbox-scroll .checkbox label {
+        font-weight: normal;
     }
 </style>
 </body>
