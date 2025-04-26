@@ -165,10 +165,10 @@
                                         <label class="col-sm-2 control-label">Personal Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-10">
                                             <div class="input-group">
-                                                <input type="email" class="form-control" placeholder="email@example.com" required name="email">
+                                                <input type="email" class="form-control" placeholder="username@gmail.com" required name="email">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid email address.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid gmail address.</span>
                                 <% if(hasErrors){ %>
                                 <% messages.forEach(function(item){
                                                     if(item === "Email is already in use"){ %>
@@ -320,7 +320,7 @@
                                                 <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid office email address.</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Required. Please enter a valid office gmail address.</span>
                                             <% if(hasErrors){ %>
                                             <% messages.forEach(function(item){
                                                 if(item === "Office Email is already in use"){ %>
