@@ -165,10 +165,10 @@
                                         <label class="col-sm-2 control-label">Personal Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-10">
                                             <div class="input-group">
-                                                <input type="email" class="form-control" placeholder="username@gmail.com" required name="email">
+                                                <input type="email" class="form-control" placeholder="username@gmail.com" required name="email" pattern="[a-z0-9._%+\-]+@gmail\.com$" title="Please enter a valid Gmail address (username@gmail.com)">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Email address is required!</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Email address is required and must be a valid Gmail address!</span>
                                 <% if(hasErrors){ %>
                                 <% messages.forEach(function(item){
                                                     if(item === "Email is already in use"){ %>
@@ -185,9 +185,9 @@
                                         <div class="col-sm-5">
                                             <div class="input-group">
                                                 <span class="input-group-addon">+84</span>
-                                                <input type="text" class="form-control" placeholder="9 digits (without first 0)" required name="contactNumber" maxlength="9" pattern="^[0-9]{9}$" title="Enter 9 digits without the first 0 (Example: 912345678 instead of 0912345678)">
+                                                <input type="text" class="form-control" placeholder="9 digits (without first 0)" required name="contactNumber" maxlength="9" pattern="^(3|5|7|8|9)\d{8}$" title="Enter 9 digits starting with 3, 5, 7, 8, or 9 (without the first 0)">
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Phone number is required!</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Enter a valid Vietnamese phone number (9 digits without first 0)</span>
                                         </div>
                                     </div>
                                     <!-- Address Fields -->
@@ -317,10 +317,10 @@
                                         <label class="col-sm-2 control-label">Office Email: <span class="text-danger">*</span></label>
                                         <div class="col-sm-4">
                                             <div class="input-group">
-                                                <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail">
+                                                <input type="email" class="form-control" placeholder="office.gmail@company.com" required name="officeEmail" pattern="[a-z0-9._%+\-]+@([a-z0-9\-]+\.)+[a-z]{2,}$" title="Please enter a valid company email address">
                                                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
                                             </div>
-                                            <span class="help-block error-message" style="display:none; color:#a94442;">Office email is required!</span>
+                                            <span class="help-block error-message" style="display:none; color:#a94442;">Office email is required and must be a valid company email!</span>
                                             <% if(hasErrors){ %>
                                             <% messages.forEach(function(item){
                                                 if(item === "Office Email is already in use"){ %>
@@ -661,6 +661,37 @@ $(document).ready(function() {
                 }
             });
             
+            // Email validation for Gmail
+            const personalEmail = $('input[name="email"]').val().trim();
+            const gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/i;
+            if (personalEmail && !gmailRegex.test(personalEmail)) {
+                $('input[name="email"]').addClass('error-input');
+                $('input[name="email"]').closest('.form-group').find('.error-message').text('Please enter a valid Gmail address (example: username@gmail.com)').show();
+                hasErrors = true;
+            }
+            
+            // Email validation for company email
+            const officeEmail = $('input[name="officeEmail"]').val().trim();
+            const emailRegex = /^[a-z0-9](\.?[a-z0-9_-]){2,}@([a-z0-9-]+\.)+[a-z]{2,6}$/i;
+            if (officeEmail && !emailRegex.test(officeEmail)) {
+                $('input[name="officeEmail"]').addClass('error-input');
+                $('input[name="officeEmail"]').closest('.form-group').find('.error-message').text('Please enter a valid company email address').show();
+                hasErrors = true;
+            }
+            
+            // Phone number validation
+            const phoneNumber = $('input[name="contactNumber"]').val().trim();
+            const phoneRegex = /^(3|5|7|8|9)\d{8}$/;
+            if (phoneNumber && !phoneRegex.test(phoneNumber)) {
+                $('input[name="contactNumber"]').addClass('error-input');
+                if (phoneNumber.length !== 9) {
+                    $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
+                } else {
+                    $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Invalid format. Must start with 3, 5, 7, 8, or 9').show();
+                }
+                hasErrors = true;
+            }
+            
             if (hasErrors) {
                 e.preventDefault();
                 // Scroll to first error
@@ -711,6 +742,67 @@ $(document).ready(function() {
                 $(this).addClass('error-input');
             });
         }, 500);
+        
+        // Custom Gmail validation
+        $('input[name="email"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            const gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/i;
+            
+            if (value && !gmailRegex.test(value)) {
+                $(this).addClass('error-input');
+                // Update error message text
+                const errorMsg = $(this).closest('.form-group').find('.error-message');
+                errorMsg.text('Please enter a valid Gmail address (example: username@gmail.com)');
+                errorMsg.show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Email address is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Custom company email validation
+        $('input[name="officeEmail"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            const emailRegex = /^[a-z0-9](\.?[a-z0-9_-]){2,}@([a-z0-9-]+\.)+[a-z]{2,6}$/i;
+            
+            if (value && !emailRegex.test(value)) {
+                $(this).addClass('error-input');
+                // Update error message text
+                const errorMsg = $(this).closest('.form-group').find('.error-message');
+                errorMsg.text('Please enter a valid company email address');
+                errorMsg.show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Office email is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
+        
+        // Vietnamese phone number validation
+        $('input[name="contactNumber"]').on('input blur', function() {
+            const value = $(this).val().trim();
+            // The pattern validates the first digit must be 3,5,7,8,9 followed by 8 digits
+            const phoneRegex = /^(3|5|7|8|9)\d{8}$/;
+            
+            if (value && value.length !== 9) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
+            } else if (value && !phoneRegex.test(value)) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Invalid format. Must start with 3, 5, 7, 8, or 9').show();
+            } else if (!value) {
+                $(this).addClass('error-input');
+                $(this).closest('.form-group').find('.error-message').text('Phone number is required!').show();
+            } else {
+                $(this).removeClass('error-input');
+                $(this).closest('.form-group').find('.error-message').hide();
+            }
+        });
         
         // Gọi để tải dữ liệu tỉnh thành - đã được đưa xuống dưới để đảm bảo jQuery đã sẵn sàng
         console.log("jQuery ready, loading provinces data now...");
