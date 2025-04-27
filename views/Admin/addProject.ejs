@@ -33,38 +33,7 @@
         </nav>
         <div id="wrapper">
             <!-- Sidebar -->
-            <div id="sidebar-wrapper">
-                <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-
-                    <li>
-                        <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-users fa-stack-1x "></i></span> Employees</a>
-                        <ul class="nav-pills nav-stacked" style="list-style-type:none;">
-                            <li><a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
-                                            class="fa fa-eye fa-stack-1x "></i></span>View Employees</a></li>
-                            <li><a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
-                                            class="fa fa-plus fa-stack-1x "></i></span>Add Employees</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-envelope-square fa-stack-1x "></i></span> Leave Applications</a>
-                    </li>
-                    <li data-toggle="modal" data-target="#myModal">
-                        <a href="#"> <span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-list-ol fa-stack-1x "></i></span>View
-                            Attendance</a>
-                    </li>
-                    <li data-toggle="modal" data-target="#myModal2">
-                        <a href="#"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-check-circle fa-stack-1x "></i></span>Mark Attendance</a>
-                    </li>
-                    <li>
-                        <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                                    class="fa fa-user fa-stack-1x "></i></span>View Profile</a>
-                    </li>
-                </ul>
-            </div><!-- /#sidebar-wrapper -->
+           <%- include('../partials/adminSidebar') %>
             <!-- Page Content -->
             <div id="page-content-wrapper">
                 <div class="container-fluid xyz">

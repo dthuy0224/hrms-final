@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include('../partials/header') %>
+             <link rel="stylesheet" href="/stylesheets/applied-form.css" />
+    </head>
+    <body>
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <%= userName %>
+                </a>
+            </div>
+            <!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+            <!-- Include the common employee sidebar -->
+            <%- include('../partials/adminSidebar') %>
+            
+            <!-- Page Content -->
+            <!-- Page Content -->
+       <div id="page-content-wrapper">
+                
+        <div class="container-fluid xyz">
+            <div class="row">
+                <div class="col-lg-12">
+                   <h1 class="page-header"><i class="fas fa-chevron-right"></i>My Leaves</h1>
+                        
+                   <div style="position: relative; width: 300px; margin-bottom: 10px;">
+                    <input type="text" id="searchType" class="form-control" placeholder="Search by Type of leave..." style="padding-right: 30px;">
+                    <i class="fas fa-search" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); color: #aaa;"></i>
+                  </div>
+                  
+                    <br />
+                    <div>
+                        <% if(hasLeave===1){ %>
+                            <table id="example" class="display" cellspacing="0"
+                                style="height: 10%; overflow: auto">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Date of Application</th>
+                                        <th>Leave Dates</th>
+                                        <th>Leave Type</th>
+                                        <th>Period of Leave</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                              
+                                <tbody>
+                                    <% leaves.forEach(function(item){ %>
+                                        <tr>
+                                            <td>
+                                                <%= item.title %>
+                                            </td>
+                                            <td>
+                                                <%= item.type %>
+                                            </td>
+
+                                            <td>
+                                                <%= new Date(item.appliedDate).toISOString().substring(0, 10);
+                                                    %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(item.startDate).toISOString().substring(0, 10) %> to
+                                                <%= new Date(item.endDate).toISOString().substring(0, 10) %>
+                                            </td>
+                                            <td>
+                                                <%= item.leaveType %>
+                                            </td>
+                                            
+                                         
+                                            <td>
+                                                <% if (item.period === 0.5) { %>
+                                                  Nửa ngày (4 tiếng)
+                                                <% } else if (item.period === 1) { %>
+                                                  1 ngày
+                                                <% } else { %>
+                                                  <%= item.period / 1 %> ngày 
+                                                <% } %>
+                                              </td>
+                                              
+                                            <td>
+                                                <span class="status <%= item.statusAdmin.toLowerCase() %>">
+                                                    <%= item.statusAdmin %>
+                                                </span>
+                                            </td>
+                                            
+                                        </tr>
+
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                            <% }else{ %>
+                                <p>You have not applied for any leave.</p>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+</div>
+<!-- /#wrapper -->
+         <!-- jQuery -->
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+         <script src="/javascripts/confirmation.js"></script>
+         <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+         <script src="/javascripts/sidebar_menu.js"></script>
+         <script>
+          $(document).ready(function () {
+     const table = $("#example").DataTable({
+         order: [],
+         dom: 'tip', // Tắt phần show entries và filter mặc định
+         paging: true,
+         pageLength: 3 // Số lượng bản ghi trên mỗi trang
+     });
+ 
+     // Tìm kiếm theo cột "Title" (cột 0)
+     $('#searchType').on('keyup', function () {
+         table.column(1).search(this.value).draw();
+     });
+ 
+    
+     });
+ 
+         </script>
+         <script>
+             document.addEventListener('DOMContentLoaded', function () {
+               const path = window.location.pathname;
+               const menuLinks = document.querySelectorAll('#menu li a');
+           
+               menuLinks.forEach(link => {
+                 const li = link.parentElement;
+                 const href = link.getAttribute('href');
+                 if (href === path) {
+                   li.classList.add('active');
+                 } else {
+                   li.classList.remove('active');
+                 }
+               });
+             });
+           </script>
+         <script>
+             $("#menu-toggle").click(function(e) {
+   e.preventDefault();
+   $("#wrapper").toggleClass("toggled");
+ });
+             $("#menu-toggle-2").click(function(e) {
+   e.preventDefault();
+ });
+         </script>
+         <script>
+             $("#example tfoot th").each(function (index) {
+     var title = $(this).text().trim();
+     if (title === "Title") {
+         $(this).html(`
+             <div style="position: relative;">
+                 <i class="fa fa-search" style="position: absolute; top: 8px; left: 10px; color: #aaa;"></i>
+                 <input type="text" class="form-control" id="search-title" placeholder="Search title..." style="padding-left: 30px;" />
+             </div>
+         `);
+     } else {
+         $(this).html('');
+     }
+ });
+ 
+         </script>
+    </body>
+    <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/admin/mark-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Mark Attendance</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to mark attendance.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            No
+                        </button>
+  <button type="submit" class="btn btn-default">Yes</button>
+                        
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post" action="/admin/view-attendance">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Select Month/Year</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Month">Month:</label>
+                            <select class="form-control" id="month" name="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year:</label>
+                            <select class="form-control" id="year" name="year"></select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-default">View</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</html>

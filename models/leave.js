@@ -16,6 +16,7 @@ var LeaveSchema = new Schema({
   period: { type: Number, required: true, min: 0.5 },
   reason: { type: String, required: true },
   adminResponse: { type: String, default: "Pending" },
+  statusAdmin: { type: String, default:"Approved"},
   delegateTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
   delegateContent: { type: String, required: true },
 });

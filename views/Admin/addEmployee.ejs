@@ -31,43 +31,7 @@
 </nav>
 <div id="wrapper">
     <!-- Sidebar -->
-    <div id="sidebar-wrapper">
-        <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-            <li>
-                <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
-                    Dashboard</a>
-            </li>
-            <li>
-                <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-users fa-stack-1x "></i></span> Employees</a>
-                <ul class="nav-pills nav-stacked" style="list-style-type:none;">
-                    <li><a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
-                                        class="fa fa-eye fa-stack-1x "></i></span>View Employees</a></li>
-                    <li class="active"><a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
-                                        class="fa fa-plus fa-stack-1x "></i></span>Add Employees</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-envelope-square fa-stack-1x "></i></span> Approved Leave</a></li>
-            <li>
-                <a href="/admin/employees-attendance">
-                    <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x "></i></span>Employee Attendance</a>
-            </li>
-            <li class="<%= typeof activePage !== 'undefined' && activePage === 'attendanceDashboard' ? 'active' : '' %>">
-                <a href="/admin/admin-attendance-dashboard">
-                  <span class="fa-stack fa-lg pull-left"><i class="fa fa-clock-o fa-stack-1x"></i></span>Attendance Dashboard</a>
-              </li>
-            <li data-toggle="modal" data-target="#myModal2">
-                <a href="#"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-check-circle fa-stack-1x "></i></span>Mark Attendance</a>
-            </li>
-            <li>
-                <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-user fa-stack-1x "></i></span>My Profile</a>
-            </li>
-        </ul>
-    </div><!-- /#sidebar-wrapper -->
+    <%- include('../partials/adminSidebar') %>
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <div class="container-fluid xyz">
