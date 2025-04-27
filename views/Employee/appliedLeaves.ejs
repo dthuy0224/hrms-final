@@ -41,144 +41,156 @@
             <%- include('../partials/employee_sidebar') %>
             
             <!-- Page Content -->
-            <div id="page-content-wrapper">
+            <!-- Page Content -->
+       <div id="page-content-wrapper">
                 
-                <div class="container-fluid xyz">
-                    <div class="row">
-                        <div class="col-lg-12">
-                           <h1 class="page-header"><i class="fas fa-chevron-right"></i>My Leaves</h1>
-                                
-                           <div style="position: relative; width: 300px; margin-bottom: 10px;">
-                            <input type="text" id="searchType" class="form-control" placeholder="Search by Type of leave..." style="padding-right: 30px;">
-                            <i class="fas fa-search" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); color: #aaa;"></i>
-                          </div>
-                          
-                            <br />
-                            <div>
-                                <% if(hasLeave===1){ %>
-                                    <table id="example" class="display" cellspacing="0"
-                                        style="height: 10%; overflow: auto">
-                                        <thead>
-                                            <tr>
-                                                <th>Title</th>
-                                                <th>Type</th>
-                                                <th>Date of Application</th>
-                                                <th>Leave Dates</th>
-                                                <th>Period of Leave</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                      
-                                        <tbody>
-                                            <% leaves.forEach(function(item){ %>
-                                                <tr>
-                                                    <td>
-                                                        <%= item.title %>
-                                                    </td>
-                                                    <td>
-                                                        <%= item.type %>
-                                                    </td>
+        <div class="container-fluid xyz">
+            <div class="row">
+                <div class="col-lg-12">
+                   <h1 class="page-header"><i class="fas fa-chevron-right"></i>My Leaves</h1>
+                        
+                   <div style="position: relative; width: 300px; margin-bottom: 10px;">
+                    <input type="text" id="searchType" class="form-control" placeholder="Search by Type of leave..." style="padding-right: 30px;">
+                    <i class="fas fa-search" style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); color: #aaa;"></i>
+                  </div>
+                  
+                    <br />
+                    <div>
+                        <% if(hasLeave===1){ %>
+                            <table id="example" class="display" cellspacing="0"
+                                style="height: 10%; overflow: auto">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Type</th>
+                                        <th>Date of Application</th>
+                                        <th>Leave Dates</th>
+                                        <th>Leave Type</th>
+                                        <th>Period of Leave</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                              
+                                <tbody>
+                                    <% leaves.forEach(function(item){ %>
+                                        <tr>
+                                            <td>
+                                                <%= item.title %>
+                                            </td>
+                                            <td>
+                                                <%= item.type %>
+                                            </td>
 
-                                                    <td>
-                                                        <%= new Date(item.appliedDate).toISOString().substring(0, 10);
-                                                            %>
-                                                    </td>
-                                                    <td>
-                                                        <%= new Date(item.startDate).toISOString().substring(0, 10) %> to
-                                                        <%= new Date(item.endDate).toISOString().substring(0, 10) %>
-                                                    </td>
-                                                   
-                                                    <td>
-                                                        <%= item.period %>
-                                                    </td>
-                                                   
-                                                    <td>
-                                                        <span class="status <%= item.adminResponse.toLowerCase() %>">
-                                                            <%= item.adminResponse %>
-                                                        </span>
-                                                    </td>
-                                                    
-                                                </tr>
+                                            <td>
+                                                <%= new Date(item.appliedDate).toISOString().substring(0, 10);
+                                                    %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(item.startDate).toISOString().substring(0, 10) %> to
+                                                <%= new Date(item.endDate).toISOString().substring(0, 10) %>
+                                            </td>
+                                            <td>
+                                                <%= item.leaveType %>
+                                            </td>
+                                            
+                                         
+                                            <td>
+                                                <% if (item.period === 0.5) { %>
+                                                  Nửa ngày (4 tiếng)
+                                                <% } else if (item.period === 1) { %>
+                                                  1 ngày
+                                                <% } else { %>
+                                                  <%= item.period / 1 %> ngày 
+                                                <% } %>
+                                              </td>
+                                              
+                                            <td>
+                                                <span class="status <%= item.adminResponse.toLowerCase() %>">
+                                                    <%= item.adminResponse %>
+                                                </span>
+                                            </td>
+                                            
+                                        </tr>
 
-                                                <% }); %>
-                                        </tbody>
-                                    </table>
-                                    <% }else{ %>
-                                        <p>You have not applied for any leave.</p>
-                                        <% } %>
-                            </div>
-                        </div>
+                                        <% }); %>
+                                </tbody>
+                            </table>
+                            <% }else{ %>
+                                <p>You have not applied for any leave.</p>
+                                <% } %>
                     </div>
                 </div>
             </div>
-            <!-- /#page-content-wrapper -->
         </div>
-        <!-- /#wrapper -->
-        <!-- jQuery -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
-        <script src="/javascripts/confirmation.js"></script>
-        <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-        <script src="/javascripts/sidebar_menu.js"></script>
-        <script>
-         $(document).ready(function () {
-    const table = $("#example").DataTable({
-        order: [],
-        dom: 'tip', // Tắt phần show entries và filter mặc định
-        paging: true,
-        pageLength: 3 
-    });
-
-    // Tìm kiếm theo cột "Title" (cột 0)
-    $('#searchType').on('keyup', function () {
-        table.column(1).search(this.value).draw();
-    });
-
-   
-    });
-
-        </script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-              const path = window.location.pathname;
-              const menuLinks = document.querySelectorAll('#menu li a');
-          
-              menuLinks.forEach(link => {
-                const li = link.parentElement;
-                const href = link.getAttribute('href');
-                if (href === path) {
-                  li.classList.add('active');
-                } else {
-                  li.classList.remove('active');
-                }
-              });
-            });
-          </script>
-        <script>
-            $("#menu-toggle").click(function(e) {
-  e.preventDefault();
-  $("#wrapper").toggleClass("toggled");
-});
-            $("#menu-toggle-2").click(function(e) {
-  e.preventDefault();
-});
-        </script>
-        <script>
-            $("#example tfoot th").each(function (index) {
-    var title = $(this).text().trim();
-    if (title === "Title") {
-        $(this).html(`
-            <div style="position: relative;">
-                <i class="fa fa-search" style="position: absolute; top: 8px; left: 10px; color: #aaa;"></i>
-                <input type="text" class="form-control" id="search-title" placeholder="Search title..." style="padding-left: 30px;" />
-            </div>
-        `);
-    } else {
-        $(this).html('');
-    }
-});
-
-        </script>
+    </div>
+    <!-- /#page-content-wrapper -->
+</div>
+<!-- /#wrapper -->
+         <!-- jQuery -->
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
+         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+         <script src="/javascripts/confirmation.js"></script>
+         <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+         <script src="/javascripts/sidebar_menu.js"></script>
+         <script>
+          $(document).ready(function () {
+     const table = $("#example").DataTable({
+         order: [],
+         dom: 'tip', // Tắt phần show entries và filter mặc định
+         paging: true,
+         pageLength: 3 // Số lượng bản ghi trên mỗi trang
+     });
+ 
+     // Tìm kiếm theo cột "Title" (cột 0)
+     $('#searchType').on('keyup', function () {
+         table.column(1).search(this.value).draw();
+     });
+ 
+    
+     });
+ 
+         </script>
+         <script>
+             document.addEventListener('DOMContentLoaded', function () {
+               const path = window.location.pathname;
+               const menuLinks = document.querySelectorAll('#menu li a');
+           
+               menuLinks.forEach(link => {
+                 const li = link.parentElement;
+                 const href = link.getAttribute('href');
+                 if (href === path) {
+                   li.classList.add('active');
+                 } else {
+                   li.classList.remove('active');
+                 }
+               });
+             });
+           </script>
+         <script>
+             $("#menu-toggle").click(function(e) {
+   e.preventDefault();
+   $("#wrapper").toggleClass("toggled");
+ });
+             $("#menu-toggle-2").click(function(e) {
+   e.preventDefault();
+ });
+         </script>
+         <script>
+             $("#example tfoot th").each(function (index) {
+     var title = $(this).text().trim();
+     if (title === "Title") {
+         $(this).html(`
+             <div style="position: relative;">
+                 <i class="fa fa-search" style="position: absolute; top: 8px; left: 10px; color: #aaa;"></i>
+                 <input type="text" class="form-control" id="search-title" placeholder="Search title..." style="padding-left: 30px;" />
+             </div>
+         `);
+     } else {
+         $(this).html('');
+     }
+ });
+ 
+         </script>
     </body>
     <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">

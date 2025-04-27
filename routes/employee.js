@@ -530,24 +530,55 @@ router.get("/view-project/:project_id", function viewProject(req, res, next) {
 router.post("/apply-for-leave", async function (req, res, next) {
   try {
     const startDate = new Date(req.body.start_date);
-    const endDate = new Date(req.body.end_date);
+    let endDate = new Date(req.body.end_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (
-      startDate <= today ||
-      endDate <= today ||
-      endDate <= startDate
-    ) {
-      return res.status(400).send("Invalid date selection.");
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).send("Ngày bắt đầu không hợp lệ");
     }
 
-    const period = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    // Kiểm tra nghỉ nửa ngày
+    const isHalfDay = req.body.leaveType && req.body.leaveType.startsWith('half');
+    
+    // Xử lý endDate cho nghỉ nửa ngày
+    if (isHalfDay) {
+      endDate = new Date(startDate); // Đảm bảo endDate = startDate
+    } else if (isNaN(endDate.getTime())) {
+      return res.status(400).send("Ngày kết thúc không hợp lệ");
+    }
 
+    // Validation rules
+    if (startDate < today) {
+      return res.status(400).send("Ngày bắt đầu phải từ hôm nay trở đi");
+    }
+    
+    if (!isHalfDay && endDate < startDate) {
+      return res.status(400).send("Ngày kết thúc phải sau ngày bắt đầu");
+    }
+
+    // Tính số ngày nghỉ
+    const diffDays = Math.floor((startDate - today) / (1000 * 60 * 60 * 24)); // Tính số ngày còn lại từ hôm nay đến ngày bắt đầu
+    let period = 0;
+    if (isHalfDay) {
+      period = 0.5; // Nửa ngày
+    } else {
+      const timeDiff = endDate - startDate;
+      const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+      period = (dayDiff + 1);  
+    }
+    if (period === 1 && diffDays < 2) {
+      return res.status(400).send("Đơn nghỉ 1 ngày phải gửi trước ít nhất 2 ngày.");
+    }
+
+    if (period > 1 && diffDays < 7) {
+      return res.status(400).send("Đơn nghỉ nhiều ngày phải gửi trước ít nhất 7 ngày.");
+    }
     const newLeave = new Leave({
       applicantID: req.user._id,
       title: req.body.title,
       type: req.body.type,
+      leaveType: req.body.leaveType,
       startDate: startDate,
       endDate: endDate,
       appliedDate: new Date(),
