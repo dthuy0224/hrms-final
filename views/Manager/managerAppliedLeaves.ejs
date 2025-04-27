@@ -3,7 +3,10 @@
     <head>
         <%- include('../partials/header') %>
         <link rel="stylesheet" href="/stylesheets/applied-form.css" />
-      
+        <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      />
      
     </head>
 
@@ -72,7 +75,7 @@
                                 class="fa fa-user fa-stack-1x "></i></span> My Profile</a>
                 </li>
 <li>               <li>
-                    <a href="/manager/view-all-personal-projects"><span class="fa-stack fa-lg pull-left"><i
+                    <a href="/manager/view-projects"><span class="fa-stack fa-lg pull-left"><i
                                 class="fa fa-tasks fa-stack-1x "></i></span> Projects</a></li>
             </ul>
         </div><!-- /#sidebar-wrapper -->
@@ -100,6 +103,7 @@
                                         <th>Type</th>
                                         <th>Date of Application</th>
                                         <th>Leave Dates</th>
+                                        <th>Leave Type</th>
                                         <th>Period of Leave</th>
                                         <th>Status</th>
                                     </tr>
@@ -124,9 +128,20 @@
                                                 <%= new Date(item.endDate).toISOString().substring(0, 10) %>
                                             </td>
                                             <td>
-                                                <%= item.period %>
+                                                <%= item.leaveType %>
                                             </td>
-                                           
+                                            
+                                         
+                                            <td>
+                                                <% if (item.period === 0.5) { %>
+                                                  Nửa ngày (4 tiếng)
+                                                <% } else if (item.period === 1) { %>
+                                                  1 ngày
+                                                <% } else { %>
+                                                  <%= item.period / 1 %> ngày 
+                                                <% } %>
+                                              </td>
+                                              
                                             <td>
                                                 <span class="status <%= item.adminResponse.toLowerCase() %>">
                                                     <%= item.adminResponse %>
@@ -155,17 +170,16 @@
          <script src="/javascripts/confirmation.js"></script>
          <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
          <script src="/javascripts/sidebar_menu.js"></script>
-         
-<script>
+         <script>
           $(document).ready(function () {
      const table = $("#example").DataTable({
          order: [],
          dom: 'tip', // Tắt phần show entries và filter mặc định
          paging: true,
-         pageLength: 5 // Số lượng bản ghi trên mỗi trang
+         pageLength: 3 // Số lượng bản ghi trên mỗi trang
      });
  
-     // Tìm kiếm theo cột "Type" (cột 0)
+     // Tìm kiếm theo cột "Title" (cột 0)
      $('#searchType').on('keyup', function () {
          table.column(1).search(this.value).draw();
      });
@@ -199,7 +213,23 @@
    e.preventDefault();
  });
          </script>
-            </body>
+         <script>
+             $("#example tfoot th").each(function (index) {
+     var title = $(this).text().trim();
+     if (title === "Title") {
+         $(this).html(`
+             <div style="position: relative;">
+                 <i class="fa fa-search" style="position: absolute; top: 8px; left: 10px; color: #aaa;"></i>
+                 <input type="text" class="form-control" id="search-title" placeholder="Search title..." style="padding-left: 30px;" />
+             </div>
+         `);
+     } else {
+         $(this).html('');
+     }
+ });
+ 
+         </script>
+    </body>
 
     <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">

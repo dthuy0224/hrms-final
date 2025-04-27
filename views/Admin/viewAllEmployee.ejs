@@ -37,7 +37,7 @@
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
           <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
         </button>
-        <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+        <a class="navbar-brand" href="#">
           <%= userName %>
         </a>
       </div>
@@ -63,46 +63,50 @@
     </nav>
     <div id="wrapper">
       <!-- Sidebar -->
-      <div id="sidebar-wrapper">
-        <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-          <li>
-            <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
-              Dashboard</a>
-          </li>
-          <li>
-            <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
-              Employees</a>
-            <ul class="nav-pills nav-stacked" style="list-style-type: none">
-              <li class="active">
-                <a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
-                      class="fa fa-eye fa-stack-1x"></i></span>View Employees</a>
-              </li>
-              <li>
-                <a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
-                      class="fa fa-plus fa-stack-1x"></i></span>Add Employees</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
-                  class="fa fa-envelope-square fa-stack-1x"></i></span>
-              Leave Applications</a>
-          </li>
-          <li>
-            <a href="/admin/employees-attendance">
-              <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View Attendance</a>
-          </li>
-          <li data-toggle="modal" data-target="#myModal2">
-            <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>Mark
-              Attendance</a>
-          </li>
-          <li>
-            <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-                  class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
-          </li>
-        </ul>
-      </div>
-      <!-- /#sidebar-wrapper -->
+     <div id="sidebar-wrapper">
+                <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+                    <li>
+                        <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+                            Dashboard</a>
+                    </li>
+                    <li class="active">
+                        <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i
+                                    class="fa fa-users fa-stack-1x"></i></span>
+                            Employees</a>
+                        <ul class="nav-pills nav-stacked" style="list-style-type: none">
+                            <li class="active">
+                                <a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
+                                            class="fa fa-eye fa-stack-1x"></i></span>View Employees</a>
+                            </li>
+                            <li>
+                                <a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
+                                            class="fa fa-plus fa-stack-1x"></i></span>Add Employees</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
+                                    class="fa fa-envelope-square fa-stack-1x"></i></span>
+                            Approve Leave</a>
+                    </li>
+                  <li data-toggle="modal" data-target="#myModal2">
+                        <a href="#"><span class="fa-stack fa-lg pull-left"><i
+                                    class="fa fa-check-circle fa-stack-1x"></i></span>Mark Attendance</a>
+                    </li> 
+ <li>
+                        <a href="/admin/employees-attendance">
+                            <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>
+                            Attendance</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
+                                    class="fa fa-user fa-stack-1x"></i></span>View Profile</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /#sidebar-wrapper -->
+
       <!-- Page Content -->
       <div id="page-content-wrapper">
         <div class="container-fluid xyz">
@@ -510,10 +514,11 @@
           </div>
           <div class="modal-footer">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <button type="reset" class="btn btn-default" data-dismiss="modal">
-              No
+          <button type="submit" class="btn btn-primary">Yes</button>  
+<button type="reset" class="btn btn-default" data-dismiss="modal">
+              Cancel
             </button>
-            <button type="submit" class="btn btn-primary">Yes</button>
+            
           </div>
         </div>
       </form>

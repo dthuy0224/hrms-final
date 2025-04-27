@@ -4,15 +4,21 @@ var Schema = mongoose.Schema;
 var LeaveSchema = new Schema({
   applicantID: { type: Schema.Types.ObjectId, ref: "User", required: true },
   title: { type: String, required: true },
-  type: { type: String, required: true, enum: ["Annual Leave", "Sick Leave", "Maternity Leave", "Emergency Leave"] },
+  type: { type: String, required: true, enum: ["Annual Leave", "Sick Leave", "Maternity Leave", "Emergency Leave", "Onboard", "Other"] },
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   appliedDate: { type: Date, required: true },
-  period: { type: Number, required: true, min: 1 },
+  leaveType: {
+    type: String,
+    enum: ['full', 'half-morning', 'half-afternoon'],
+    default: 'full',
+  },
+  period: { type: Number, required: true, min: 0.5 },
   reason: { type: String, required: true },
   adminResponse: { type: String, default: "Pending" },
- delegateTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  delegateTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
   delegateContent: { type: String, required: true },
 });
+
 
 module.exports = mongoose.model("Leave", LeaveSchema);
