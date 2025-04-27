@@ -304,6 +304,7 @@ router.post("/update-profile", csrfProtection, upload.single('photo'), async (re
   }
 });
 
+
 // Displays add employee form to the admin.
 router.get("/add-employee", (req, res, next) => {
   const { name } = req.user;
@@ -940,6 +941,62 @@ router.get("/dashboard", async function testDashboard(req, res, next) {
     res.status(500).send("Error loading dashboard");
   }
 });
+//apply for leave
+router.get("/apply-for-leave", async function applyForLeave(req, res, next) {
+  try {
+    const coworkers = await User.find({
+      department: req.user.department,
+      _id: { $ne: req.user._id },
+    });
+    console.log("Coworkers fetched:", coworkers);
+
+    res.render("Admin/applyForLeave", {
+      title: "Apply for Leave",
+      csrfToken: req.csrfToken(),
+      userName: req.user.name,
+      coworkers,
+      path: '/admin/apply-for-leave'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading coworkers");
+  }
+});
+
+module.exports = router;
+
+
+/**
+ * Displays the list of all applied laves of the user.
+ */
+
+router.get("/applied-leaves", function viewAppliedLeaves(req, res, next) {
+  var leaveChunks = [];
+
+  //find is asynchronous function
+  Leave.find({ applicantID: req.user._id })
+    .sort({ _id: -1 })
+    .exec(function getLeaves(err, docs) {
+      var hasLeave = 0;
+      if (docs.length > 0) {
+        hasLeave = 1;
+      }
+      for (var i = 0; i < docs.length; i++) {
+        leaveChunks.push(docs[i]);
+      }
+
+      res.render("Admin/appliedLeaves", {
+        title: "List Of Applied Leaves",
+        csrfToken: req.csrfToken(),
+        hasLeave: hasLeave,
+        leaves: leaveChunks,
+        userName: req.user.name,
+        path: req.path
+      });
+    });
+});
+
+
 
 /**
  * View attendance for all employees
@@ -1385,6 +1442,77 @@ router.get("/create-sample-attendance", async (req, res) => {
     res.status(500).send("Lỗi khi tạo dữ liệu điểm danh mẫu");
   }
 });
+// apply for leave 
+router.post("/apply-for-leave", async function (req, res, next) {
+  try {
+    const startDate = new Date(req.body.start_date);
+    let endDate = new Date(req.body.end_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).send("Ngày bắt đầu không hợp lệ");
+    }
+
+    // Kiểm tra nghỉ nửa ngày
+    const isHalfDay = req.body.leaveType && req.body.leaveType.startsWith('half');
+    
+    // Xử lý endDate cho nghỉ nửa ngày
+    if (isHalfDay) {
+      endDate = new Date(startDate); // Đảm bảo endDate = startDate
+    } else if (isNaN(endDate.getTime())) {
+      return res.status(400).send("Ngày kết thúc không hợp lệ");
+    }
+
+    // Validation rules
+    if (startDate < today) {
+      return res.status(400).send("Ngày bắt đầu phải từ hôm nay trở đi");
+    }
+    
+    if (!isHalfDay && endDate < startDate) {
+      return res.status(400).send("Ngày kết thúc phải sau ngày bắt đầu");
+    }
+
+    // Tính số ngày nghỉ
+    const diffDays = Math.floor((startDate - today) / (1000 * 60 * 60 * 24)); // Tính số ngày còn lại từ hôm nay đến ngày bắt đầu
+    let period = 0;
+    if (isHalfDay) {
+      period = 0.5; // Nửa ngày
+    } else {
+      const timeDiff = endDate - startDate;
+      const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+      period = (dayDiff + 1);  
+    }
+    if (period === 1 && diffDays < 2) {
+      return res.status(400).send("Đơn nghỉ 1 ngày phải gửi trước ít nhất 2 ngày.");
+    }
+
+    if (period > 1 && diffDays < 7) {
+      return res.status(400).send("Đơn nghỉ nhiều ngày phải gửi trước ít nhất 7 ngày.");
+    }
+    const newLeave = new Leave({
+      applicantID: req.user._id,
+      title: req.body.title,
+      type: req.body.type,
+      leaveType: req.body.leaveType,
+      startDate: startDate,
+      endDate: endDate,
+      appliedDate: new Date(),
+      period: period,
+      reason: req.body.reason,
+      statusAdmin: "Approved",
+      delegateTo: req.body.delegateTo,
+      delegateContent: req.body.delegateContent,
+    });
+
+    await newLeave.save();
+    res.redirect("/admin/applied-leaves");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
 
 /**
  * Xử lý form thêm nhân viên mới
