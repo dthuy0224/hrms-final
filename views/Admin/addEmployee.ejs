@@ -475,6 +475,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+<!-- Provinces data script for address dropdowns -->
+<script src="/javascripts/provinces.js"></script>
+
 <!-- Flash Messages -->
 <script>
 $(document).ready(function() {
@@ -804,9 +807,9 @@ $(document).ready(function() {
             }
         });
         
-        // Gọi để tải dữ liệu tỉnh thành - đã được đưa xuống dưới để đảm bảo jQuery đã sẵn sàng
-        console.log("jQuery ready, loading provinces data now...");
-        loadProvincesDataImmediately();
+        // Ghi chú về việc tải dữ liệu tỉnh thành - không cần gọi tại đây nữa
+        console.log("jQuery ready, waiting for provinces.js to load data");
+        // Hàm loadProvincesDataImmediately đã được gọi tự động từ provinces.js
         
         // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
         $('#employee-form').on('submit', function(e) {

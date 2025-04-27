@@ -107,14 +107,19 @@
                                             <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label for="teamMembers">Initial Team Members</label>
-                                                    <select multiple class="form-control" id="teamMembers" name="teamMembers">
+                                                    <div class="checkbox-list-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 4px;">
                                                         <% if (employees && employees.length > 0) { %>
                                                             <% employees.forEach(function(employee) { %>
-                                                                <option value="<%= employee._id %>"><%= employee.name %> (<%= employee.email %>)</option>
+                                                                <div class="checkbox">
+                                                                    <label>
+                                                                        <input type="checkbox" name="teamMembers" value="<%= employee._id %>">
+                                                                        <%= employee.name %> (<%= employee.email %>)
+                                                                    </label>
+                                                                </div>
                                                             <% }) %>
                                                         <% } %>
-                                                    </select>
-                                                    <p class="help-block">Hold Ctrl (or Cmd on Mac) to select multiple members</p>
+                                                    </div>
+                                                    <p class="help-block">Select team members for this project</p>
                                                 </div>
                                             </div>
                                         </div>

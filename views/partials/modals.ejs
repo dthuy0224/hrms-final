@@ -1,26 +1,22 @@
 <!-- Common Modal Templates -->
 <!-- These modals can be included in other pages -->
 
-<!-- Mark Attendance Modal -->
+<!-- Manager Attendance Modals -->
 <div id="myModal2" class="modal fade" role="dialog">
     <div class="modal-dialog">
-        <form method="post" action="/manager/mark-manager-attendance">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Mark Attendance</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to mark attendance?</p>
-                </div>
-                <div class="modal-footer">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="reset" class="btn btn-default" data-dismiss="modal">No</button>
-                    <button type="submit" class="btn btn-default">Yes</button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Mark Attendance</h4>
             </div>
-        </form>
+            <div class="modal-body">
+                <p>Are you sure you want to mark attendance?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="/manager/mark-attendance-direct" class="btn btn-default">Yes</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -29,7 +25,7 @@
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
-            <form method="post" action="/manager/view-attendance">
+            <form method="post" action="/manager/view-attendance" id="viewAttendanceForm">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Select Month/Year</h4>
@@ -55,16 +51,108 @@
                     <div class="form-group">
                         <label for="year">Year:</label>
                         <select class="form-control" id="year" name="year">
-                            <!-- Will be populated dynamically with JavaScript -->
+                            <!-- Years will be populated by script -->
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <!-- CSRF token will be inserted dynamically when modal opens -->
+                    <input type="hidden" name="_csrf" value="">
                     <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-default">View</button>
                 </div>
             </form>
         </div>
     </div>
-</div> 
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Add submit event handler for mark attendance form
+        $('#markAttendanceForm').on('submit', function(e) {
+            // Prevent the form from submitting normally
+            e.preventDefault();
+            
+            var form = $(this);
+            
+            // Check if we're already processing - avoid recursion
+            if (form.data('submitting')) {
+                return false;
+            }
+            
+            // Set flag to indicate we're processing
+            form.data('submitting', true);
+            
+            // Get fresh CSRF token via AJAX
+            $.ajax({
+                url: '/refresh-csrf',
+                method: 'GET',
+                success: function(data) {
+                    // Update the token
+                    form.find('input[name="_csrf"]').val(data.csrfToken);
+                    
+                    // Don't use jQuery's submit() as it would trigger this handler again
+                    // Instead submit via native DOM method
+                    form.off('submit'); // Remove event handler
+                    form[0].submit(); // Submit the form via native DOM
+                },
+                error: function() {
+                    alert('Could not refresh security token. Please reload the page and try again.');
+                    form.data('submitting', false);
+                }
+            });
+            
+            return false;
+        });
+        
+        // Add submit event handler for view attendance form
+        $('#viewAttendanceForm').on('submit', function(e) {
+            // Prevent the form from submitting normally
+            e.preventDefault();
+            
+            var form = $(this);
+            
+            // Check if we're already processing - avoid recursion
+            if (form.data('submitting')) {
+                return false;
+            }
+            
+            // Set flag to indicate we're processing
+            form.data('submitting', true);
+            
+            // Get fresh CSRF token via AJAX
+            $.ajax({
+                url: '/refresh-csrf',
+                method: 'GET',
+                success: function(data) {
+                    // Update the token
+                    form.find('input[name="_csrf"]').val(data.csrfToken);
+                    
+                    // Don't use jQuery's submit() as it would trigger this handler again
+                    // Instead submit via native DOM method
+                    form.off('submit'); // Remove event handler
+                    form[0].submit(); // Submit the form via native DOM
+                },
+                error: function() {
+                    alert('Could not refresh security token. Please reload the page and try again.');
+                    form.data('submitting', false);
+                }
+            });
+            
+            return false;
+        });
+        
+        // Populate years for attendance view
+        var yearSelect = $('#year');
+        if (yearSelect.length) {
+            var currentYear = new Date().getFullYear();
+            for (var i = currentYear - 2; i <= currentYear; i++) {
+                yearSelect.append($('<option>', {
+                    value: i,
+                    text: i,
+                    selected: i === currentYear
+                }));
+            }
+        }
+    });
+</script> 

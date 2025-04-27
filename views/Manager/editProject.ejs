@@ -165,15 +165,22 @@
                                             <h4>Add Team Members</h4>
                                             <form method="post" action="/manager/add-project-member/<%= project._id %>">
                                                 <div class="form-group">
-                                                    <label for="employee">Select Employee</label>
-                                                    <select class="form-control" id="employee" name="employeeId" required>
-                                                        <option value="">-- Select Employee --</option>
+                                                    <label for="employee">Select Employees</label>
+                                                    <div class="checkbox-list-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 4px;">
                                                         <% if (availableEmployees && availableEmployees.length > 0) { %>
                                                             <% availableEmployees.forEach(function(employee) { %>
-                                                                <option value="<%= employee._id %>"><%= employee.name %> (<%= employee.email %>)</option>
+                                                                <div class="checkbox">
+                                                                    <label>
+                                                                        <input type="checkbox" name="employeeId" value="<%= employee._id %>">
+                                                                        <%= employee.name %> (<%= employee.email %>)
+                                                                    </label>
+                                                                </div>
                                                             <% }) %>
+                                                        <% } else { %>
+                                                            <p class="text-muted">No more employees available to add.</p>
                                                         <% } %>
-                                                    </select>
+                                                    </div>
+                                                    <p class="help-block">Select one employee at a time to add to the project.</p>
                                                 </div>
                                                 
                                                 <div class="form-group">
@@ -221,6 +228,13 @@
                     if (startDate > endDate) {
                         alert('End date must be after start date');
                         e.preventDefault();
+                    }
+                });
+                
+                // Ensure only one checkbox is selected at a time
+                $('input[type="checkbox"][name="employeeId"]').on('change', function() {
+                    if($(this).is(':checked')) {
+                        $('input[type="checkbox"][name="employeeId"]').not(this).prop('checked', false);
                     }
                 });
                 
