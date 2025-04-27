@@ -198,7 +198,20 @@
                                             <% attendance.forEach(function(item){ %>
                                                 <tr>
                                                     <td>
-                                                                <%= moment(item.month + "/" + item.date + "/" + item.year).format('MMMM Do YYYY'); %>
+                                                                <% 
+                                                                // Tạo ngày theo định dạng DD/MM/YYYY với kiểm tra tính hợp lệ
+                                                                var dateStr = item.date + "/" + item.month + "/" + item.year;
+                                                                var parsedDate = moment(dateStr, "DD/MM/YYYY");
+                                                                if (parsedDate.isValid()) { 
+                                                                %>
+                                                                    <%= parsedDate.format('MMMM Do YYYY') %>
+                                                                <% } else { 
+                                                                    // Cách dự phòng nếu ngày không hợp lệ: chuỗi ISO
+                                                                    var fallbackDate = new Date(item.year, item.month-1, item.date);
+                                                                    var isoDate = moment(fallbackDate);
+                                                                %>
+                                                                    <%= isoDate.isValid() ? isoDate.format('MMMM Do YYYY') : 'Invalid date' %>
+                                                                <% } %>
                                                             </td>
                                                             <td>
                                                                 <% if (item.status && item.status === 'late') { %>

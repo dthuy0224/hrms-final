@@ -395,6 +395,34 @@ router.get(
         for (var i = 0; i < docs.length; i++) {
           attendanceChunks.push(docs[i]);
         }
+        
+        // Hàm tính số giờ làm việc
+        function calculateWorkHours(checkInTime, checkOutTime) {
+          if (!checkInTime || !checkOutTime) return 0;
+          
+          // Chuyển đổi từ chuỗi giờ:phút:giây thành số giờ
+          var checkIn = checkInTime.split(':');
+          var checkOut = checkOutTime.split(':');
+          
+          if (checkIn.length < 2 || checkOut.length < 2) return 0;
+          
+          var checkInHours = parseInt(checkIn[0]);
+          var checkInMinutes = parseInt(checkIn[1]);
+          var checkOutHours = parseInt(checkOut[0]);
+          var checkOutMinutes = parseInt(checkOut[1]);
+          
+          // Tính số giờ làm việc
+          var hours = checkOutHours - checkInHours;
+          var minutes = checkOutMinutes - checkInMinutes;
+          
+          if (minutes < 0) {
+            hours--;
+            minutes += 60;
+          }
+          
+          return hours + (minutes / 60);
+        }
+        
         res.render("Manager/viewAttendance", {
           title: "Attendance Sheet",
           month: new Date().getMonth() + 1,
@@ -403,6 +431,7 @@ router.get(
           attendance: attendanceChunks,
           moment: moment,
           userName: req.user.name,
+          calculateWorkHours: calculateWorkHours
         });
       });
   }
@@ -928,6 +957,34 @@ router.post("/view-attendance", function viewAttendance(req, res, next) {
       for (var i = 0; i < docs.length; i++) {
         attendanceChunks.push(docs[i]);
       }
+      
+      // Hàm tính số giờ làm việc
+      function calculateWorkHours(checkInTime, checkOutTime) {
+        if (!checkInTime || !checkOutTime) return 0;
+        
+        // Chuyển đổi từ chuỗi giờ:phút:giây thành số giờ
+        var checkIn = checkInTime.split(':');
+        var checkOut = checkOutTime.split(':');
+        
+        if (checkIn.length < 2 || checkOut.length < 2) return 0;
+        
+        var checkInHours = parseInt(checkIn[0]);
+        var checkInMinutes = parseInt(checkIn[1]);
+        var checkOutHours = parseInt(checkOut[0]);
+        var checkOutMinutes = parseInt(checkOut[1]);
+        
+        // Tính số giờ làm việc
+        var hours = checkOutHours - checkInHours;
+        var minutes = checkOutMinutes - checkInMinutes;
+        
+        if (minutes < 0) {
+          hours--;
+          minutes += 60;
+        }
+        
+        return hours + (minutes / 60);
+      }
+      
       res.render("Manager/viewAttendance", {
         title: "Attendance Sheet",
         month: req.body.month,
@@ -936,6 +993,7 @@ router.post("/view-attendance", function viewAttendance(req, res, next) {
         attendance: attendanceChunks,
         moment: moment,
         userName: req.user.name,
+        calculateWorkHours: calculateWorkHours
       });
     });
 });
