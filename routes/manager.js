@@ -8,36 +8,6 @@ var Attendance = require("../models/attendance");
 var moment = require("moment");
 var Project = require("../models/project");
 var PerformanceAppraisal = require("../models/performance_appraisal");
-var csrf = require("csurf");
-var csrfProtection = csrf();
-router.use(csrfProtection);
-
-// Function to calculate work hours from time strings
-function calculateWorkHours(checkInTime, checkOutTime) {
-  if (!checkInTime || !checkOutTime) return 0;
-  
-  const [inHours, inMinutes, inSeconds] = checkInTime.split(':').map(Number);
-  const [outHours, outMinutes, outSeconds] = checkOutTime.split(':').map(Number);
-  
-  const checkInDate = new Date();
-  checkInDate.setHours(inHours, inMinutes, inSeconds);
-  
-  const checkOutDate = new Date();
-  checkOutDate.setHours(outHours, outMinutes, outSeconds);
-  
-  // If checkout is earlier than checkin (next day), add 24 hours
-  if (checkOutDate < checkInDate) {
-    checkOutDate.setDate(checkOutDate.getDate() + 1);
-  }
-  
-  // Calculate the difference in milliseconds
-  const diffMs = checkOutDate - checkInDate;
-  
-  // Convert to hours (milliseconds to hours)
-  const hours = diffMs / (1000 * 60 * 60);
-  
-  return hours;
-}
 
 // Ensure user is logged in
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
@@ -433,7 +403,6 @@ router.get(
           attendance: attendanceChunks,
           moment: moment,
           userName: req.user.name,
-          calculateWorkHours: calculateWorkHours
         });
       });
   }
@@ -708,28 +677,56 @@ router.get(
 
 router.post("/apply-for-leave", async function (req, res, next) {
   try {
-    // Chuẩn hóa startDate và endDate về 00:00 để so sánh theo ngày
     const startDate = new Date(req.body.start_date);
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(req.body.end_date);
-    endDate.setHours(0, 0, 0, 0);
-
+    let endDate = new Date(req.body.end_date);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // reset giờ để so sánh ngày chính xác
+    today.setHours(0, 0, 0, 0);
 
-    // Kiểm tra ngày bắt đầu và kết thúc không được trong quá khứ và hợp lệ
-    if (startDate < today || endDate < today || endDate < startDate) {
-      return res.status(400).send("Invalid date selection.");
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).send("Ngày bắt đầu không hợp lệ");
     }
 
-    // Tính số ngày nghỉ (bao gồm cả ngày bắt đầu và kết thúc)
-    const period = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    // Kiểm tra nghỉ nửa ngày
+    const isHalfDay = req.body.leaveType && req.body.leaveType.startsWith('half');
+    
+    // Xử lý endDate cho nghỉ nửa ngày
+    if (isHalfDay) {
+      endDate = new Date(startDate); // Đảm bảo endDate = startDate
+    } else if (isNaN(endDate.getTime())) {
+      return res.status(400).send("Ngày kết thúc không hợp lệ");
+    }
 
+    // Validation rules
+    if (startDate < today) {
+      return res.status(400).send("Ngày bắt đầu phải từ hôm nay trở đi");
+    }
+    
+    if (!isHalfDay && endDate < startDate) {
+      return res.status(400).send("Ngày kết thúc phải sau ngày bắt đầu");
+    }
+
+    // Tính số ngày nghỉ
+    const diffDays = Math.floor((startDate - today) / (1000 * 60 * 60 * 24)); // Tính số ngày còn lại từ hôm nay đến ngày bắt đầu
+    let period = 0;
+    if (isHalfDay) {
+      period = 0.5; // Nửa ngày
+    } else {
+      const timeDiff = endDate - startDate;
+      const dayDiff = timeDiff / (1000 * 60 * 60 * 24);
+      period = (dayDiff + 1);  
+    }
+    if (period === 1 && diffDays < 2) {
+      return res.status(400).send("Đơn nghỉ 1 ngày phải gửi trước ít nhất 2 ngày.");
+    }
+
+    if (period > 1 && diffDays < 7) {
+      return res.status(400).send("Đơn nghỉ nhiều ngày phải gửi trước ít nhất 7 ngày.");
+    }
     const newLeave = new Leave({
       applicantID: req.user._id,
       title: req.body.title,
       type: req.body.type,
+      leaveType: req.body.leaveType,
       startDate: startDate,
       endDate: endDate,
       appliedDate: new Date(),
@@ -747,6 +744,7 @@ router.post("/apply-for-leave", async function (req, res, next) {
     res.status(500).send("Server Error");
   }
 });
+
 
 /**
  * Description:
@@ -938,7 +936,6 @@ router.post("/view-attendance", function viewAttendance(req, res, next) {
         attendance: attendanceChunks,
         moment: moment,
         userName: req.user.name,
-        calculateWorkHours: calculateWorkHours
       });
     });
 });
