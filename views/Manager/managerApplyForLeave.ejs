@@ -310,7 +310,7 @@ const delegateContent = document.getElementById("delegateContent");
             return false;
         }
         if (val.length > 4000) {
-            showError("reason", "Lý do không được vượt quá 500 ký tự.");
+            showError("reason", "Lý do không được vượt quá 4000 ký tự.");
             return false;
         }
         clearError("reason");
@@ -333,7 +333,7 @@ const delegateContent = document.getElementById("delegateContent");
             return false;
         }
         if (val.length > 4000) {
-            showError("delegateContent", "Nội dung ủy quyền không được vượt quá 1000 ký tự.");
+            showError("delegateContent", "Nội dung ủy quyền không được vượt quá 4000 ký tự.");
             return false;
         }
         clearError("delegateContent");
