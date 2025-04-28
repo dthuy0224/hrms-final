@@ -1011,21 +1011,25 @@ router.post("/view-attendance", function viewAttendance(req, res, next) {
 
 // CSRF exemption middleware for mark attendance only
 const skipCSRF = (req, res, next) => {
-  // Add a dummy token function
-  req.csrfToken = () => req.body._csrf || 'dummy-token';
-  
-  // Bypass CSRF by setting a valid token property directly
-  req._csrfToken = function() {
-    return 'bypass-csrf-for-project-routes';
+  // Đơn giản hóa middleware này
+  req.csrfToken = function() { 
+    return ''; 
   };
-  
   next();
 };
 
+// Thêm route handler GET cho mark-manager-attendance
+router.get("/mark-manager-attendance", function(req, res) {
+  // Chuyển hướng đến route mark-attendance-direct
+  res.redirect("/manager/mark-attendance-direct");
+});
+
+// Sửa lại route handler POST
 router.post(
   "/mark-manager-attendance",
-  skipCSRF,  // Skip CSRF validation for this route only
   function markAttendance(req, res, next) {
+    console.log("Mark attendance POST route được gọi");
+    
     Attendance.find(
       {
         employeeID: req.user._id,
@@ -1044,6 +1048,14 @@ router.post(
           newAttendance.month = new Date().getMonth() + 1;
           newAttendance.date = new Date().getDate();
           newAttendance.present = 1;
+          
+          // Thêm giờ check-in
+          const now = new Date();
+          const hours = now.getHours().toString().padStart(2, '0');
+          const minutes = now.getMinutes().toString().padStart(2, '0');
+          const seconds = now.getSeconds().toString().padStart(2, '0');
+          newAttendance.checkInTime = `${hours}:${minutes}:${seconds}`;
+          
           newAttendance.save(function saveAttendance(err) {
             if (err) {
               console.log(err);
@@ -1405,6 +1417,8 @@ router.post("/add-project", skipCSRF, function(req, res, next) {
  * Accessible via direct GET request
  */
 router.get("/mark-attendance-direct", function directMarkAttendance(req, res, next) {
+  console.log("Mark attendance direct route được gọi");
+  
   Attendance.find(
     {
       employeeID: req.user._id,
@@ -1416,6 +1430,7 @@ router.get("/mark-attendance-direct", function directMarkAttendance(req, res, ne
       var found = 0;
       if (docs.length > 0) {
         found = 1;
+        console.log("Đã điểm danh hôm nay rồi");
       } else {
         var newAttendance = new Attendance();
         newAttendance.employeeID = req.user._id;
@@ -1423,9 +1438,21 @@ router.get("/mark-attendance-direct", function directMarkAttendance(req, res, ne
         newAttendance.month = new Date().getMonth() + 1;
         newAttendance.date = new Date().getDate();
         newAttendance.present = 1;
+        
+        // Thêm giờ check-in
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        newAttendance.checkInTime = `${hours}:${minutes}:${seconds}`;
+        
+        console.log("Tạo điểm danh mới với check-in time:", newAttendance.checkInTime);
+        
         newAttendance.save(function saveAttendance(err) {
           if (err) {
-            console.log(err);
+            console.log("Lỗi khi lưu điểm danh:", err);
+          } else {
+            console.log("Đã lưu điểm danh thành công");
           }
         });
       }
