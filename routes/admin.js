@@ -1532,7 +1532,9 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       department, 
       designation, 
       skills,
-      employeeType
+      employeeType,
+      provinceActual,
+      districtActual
     } = req.body;
     
     console.log("2. Dữ liệu form:", {
@@ -1544,7 +1546,9 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       password: password ? 'Set' : 'Not set',
       department, 
       designation,
-      employeeType
+      employeeType,
+      province: provinceActual || req.body.province,
+      district: districtActual || req.body.district
     });
     
     // Kết hợp firstName và lastName thành name
@@ -1587,7 +1591,9 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       type: "employee", // Mặc định là nhân viên
       Skills: skills || [],
       employeeType: employeeType, // Lưu giá trị gốc vào trường employeeType
-      employmentType: employeeType === "Full-Time" ? "full-time" : "part-time" // Chuyển đổi giá trị cho trường employmentType
+      employmentType: employeeType === "Full-Time" ? "full-time" : "part-time", // Chuyển đổi giá trị cho trường employmentType
+      province: provinceActual || req.body.province,
+      district: districtActual || req.body.district
     };
     
     console.log("5. Object user đã tạo:", userData);
@@ -1608,8 +1614,8 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
     // Xử lý các trường mới
     if (req.body.gender) user.gender = req.body.gender;
     if (req.body.birthName) user.birthName = req.body.birthName;
-    if (req.body.province) user.province = req.body.province;
-    if (req.body.district) user.district = req.body.district;
+    if (req.body.province || provinceActual) user.province = provinceActual || req.body.province;
+    if (req.body.district || districtActual) user.district = districtActual || req.body.district;
     if (req.body.detailedAddress) user.detailedAddress = req.body.detailedAddress;
     if (req.body.birthplace) user.birthplace = req.body.birthplace;
     if (req.body.idNumber) user.idNumber = req.body.idNumber;
@@ -1648,8 +1654,8 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       Skills: skills || [],
       gender: req.body.gender,
       birthName: req.body.birthName,
-      province: req.body.province,
-      district: req.body.district,
+      province: provinceActual || req.body.province,
+      district: districtActual || req.body.district,
       detailedAddress: req.body.detailedAddress,
       birthplace: req.body.birthplace,
       idNumber: req.body.idNumber,

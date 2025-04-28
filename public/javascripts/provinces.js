@@ -208,8 +208,8 @@ function populateProvinces(select, data) {
   
   // Thêm các option tỉnh/thành phố
   data.forEach(province => {
-    // Thay đổi từ code sang name để lưu tên tỉnh thành
-    select.append(`<option value="${province.name}">${province.name}</option>`);
+    // Sử dụng code làm value thay vì name để dễ dàng tra cứu quận/huyện
+    select.append(`<option value="${province.code}" data-name="${province.name}">${province.name}</option>`);
   });
   
   select.prop('disabled', false);
@@ -269,7 +269,7 @@ function populateBirthplaces(select, data) {
   
   // Thêm các option tỉnh/thành phố
   data.forEach(province => {
-    select.append(`<option value="${province.name}">${province.name}</option>`);
+    select.append(`<option value="${province.code}" data-name="${province.name}">${province.name}</option>`);
   });
   
   select.prop('disabled', false);
@@ -354,7 +354,7 @@ function populateDistricts(select, districts) {
   
   if (districts && districts.length > 0) {
     districts.forEach(district => {
-      select.append(`<option value="${district.name}">${district.name}</option>`);
+      select.append(`<option value="${district.code}" data-name="${district.name}">${district.name}</option>`);
     });
     console.log(`Loaded ${districts.length} districts`);
   } else {
@@ -385,6 +385,7 @@ function initProvinceChange() {
       console.log(`Province changed to: ${provinceCode}`);
       
       if (provinceCode) {
+        // Đã dùng code làm value nên không cần tìm code nữa
         loadDistricts(provinceCode);
       } else {
         // Reset quận/huyện nếu không chọn tỉnh/thành phố

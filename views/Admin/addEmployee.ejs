@@ -830,6 +830,30 @@ $(document).ready(function() {
                 return false;
             }
             
+            // Xử lý chuyển đổi mã tỉnh/thành phố và quận/huyện thành tên để lưu vào database
+            const provinceSelect = $('select[name="province"]');
+            const districtSelect = $('select[name="district"]');
+            
+            if (provinceSelect.val()) {
+                // Tạo input ẩn với tên tỉnh
+                const provinceName = provinceSelect.find('option:selected').text();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'provinceActual',
+                    value: provinceName
+                }).appendTo(this);
+            }
+            
+            if (districtSelect.val()) {
+                // Tạo input ẩn với tên quận/huyện
+                const districtName = districtSelect.find('option:selected').text();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'districtActual',
+                    value: districtName
+                }).appendTo(this);
+            }
+            
             return true;
         });
         

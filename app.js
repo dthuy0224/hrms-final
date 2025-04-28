@@ -204,7 +204,9 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
       designation, 
       skills,
       employeeType,
-      officeEmail
+      officeEmail,
+      provinceActual,
+      districtActual
     } = req.body;
     
     console.log("Dữ liệu form:", {
@@ -217,7 +219,9 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
       password: password ? 'Set' : 'Not set',
       department, 
       designation,
-      employeeType
+      employeeType,
+      province: provinceActual || req.body.province,
+      district: districtActual || req.body.district
     });
     
     // Kết hợp firstName và lastName thành name
