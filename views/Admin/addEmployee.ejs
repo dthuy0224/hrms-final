@@ -42,10 +42,10 @@
                             <li><a href="/admin">Employee</a></li>
                             <li class="active">Add Employee</li>
                         </ol>
-                        <h3>Add Employee</h3>
+                        <h3 style="margin-top: 5px; margin-bottom: 10px;">Add Employee</h3>
                     </div>
 
-                    <div id="menu1" style="height:717px; overflow: auto;">
+                    <div id="menu1">
                         <form id="employee-form" class="form-horizontal" action="/admin/add-employee-bypass" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             
@@ -979,6 +979,28 @@ $(document).ready(function() {
     }
     .checkbox-scroll .checkbox label {
         font-weight: normal;
+    }
+    
+    /* Styles for form after removing fixed height scroll */
+    #menu1 {
+        margin-bottom: 50px; /* Add bottom margin for spacing */
+        margin-top: -15px; /* Move form up a bit */
+    }
+    #menu1 .panel {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    #menu1 .panel-heading {
+        background-color: #f8f8f8;
+    }
+    #wrapper {
+        padding-bottom: 50px; /* Ensure there's padding at bottom of page */
+    }
+    .page-header {
+        margin-top: 10px; /* Reduce top margin of page header */
+        margin-bottom: 15px; /* Reduce bottom margin of page header */
+    }
+    #page-content-wrapper {
+        padding-top: 10px; /* Reduce top padding of page content */
     }
 </style>
 </body>
