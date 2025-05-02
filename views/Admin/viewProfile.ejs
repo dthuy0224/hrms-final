@@ -53,10 +53,10 @@
                                     <li><a href="/admin">Dashboard</a></li>
                                     <li class="active">My Profile</li>
                                 </ol>
-                                <h3>Employee Profile</h3>
+                                <h3 style="margin-top: 5px; margin-bottom: 10px;">Employee Profile</h3>
                             </div>
 
-                            <div class="profile-container">
+                            <div class="profile-container" style="margin-top: -5px;">
                                 <div class="row">
                                     <!-- Left side profile card -->
                                     <div class="col-md-4">
@@ -389,6 +389,73 @@
         </script>
 
         <style>
+            /* Styles for profile page */
+            .profile-container {
+                margin-top: 20px;
+            }
+            .profile-card {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                overflow: hidden;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .profile-header {
+                height: 80px;
+                position: relative;
+            }
+            .employment-badge {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: rgba(255,255,255,0.8);
+                color: #333;
+                padding: 5px 10px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .profile-body {
+                padding: 20px;
+                background-color: #f9f9f9;
+            }
+            .profile-image {
+                position: relative;
+                z-index: 2;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            .profile-image img {
+                width: 120px;
+                height: 120px;
+                border: 5px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                margin-top: -60px;
+                display: inline-block;
+            }
+            
+            /* Additional styles to move content up */
+            #page-content-wrapper {
+                padding-top: 10px;
+            }
+            .page-header {
+                margin-top: 10px;
+                margin-bottom: 15px;
+            }
+            .panel {
+                margin-bottom: 15px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            .panel-heading {
+                padding: 10px 15px;
+            }
+            .panel-body {
+                padding: 15px;
+            }
+            .info-box {
+                margin-bottom: 15px;
+            }
+            
             /* Profile Styles */
             .profile-container {
                 margin-top: 20px;
@@ -407,18 +474,6 @@
                 background-color: #3498db;
                 height: 100px;
                 position: relative;
-            }
-            
-            .employment-badge {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background-color: #FF9800;
-                color: white;
-                padding: 3px 10px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: bold;
             }
             
             .profile-image {
@@ -442,10 +497,6 @@
             .profile-id {
                 color: #777;
                 margin-bottom: 20px;
-            }
-            
-            .profile-body {
-                padding: 20px;
             }
             
             .profile-details {
