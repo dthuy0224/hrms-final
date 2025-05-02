@@ -1068,42 +1068,45 @@ router.post(
   }
 );
 
-// Check-out route to mark the time when a manager leaves for the day
+// Check-out route for manager
 router.post("/check-out", async (req, res) => {
-  const { _id } = req.user;
-  const currentDate = new Date();
-  const date = currentDate.getDate();
-  const month = currentDate.getMonth() + 1;
-  const year = currentDate.getFullYear();
-  
-  // Format the current time as HH:MM:SS
-  const hours = currentDate.getHours().toString().padStart(2, '0');
-  const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-  const seconds = currentDate.getSeconds().toString().padStart(2, '0');
-  const checkOutTime = `${hours}:${minutes}:${seconds}`;
-  
   try {
-    // Find today's attendance record for the user
+    const currentDate = new Date();
+    const date = currentDate.getDate();
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    
+    // Format thời gian checkout
+    const hours = currentDate.getHours().toString().padStart(2, '0');
+    const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+    const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+    const checkOutTime = `${hours}:${minutes}:${seconds}`;
+    
+    console.log(`Manager checkout: Date=${date}/${month}/${year}, Time=${checkOutTime}`);
+    
+    // Tìm bản ghi attendance phù hợp
     const attendance = await Attendance.findOne({
-      employeeID: _id,
-      date,
-      month,
-      year,
+      employeeID: req.user._id,
+      date: date,
+      month: month,
+      year: year
     });
-
-    if (attendance) {
-      // Update the attendance record with check-out time
-      attendance.checkOutTime = checkOutTime;
-      await attendance.save();
-      req.session.checkedOut = true; // Mark that the user has checked out
-      res.redirect("/manager/view-attendance-current");
-    } else {
-      // No check-in record found for today
-      res.status(400).send("No check-in record found for today. Please check-in first.");
+    
+    if (!attendance) {
+      req.flash("error", "Không tìm thấy bản ghi chấm công cho ngày hôm nay");
+      return res.redirect("/manager");
     }
+    
+    // Cập nhật thời gian check-out
+    attendance.checkOutTime = checkOutTime;
+    await attendance.save();
+    
+    req.flash("success", "Đã ghi nhận thời gian check-out thành công");
+    res.redirect("/manager");
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error recording check-out time");
+    console.error("Lỗi khi check-out:", err);
+    req.flash("error", "Đã xảy ra lỗi khi check-out: " + err.message);
+    res.redirect("/manager");
   }
 });
 

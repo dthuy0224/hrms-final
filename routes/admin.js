@@ -1794,4 +1794,52 @@ router.post("/delete-employee/:id", async (req, res) => {
   }
 });
 
+// Check-out route để ghi nhận thời gian kết thúc làm việc cho Admin
+router.post("/check-out", async (req, res) => {
+  try {
+    const { employeeId, date, month, year } = req.body;
+    
+    // Nếu không có employeeId, sử dụng ID của admin hiện tại
+    const targetId = employeeId || req.user._id;
+    
+    // Lấy ngày hiện tại nếu không có trong request
+    const currentDate = new Date();
+    const targetDate = date || currentDate.getDate();
+    const targetMonth = month || currentDate.getMonth() + 1;
+    const targetYear = year || currentDate.getFullYear();
+    
+    // Format thời gian checkout
+    const hours = currentDate.getHours().toString().padStart(2, '0');
+    const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+    const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+    const checkOutTime = `${hours}:${minutes}:${seconds}`;
+    
+    console.log(`Admin checkout: ID=${targetId}, Date=${targetDate}/${targetMonth}/${targetYear}, Time=${checkOutTime}`);
+    
+    // Tìm bản ghi attendance phù hợp
+    const attendance = await Attendance.findOne({
+      employeeID: targetId,
+      date: targetDate,
+      month: targetMonth,
+      year: targetYear
+    });
+    
+    if (!attendance) {
+      req.flash("error", "Không tìm thấy bản ghi chấm công cho ngày hôm nay");
+      return res.redirect("/admin/employees-attendance");
+    }
+    
+    // Cập nhật thời gian check-out
+    attendance.checkOutTime = checkOutTime;
+    await attendance.save();
+    
+    req.flash("success", "Đã ghi nhận thời gian check-out thành công");
+    res.redirect("/admin/employees-attendance");
+  } catch (err) {
+    console.error("Lỗi khi check-out:", err);
+    req.flash("error", "Đã xảy ra lỗi khi check-out: " + err.message);
+    res.redirect("/admin/employees-attendance");
+  }
+});
+
 module.exports = router;

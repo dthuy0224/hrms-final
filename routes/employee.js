@@ -5,7 +5,7 @@ var Attendance = require("../models/attendance");
 var Project = require("../models/project");
 var moment = require("moment");
 var User = require("../models/user");
-var moment = require("moment");
+const { calculateWorkingDaysInMonth, isHoliday } = require('../utils/workingDaysCalculator');
 
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
   next();
@@ -161,139 +161,114 @@ router.get("/applied-leaves", function viewAppliedLeaves(req, res, next) {
 
 router.post(
   "/view-attendance",
-  function viewAttendanceSheet(req, res, next) {
-    var monthName = "";
-    switch (parseInt(req.body.month)) {
-      case 1:
-        monthName = "January";
-        break;
-      case 2:
-        monthName = "February";
-        break;
-      case 3:
-        monthName = "March";
-        break;
-      case 4:
-        monthName = "April";
-        break;
-      case 5:
-        monthName = "May";
-        break;
-      case 6:
-        monthName = "June";
-        break;
-      case 7:
-        monthName = "July";
-        break;
-      case 8:
-        monthName = "August";
-        break;
-      case 9:
-        monthName = "September";
-        break;
-      case 10:
-        monthName = "October";
-        break;
-      case 11:
-        monthName = "November";
-        break;
-      case 12:
-        monthName = "December";
-        break;
-    }
-    Attendance.find(
-      {
-        employeeID: req.user._id,
-        month: req.body.month,
-        year: req.body.year,
-      },
-      null,
-      { sort: { date: 1 } }
-    )
-      .exec(function getAttendance(err, docs) {
-        if (err) {
-          console.log(err);
-          return next(err);
-        }
-        var found = 0;
-        if (docs.length > 0) {
-          found = 1;
-        }
+  async function viewAttendanceSheet(req, res, next) {
+    try {
+      var monthName = "";
+      switch (req.body.month) {
+        case 1:
+          monthName = "January";
+          break;
+        case 2:
+          monthName = "February";
+          break;
+        case 3:
+          monthName = "March";
+          break;
+        case 4:
+          monthName = "April";
+          break;
+        case 5:
+          monthName = "May";
+          break;
+        case 6:
+          monthName = "June";
+          break;
+        case 7:
+          monthName = "July";
+          break;
+        case 8:
+          monthName = "August";
+          break;
+        case 9:
+          monthName = "September";
+          break;
+        case 10:
+          monthName = "October";
+          break;
+        case 11:
+          monthName = "November";
+          break;
+        case 12:
+          monthName = "December";
+          break;
+      }
 
-        // Calculate attendance statistics
-        const workingDaysInMonth = calculateWorkingDaysInMonth(req.body.month, req.body.year);
-        const presentDays = docs.length;
-        const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);
-
-        // Calculate total work hours and overtime
-        let totalWorkHours = 0;
-        let overtimeHours = 0;
-        let onTimeDays = 0;
-        let lateDays = 0;
-
-        // Regular work hours (e.g., 8 hours per day)
-        const standardWorkHours = 8; 
-
-        docs.forEach(record => {
-          if (record.checkInTime && record.checkOutTime) {
-            const workHours = calculateWorkHours(record.checkInTime, record.checkOutTime);
-            totalWorkHours += workHours;
-            
-            // Calculate overtime (any hours beyond standard work hours)
-            if (workHours > standardWorkHours) {
-              overtimeHours += (workHours - standardWorkHours);
-            }
-          }
-
-          // Count on-time and late days
-          if (record.status === 'late') {
-            lateDays++;
-          } else {
-            onTimeDays++;
-          }
-        });
-
-        res.render("Employee/viewAttendance", {
-          title: "My Attendance",
+      const workingDaysInMonth = await calculateWorkingDaysInMonth(req.body.month, req.body.year);
+      
+      const docs = await Attendance.find(
+        {
+          employeeID: req.user._id,
           month: req.body.month,
-          monthName: monthName,
-          selectedYear: req.body.year,
-          currentDate: moment().format('MMMM Do YYYY'),
-          csrfToken: req.csrfToken(),
-          found: found,
-          attendance: docs,
-          moment: moment,
-          userName: req.user.name,
-          attendanceRate: attendanceRate,
-          presentDays: presentDays,
-          workingDaysInMonth: workingDaysInMonth,
-          totalWorkHours: totalWorkHours,
-          overtimeHours: overtimeHours,
-          onTimeDays: onTimeDays,
-          lateDays: lateDays,
-          calculateWorkHours: calculateWorkHours
-        });
+          year: req.body.year,
+        },
+        null,
+        { sort: { date: 1 } }
+      );
+
+      var found = docs.length > 0 ? 1 : 0;
+      const presentDays = docs.length;
+      const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);
+
+      // Calculate total work hours and overtime
+      let totalWorkHours = 0;
+      let overtimeHours = 0;
+      let onTimeDays = 0;
+      let lateDays = 0;
+      const standardWorkHours = 8;
+
+      for (const record of docs) {
+        if (record.checkInTime && record.checkOutTime) {
+          const workHours = calculateWorkHours(record.checkInTime, record.checkOutTime);
+          totalWorkHours += workHours;
+          
+          if (workHours > standardWorkHours) {
+            overtimeHours += (workHours - standardWorkHours);
+          }
+        }
+
+        if (record.status === 'late') {
+          lateDays++;
+        } else {
+          onTimeDays++;
+        }
+      }
+
+      res.render("Employee/viewAttendance", {
+        title: "My Attendance",
+        month: req.body.month,
+        monthName: monthName,
+        selectedYear: req.body.year,
+        currentDate: moment().format('MMMM Do YYYY'),
+        csrfToken: req.csrfToken(),
+        found: found,
+        attendance: docs,
+        moment: moment,
+        userName: req.user.name,
+        attendanceRate: attendanceRate,
+        presentDays: presentDays,
+        workingDaysInMonth: workingDaysInMonth,
+        totalWorkHours: totalWorkHours,
+        overtimeHours: overtimeHours,
+        onTimeDays: onTimeDays,
+        lateDays: lateDays,
+        calculateWorkHours: calculateWorkHours
       });
+    } catch (error) {
+      console.error('Error in viewAttendanceSheet:', error);
+      next(error);
+    }
   }
 );
-
-// Function to calculate working days in a month (excluding weekends)
-function calculateWorkingDaysInMonth(month, year) {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  let workingDays = 0;
-  
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month - 1, day);
-    const dayOfWeek = date.getDay();
-    
-    // Skip weekends (0 = Sunday, 6 = Saturday)
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      workingDays++;
-    }
-  }
-  
-  return workingDays;
-}
 
 // Function to calculate work hours from time strings
 function calculateWorkHours(checkInTime, checkOutTime) {
@@ -359,7 +334,7 @@ router.get(
       null,
       { sort: { date: 1 } }
     )
-      .exec(function getAttendanceSheet(err, docs) {
+      .exec(async function getAttendanceSheet(err, docs) {
         if (err) {
           console.error("Error fetching attendance:", err);
           return next(err);
@@ -379,7 +354,7 @@ router.get(
         }
         
         // Calculate attendance statistics
-        const workingDaysInMonth = calculateWorkingDaysInMonth(currentMonth, currentYear);
+        const workingDaysInMonth = await calculateWorkingDaysInMonth(currentMonth, currentYear);
         const presentDays = docs.length;
         const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);
 

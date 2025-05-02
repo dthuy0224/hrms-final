@@ -3,34 +3,46 @@ require("dotenv").config();
 
 mongoose.Promise = global.Promise;
 
-mongoose.Promise = global.Promise;
+let connection = null;
 
-const connect = (opts = {}) => {
-  let url;
-  switch (process.env.NODE_ENV) {
-    case "test":
-      url = process.env.DB_URL_TEST;
-      break;
-    default:
-      url = process.env.DB_URL;
+async function connect() {
+  try {
+    if (!connection) {
+      let url;
+      switch (process.env.NODE_ENV) {
+        case "test":
+          url = process.env.DB_URL_TEST;
+          break;
+        default:
+          url = process.env.DB_URL;
+      }
+      
+      console.log("[DB] Kết nối đến MongoDB với URL:", url);
+      
+      connection = await mongoose.connect(url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true,
+        useFindAndModify: false
+      });
+      console.log('Connected to MongoDB');
+    }
+    return connection;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
   }
-  
-  console.log("[DB] Kết nối đến MongoDB với URL:", url);
-  
-  return mongoose.connect(url, {
-    ...opts,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  });
-};
+}
 
 const close = () => {
   return mongoose.connection.close();
 };
 
-const getConnection = () => {
-  return mongoose.connection;
-};
+function getConnection() {
+  if (!connection) {
+    throw new Error('Please connect to database first');
+  }
+  return connection;
+}
 
 module.exports = { connect, close, getConnection };

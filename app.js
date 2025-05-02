@@ -20,6 +20,7 @@ const favicon = require("serve-favicon");
 const csrf = require('./config/csrf');
 const User = require("./models/user");
 const multer = require("multer");
+const { initializeDefaultHolidays, updateLunarHolidays } = require('./utils/workingDaysCalculator');
 
 const index = require("./routes/index");
 const admin = require("./routes/admin");
@@ -71,7 +72,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      client: db.getConnection().getClient(),
+      mongoUrl: process.env.DB_URL,
     }),
     cookie: { 
       maxAge: 180 * 60 * 1000,
@@ -641,5 +642,22 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+// Initialize holidays when app starts
+(async () => {
+  try {
+    console.log('Initializing default holidays...');
+    await initializeDefaultHolidays();
+    
+    // Update lunar holidays for current year
+    const currentYear = new Date().getFullYear();
+    console.log(`Updating lunar holidays for year ${currentYear}...`);
+    await updateLunarHolidays(currentYear);
+    
+    console.log('Holiday initialization completed successfully');
+  } catch (error) {
+    console.error('Error initializing holidays:', error);
+  }
+})();
 
 module.exports = app;
