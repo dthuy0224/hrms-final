@@ -581,7 +581,7 @@ router.get(
     
     // Add status filter if active filter is applied
     if (activeFilter) {
-      query.status = { $in: ['On Going', 'on going'] }; 
+      query.status = { $regex: /^in\s*progress$/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
     }
     
     // Check for sort parameter
