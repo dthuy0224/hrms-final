@@ -1056,6 +1056,10 @@ router.post(
           const seconds = now.getSeconds().toString().padStart(2, '0');
           newAttendance.checkInTime = `${hours}:${minutes}:${seconds}`;
           
+          // Kiểm tra xem có đi muộn không (sau 9:00 sáng)
+          const isLate = (hours > 9) || (hours === 9 && minutes > 0);
+          newAttendance.status = isLate ? 'late' : 'present';
+          
           newAttendance.save(function saveAttendance(err) {
             if (err) {
               console.log(err);
@@ -1449,7 +1453,11 @@ router.get("/mark-attendance-direct", function directMarkAttendance(req, res, ne
         const seconds = now.getSeconds().toString().padStart(2, '0');
         newAttendance.checkInTime = `${hours}:${minutes}:${seconds}`;
         
-        console.log("Tạo điểm danh mới với check-in time:", newAttendance.checkInTime);
+        // Kiểm tra xem có đi muộn không (sau 9:00 sáng)
+        const isLate = (hours > 9) || (hours === 9 && minutes > 0);
+        newAttendance.status = isLate ? 'late' : 'present';
+        
+        console.log("Tạo điểm danh mới với check-in time:", newAttendance.checkInTime, "Status:", newAttendance.status);
         
         newAttendance.save(function saveAttendance(err) {
           if (err) {

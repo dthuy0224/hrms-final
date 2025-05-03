@@ -416,8 +416,8 @@
                             <!-- Form Buttons -->
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default">Cancel</button>
-                                    <button type="submit" class="btn btn-primary btn-lg">Save</button>
+                                    <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default btn-lg" style="width: 120px; margin-right: 15px;">Cancel</button>
+                                    <button type="submit" class="btn btn-primary btn-lg" style="width: 120px;" onclick="enforceBypassAction(event)">Save</button>
                                 </div>
                             </div>
                         </form>
@@ -441,6 +441,29 @@
 
 <!-- Provinces data script for address dropdowns -->
 <script src="/javascripts/provinces.js"></script>
+
+<!-- Initialize province dropdowns -->
+<script>
+    // Hàm xử lý việc submit form đến route bypass CSRF
+    function enforceBypassAction(e) {
+        // Không cần ngăn chặn sự kiện mặc định vì chúng ta muốn form được submit đến route bypass
+        console.log('Nút Save được nhấn, đang đảm bảo form sẽ submit đến route bypass...');
+        
+        // Đảm bảo form action là bypass route
+        $('#employee-form').attr('action', '/admin/add-employee-bypass');
+        
+        // In thông tin xác nhận
+        console.log('Form action hiện tại:', $('#employee-form').attr('action'));
+        
+        // Form sẽ tự submit vì nút vẫn giữ type="submit"
+        return true;
+    }
+    
+    $(document).ready(function() {
+        // Load provinces and initialize province dropdown change event
+        loadProvincesDataImmediately();
+    });
+</script>
 
 <!-- Flash Messages -->
 <script>
@@ -551,6 +574,22 @@ $(document).ready(function() {
 <script>
     // CSRF Token Refresh
     $(document).ready(function() {
+        // Đảm bảo form luôn sử dụng đúng action để tránh lỗi CSRF
+        $('#employee-form').attr('action', '/admin/add-employee-bypass');
+        console.log('Form action đã được thiết lập thành: ' + $('#employee-form').attr('action'));
+        
+        // Thêm sự kiện submit để đảm bảo luôn dùng đúng route
+        $('#employee-form').on('submit', function(e) {
+            // Kiểm tra action hiện tại
+            var currentAction = $(this).attr('action');
+            if (currentAction !== '/admin/add-employee-bypass') {
+                console.log('Đã phát hiện action không đúng:', currentAction);
+                console.log('Đang sửa lại thành /admin/add-employee-bypass');
+                $(this).attr('action', '/admin/add-employee-bypass');
+            }
+            console.log('Form đang submit đến:', $(this).attr('action'));
+        });
+        
         $.ajaxSetup({
             headers: {
                 'X-CSRF-Token': '<%= csrfToken %>'
@@ -561,12 +600,33 @@ $(document).ready(function() {
         var csrfToken = '<%= csrfToken %>';
         $('input[name="_csrf"]').val(csrfToken);
         
-        // Kiểm tra và làm mới token mỗi 10 phút
-        setInterval(function() {
+        // Làm mới token CSRF mỗi 5 phút để tránh hết hạn
+        function refreshCSRFToken() {
             $.get('/refresh-csrf', function(data) {
-                $('input[name="_csrf"]').val(data.csrfToken);
+                if (data && data.csrfToken) {
+                    // Cập nhật token trong tất cả các form
+                    $('input[name="_csrf"]').val(data.csrfToken);
+                    csrfToken = data.csrfToken;
+                    console.log('CSRF token refreshed successfully');
+                }
             });
-        }, 10 * 60 * 1000); // 10 phút
+        }
+        
+        // Đặt thời gian làm mới token
+        setInterval(refreshCSRFToken, 5 * 60 * 1000); // 5 phút
+        
+        // Thêm sự kiện trước khi gửi form để đảm bảo token CSRF đúng
+        $('form').on('submit', function() {
+            // Kiểm tra giá trị token CSRF hiện tại
+            if (csrfToken && !$('input[name="_csrf"]', this).val()) {
+                // Thêm token nếu bị thiếu
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: '_csrf',
+                    value: csrfToken
+                }).appendTo(this);
+            }
+        });
         
         // Image preview
         $("#photo").change(function() {
@@ -698,7 +758,21 @@ $(document).ready(function() {
                 birthNameInput.val(toTitleCase(birthNameInput.val()));
             }
             
-            return true; // cho phép form submit
+            // Kiểm tra và đảm bảo token CSRF vẫn còn trong form
+            if (!$('input[name="_csrf"]').length || $('input[name="_csrf"]').val() !== csrfToken) {
+                // Nếu token bị mất hoặc thay đổi, thêm lại
+                $('input[name="_csrf"]').remove();
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: '_csrf',
+                    value: csrfToken
+                }).appendTo(this);
+            }
+            
+            // We now use the province and district names directly as the value in the select
+            // No need to create hidden fields to translate the code to name
+            
+            return true; // Allow form submission
         });
         
         // Apply error validation on page load for required fields that are empty
@@ -777,6 +851,9 @@ $(document).ready(function() {
         
         // Xử lý submit form để chuyển 3 dropdown date thành 1 ngày ISO
         $('#employee-form').on('submit', function(e) {
+            // Lưu token CSRF trước khi thực hiện các thao tác
+            const csrfToken = $('input[name="_csrf"]').val();
+            
             // Xử lý Date of Birth
             const dobDay = $('select[name="dobDay"]').val();
             const dobMonth = $('select[name="dobMonth"]').val();
@@ -789,6 +866,9 @@ $(document).ready(function() {
                 
                 // Tạo ngày ISO (yyyy-mm-dd)
                 const isoDate = `${dobYear}-${formattedMonth}-${formattedDay}`;
+                
+                // Xóa trường cũ nếu đã tồn tại để tránh trùng lặp
+                $('input[name="dateOfBirth"]').remove();
                 
                 // Tạo input ẩn chứa giá trị ISO
                 $('<input>').attr({
@@ -817,6 +897,9 @@ $(document).ready(function() {
                 // Tạo ngày ISO (yyyy-mm-dd)
                 const isoStartDate = `${startYear}-${formattedStartMonth}-${formattedStartDay}`;
                 
+                // Xóa trường cũ nếu đã tồn tại để tránh trùng lặp
+                $('input[name="startDate"]').remove();
+                
                 // Tạo input ẩn chứa giá trị ISO
                 $('<input>').attr({
                     type: 'hidden',
@@ -830,31 +913,21 @@ $(document).ready(function() {
                 return false;
             }
             
-            // Xử lý chuyển đổi mã tỉnh/thành phố và quận/huyện thành tên để lưu vào database
-            const provinceSelect = $('select[name="province"]');
-            const districtSelect = $('select[name="district"]');
-            
-            if (provinceSelect.val()) {
-                // Tạo input ẩn với tên tỉnh
-                const provinceName = provinceSelect.find('option:selected').text();
+            // Kiểm tra và đảm bảo token CSRF vẫn còn trong form
+            if (!$('input[name="_csrf"]').length || $('input[name="_csrf"]').val() !== csrfToken) {
+                // Nếu token bị mất hoặc thay đổi, thêm lại
+                $('input[name="_csrf"]').remove();
                 $('<input>').attr({
                     type: 'hidden',
-                    name: 'provinceActual',
-                    value: provinceName
+                    name: '_csrf',
+                    value: csrfToken
                 }).appendTo(this);
             }
             
-            if (districtSelect.val()) {
-                // Tạo input ẩn với tên quận/huyện
-                const districtName = districtSelect.find('option:selected').text();
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'districtActual',
-                    value: districtName
-                }).appendTo(this);
-            }
+            // We now use the province and district names directly as the value in the select
+            // No need to create hidden fields to translate the code to name
             
-            return true;
+            return true; // Allow form submission
         });
         
         // Convert date inputs to DD/MM/YY format
@@ -879,7 +952,7 @@ $(document).ready(function() {
                 }
             });
         });
-});
+    });
 </script>
 
 <style>

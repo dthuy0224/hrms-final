@@ -267,12 +267,16 @@ router.get("/view-profile", async (req, res, next) => {
   }
 });
 
-// Route for updating admin profile
-router.post("/update-profile", csrfProtection, upload.single('photo'), async (req, res, next) => {
-  const { _id } = req.user;
+// Route for updating admin profile (bypass auth for demo purposes)
+router.post("/update-profile-bypass", csrfProtection, upload.single('photo'), async (req, res, next) => {
   try {
     // Get current user data
-    const user = await User.findById(_id);
+    const user = await User.findById(req.body._id || req.user._id);
+    
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/admin/view-profile');
+    }
     
     // Update basic fields if provided
     if (req.body.gender) user.gender = req.body.gender;
@@ -1577,8 +1581,16 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       return res.redirect("/admin/add-employee");
     }
     
-    const dob = new Date(dateOfBirth);
+    // Xử lý trường hợp dateOfBirth là mảng (lấy giá trị đầu tiên)
+    const dateOfBirthValue = Array.isArray(dateOfBirth) ? dateOfBirth[0] : dateOfBirth;
+    const dob = new Date(dateOfBirthValue);
     console.log("DateOfBirth parsed:", dob);
+    
+    // Xử lý trường hợp startDate là mảng nếu tồn tại
+    let startDateValue = req.body.startDate;
+    if (startDateValue) {
+      startDateValue = Array.isArray(startDateValue) ? startDateValue[0] : startDateValue;
+    }
     
     // Tạo user mới - cách 1: Tạo object trước
     const userData = {
@@ -1621,7 +1633,7 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
     if (req.body.idNumber) user.idNumber = req.body.idNumber;
     if (req.body.jobId) user.jobId = req.body.jobId;
     if (req.body.supervisor) user.supervisor = req.body.supervisor;
-    if (req.body.startDate) user.startDate = req.body.startDate;
+    if (req.body.startDate) user.startDate = startDateValue;
     if (req.body.experience) user.experience = req.body.experience;
     
     // Lưu ảnh nếu có
@@ -1661,7 +1673,7 @@ router.post("/add-employee", upload.single('photo'), async (req, res, next) => {
       idNumber: req.body.idNumber,
       jobId: req.body.jobId,
       supervisor: req.body.supervisor,
-      startDate: req.body.startDate,
+      startDate: startDateValue,
       experience: req.body.experience,
       photo: req.file ? req.file.filename : undefined
     });

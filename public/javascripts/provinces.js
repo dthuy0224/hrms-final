@@ -208,8 +208,8 @@ function populateProvinces(select, data) {
   
   // Thêm các option tỉnh/thành phố
   data.forEach(province => {
-    // Sử dụng code làm value thay vì name để dễ dàng tra cứu quận/huyện
-    select.append(`<option value="${province.code}" data-name="${province.name}">${province.name}</option>`);
+    // Sử dụng name làm value, lưu code làm data attribute để tra cứu quận/huyện
+    select.append(`<option value="${province.name}" data-code="${province.code}">${province.name}</option>`);
   });
   
   select.prop('disabled', false);
@@ -269,7 +269,7 @@ function populateBirthplaces(select, data) {
   
   // Thêm các option tỉnh/thành phố
   data.forEach(province => {
-    select.append(`<option value="${province.code}" data-name="${province.name}">${province.name}</option>`);
+    select.append(`<option value="${province.name}" data-code="${province.code}">${province.name}</option>`);
   });
   
   select.prop('disabled', false);
@@ -354,7 +354,7 @@ function populateDistricts(select, districts) {
   
   if (districts && districts.length > 0) {
     districts.forEach(district => {
-      select.append(`<option value="${district.code}" data-name="${district.name}">${district.name}</option>`);
+      select.append(`<option value="${district.name}" data-code="${district.code}">${district.name}</option>`);
     });
     console.log(`Loaded ${districts.length} districts`);
   } else {
@@ -365,45 +365,23 @@ function populateDistricts(select, districts) {
   select.prop('disabled', false);
 }
 
-// Hàm khởi tạo sự kiện khi tỉnh/thành phố thay đổi
+// Hàm khởi tạo sự kiện change cho province dropdown
 function initProvinceChange() {
   try {
     const provinceSelect = $('select[name="province"]');
-    if (!provinceSelect.length) {
-      console.log('Province select element not found');
-      return;
-    }
-
-    // Loại bỏ event handler cũ nếu có
-    provinceSelect.off('change');
+    if (!provinceSelect.length) return;
     
-    // Thêm event handler mới
     provinceSelect.on('change', function() {
-      const provinceCode = $(this).val();
+      const provinceCode = $(this).find('option:selected').attr('data-code');
       const districtSelect = $('select[name="district"]');
       
-      console.log(`Province changed to: ${provinceCode}`);
-      
-      if (provinceCode) {
-        // Đã dùng code làm value nên không cần tìm code nữa
+      if (provinceCode && districtSelect.length) {
+        districtSelect.prop('disabled', false);
         loadDistricts(provinceCode);
       } else {
-        // Reset quận/huyện nếu không chọn tỉnh/thành phố
-        districtSelect.empty();
-        districtSelect.append('<option value="">Chọn tỉnh/thành phố trước...</option>');
-        districtSelect.prop('disabled', true);
+        $('select[name="district"]').prop('disabled', true).empty().append('<option value="">Chọn tỉnh/thành trước</option>');
       }
     });
-    
-    console.log('Province change event handler initialized');
-    
-    // Kích hoạt sự kiện change nếu đã có giá trị tỉnh
-    setTimeout(function() {
-      if (provinceSelect.val()) {
-        console.log("Province already has value, triggering change event");
-        provinceSelect.trigger('change');
-      }
-    }, 200);
   } catch (error) {
     console.error('Error initializing province change handler:', error);
   }
