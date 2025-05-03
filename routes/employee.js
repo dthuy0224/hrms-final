@@ -6,7 +6,11 @@ var Project = require("../models/project");
 var moment = require("moment");
 var User = require("../models/user");
 var moment = require("moment");
-
+const bcrypt = require("bcrypt");
+const multer = require("multer");
+const path = require("path");
+const csrfProtection = require("csurf")();
+const mongoose = require('mongoose');
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
   next();
 });
@@ -439,7 +443,7 @@ router.get(
  * Displays employee his/her profile.
  */
 
-router.get("/view-profile", function viewProfile(req, res, next) {
+router.get("/view-profile",  function viewProfile(req, res, next) {
   User.findById(req.user._id, function getUser(err, user) {
     if (err) {
       console.log(err);
@@ -450,7 +454,8 @@ router.get("/view-profile", function viewProfile(req, res, next) {
       employee: user,
       moment: moment,
       userName: req.user.name,
-      path: req.path
+      path: req.path,
+      hasErrors: false
     });
   });
 });
@@ -696,6 +701,70 @@ router.post("/check-out", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error recording check-out time");
+  }
+});
+// Cấu hình lưu trữ cho upload ảnh
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, path.join(__dirname, '../public/uploads/'));
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+// Kiểm tra loại file
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// Khởi tạo multer
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5 // giới hạn 5MB
+  },
+  fileFilter: fileFilter
+});
+// Route for updating employee profile
+router.post("/update-profile", csrfProtection, upload.single('photo'), async (req, res, next) => {
+  const { _id } = req.user;
+  try {
+    // Get current user data
+    const user = await User.findById(_id);
+    
+    // Update basic fields if provided
+    if (req.body.gender) user.gender = req.body.gender;
+    if (req.body.contactNumber) user.contactNumber = req.body.contactNumber;
+    if (req.body.birthplace) user.birthplace = req.body.birthplace;
+    if (req.body.province) user.province = req.body.province;
+    if (req.body.district) user.district = req.body.district;
+    if (req.body.detailedAddress) user.detailedAddress = req.body.detailedAddress;
+    if (req.body.idNumber) user.idNumber = req.body.idNumber;
+    if (req.body.jobId) user.jobId = req.body.jobId;
+    if (req.body.startDate) user.startDate = new Date(req.body.startDate);
+    if (req.body.department) user.department = req.body.department;
+    if (req.body.experience) user.experience = req.body.experience;
+    
+    // Update photo if uploaded
+    if (req.file) {
+      user.photo = req.file.filename;
+    }
+    
+    // Save updated user
+    await user.save();
+    
+    // Redirect back to profile page
+    req.flash('success', 'Profile updated successfully');
+    res.redirect('/employee/view-profile');
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    req.flash('error', 'Error updating profile: ' + err.message);
+    res.redirect('/employee/view-profile');
   }
 });
 

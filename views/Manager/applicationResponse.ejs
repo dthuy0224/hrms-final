@@ -47,7 +47,7 @@
         <div class="col-lg-12">
           <div id="menu1" style="height: auto;">
             <div class="bordered-box1">
-              <form class="form-group-sm" action="/admin/respond-application" method="post">
+              <form class="form-group-sm" action="/manager/respond-application" method="post">
   
                 <!-- Application Details -->
 <h3 class="page-header1">Application Details</h3>
@@ -131,13 +131,23 @@
                 <div class="status-buttons-container">
                   <div class="status-section">
                     <div class="leave-info-label"> Status:</div>
-                    <div class="leave-info-value1"><%= leave.adminResponse %></div>
-                    
+                    <select class="form-control status-select" id="status" name="status">
+                      <option value="<%= leave.adminResponse %>"><%= leave.adminResponse %></option>
+                      <% if(leave.adminResponse !== "Pending") { %>
+                      <option value="Pending">Pending</option>
+                      <% } %>
+                      <% if(leave.adminResponse !== "Approved") { %>
+                      <option value="Approved">Approved</option>
+                      <% } %>
+                      <% if(leave.adminResponse !== "Disapproved") { %>
+                      <option value="Disapproved">Disapproved</option>
+                      <% } %>
+                    </select>
                   </div>
   
                   <div class="form-buttons">
-                    <button type="button" onclick="history.go(-1);" class="btn btn-back">Back</button>
-                  
+                    <button type="button" onclick="history.go(-1);" class="btn btn-back">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Submit</button>
                   </div>
                 </div>
   
@@ -423,7 +433,6 @@
       
         .leave-info-value {
           flex: 1;
-       
         }
       
         /* --- Status and Buttons Section --- */
@@ -489,15 +498,12 @@
           font-size: 15px;
           color: #4a5568;
         }
+      
         .form-group-sm select.form-control {
     width: 110px;
     margin: -25px;}
-
-        .leave-info-value1{
-          width: 110px;
-          margin: -20px;}
-/* --- Info Card Fields --- */
-.info-card {
+        /* --- Info Card Fields --- */
+        .info-card {
   background: #f9f9f9;
     border: 1px solid #eee;
     border-radius: 10px;
@@ -531,7 +537,6 @@
 .info-value {
   flex: 1;
 }
-
       </style>
       
         

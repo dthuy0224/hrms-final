@@ -27,7 +27,7 @@ const employee = require("./routes/employee");
 const manager = require("./routes/manager");
 const api = require("./routes/api");
 const db = require("./db");
-
+const axios = require('axios');
 expressValidator = require("express-validator");
 
 // Import the Passport configuration.
@@ -183,6 +183,204 @@ app.get('/bypass-logout', (req, res, next) => {
   }
 });
 
+  // Route đặc biệt để bypass CSRF cho edit nhân viên
+  app.post("/admin/edit-employee/:id", upload.single('photo'), async (req, res) => {
+    try {
+      const id = req.body.id || req.params.id;
+      console.log("Route bypass CSRF cho Add Employee được gọi");
+      
+      // Kiểm tra xem người dùng đã đăng nhập và là admin
+      if (!req.isAuthenticated() || req.user.type !== 'admin') {
+        return res.status(403).send("Không có quyền truy cập");
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+        req.flash("error", "Employee not found");
+        return res.redirect("/admin/");
+      }
+
+      // Destructure request body
+      const {
+        firstName,
+        lastName,
+        birthName,
+        email,
+        officeEmail,
+        contactNumber,
+        designation,
+        department,
+        employeeType,
+        supervisor,
+        jobId,
+        experience,
+        idNumber,
+        province,
+        district,
+        provinceActual,
+        districtActual,
+        detailedAddress,
+        birthplace,
+        birthplaceActual,
+        gender,
+        dobDay,
+        dobMonth,
+        dobYear,
+        startDay,
+        startMonth,
+        startYear,
+        skills = []
+      } = req.body;
+
+
+      // Validate required fields
+      if (!firstName || !lastName || !email || !contactNumber || !designation || !department) {
+        req.flash("error", "Please fill all required fields");
+        return res.redirect(`/admin/edit-employee/${id}`);
+      }
+
+      // Check if email is being changed
+      if (user.email !== email) {
+        const emailExists = await User.findOne({ email });
+        if (emailExists) {
+          req.flash("error", "Email is already in use");
+          return res.redirect(`/admin/edit-employee/${id}`);
+        }
+      }
+
+      // Check if office email is being changed
+      if (officeEmail && user.officeEmail !== officeEmail) {
+        const officeEmailExists = await User.findOne({ officeEmail });
+        if (officeEmailExists) {
+          req.flash("error", "Office email is already in use");
+          return res.redirect(`/admin/edit-employee/${id}`);
+        }
+      }
+
+      // Prepare update object with actual names from hidden inputs
+      const updateData = {
+        name: `${firstName} ${lastName}`.trim(),
+        birthName,
+        email,
+        officeEmail,
+        contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+        designation,
+        department,
+        employeeType,
+        supervisor,
+        jobId,
+        experience,
+        idNumber,
+        province: req.body.provinceActual || req.body.province,
+        district: req.body.districtActual || req.body.district,
+        detailedAddress,
+        birthplace: req.body.birthplaceActual || req.body.birthplace,
+        gender,
+        dateOfBirth: new Date(`${dobYear}-${dobMonth}-${dobDay}`),
+        lastUpdated: new Date()
+      };
+
+      // Handle start date if provided
+      if (startDay && startMonth && startYear) {
+        updateData.startDate = new Date(`${startYear}-${startMonth}-${startDay}`);
+      }
+
+      // Handle skills
+      updateData.Skills = Array.isArray(skills) ? skills : [skills];
+
+      // Handle photo upload if exists
+      if (req.file) {
+        updateData.photo = req.file.filename;
+      }
+
+      // Update the user
+      await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+
+      req.flash("success", "Employee updated successfully");
+      res.redirect("/admin/view-all-employees");
+    } catch (err) {
+      console.error("Error updating employee:", err);
+      
+      // Handle validation errors
+      if (err.name === 'ValidationError') {
+        const messages = Object.values(err.errors).map(val => val.message);
+        req.flash("error", messages.join(', '));
+      } else {
+        req.flash("error", "Failed to update employee");
+      }
+      
+      res.redirect(`/admin/edit-employee/${id}`);
+    }
+});
+
+  // Route đặc biệt để bypass CSRF cho edit profile nhân viên
+  app.post("/manager/update-profile-bypass/:id", upload.single('photo'), async (req, res) => {
+    try {
+      const id = req.body.id || req.params.id;
+      console.log("Route bypass CSRF cho edit manager profile được gọi");
+      
+      // Kiểm tra xem người dùng đã đăng nhập và là manager
+      if (!req.isAuthenticated() || req.user.type !== 'project_manager') {
+        return res.status(403).send("Không có quyền truy cập");
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+        req.flash("error", "Employee not found");
+        return res.redirect("/manager/view-profile");
+      }
+
+      // Get only the fields we need from the form
+      const { birthName, editPersonalEmail, contactNumber } = req.body;
+
+      // Validate required fields
+      if (!editPersonalEmail || !contactNumber) {
+        req.flash("error", "Personal Email and Phone Number are required");
+        return res.redirect(`/manager/view-profile`);
+      }
+
+      // Check if email is being changed
+      if (user.email !== editPersonalEmail) {
+        const emailExists = await User.findOne({ email: editPersonalEmail });
+        if (emailExists) {
+          req.flash("error", "Email is already in use");
+          return res.redirect(`/manager/view-profile`);
+        }
+      }
+
+      // Prepare update object with only the fields we need
+      const updateData = {
+        birthName,
+        email: editPersonalEmail,
+        contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+        lastUpdated: new Date()
+      };
+
+      // Handle photo upload if exists
+      if (req.file) {
+        updateData.photo = req.file.filename;
+      }
+
+      // Update the user
+      await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+
+    req.flash("success", "Profile updated successfully");
+    req.session.save(() => {
+        res.redirect("/manager/view-profile");
+    });
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      
+      // Handle validation errors
+      if (err.name === 'ValidationError') {
+        const messages = Object.values(err.errors).map(val => val.message);
+        req.flash("error", messages.join(', '));
+      } else {
+        req.flash("error", "Failed to update profile");
+      }
+      
+      res.redirect(`/manager/view-profile`);}
+});
 // Route đặc biệt để bypass CSRF cho form thêm nhân viên
 app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) => {
   console.log("Route bypass CSRF cho Add Employee được gọi");
@@ -321,73 +519,309 @@ app.post('/admin/add-employee-bypass', upload.single('photo'), async (req, res) 
     res.redirect("/admin/add-employee");
   }
 });
+// Route đặc biệt để bypass CSRF cho form cập nhật hồ sơ
+  // Route đặc biệt để bypass CSRF cho edit profile nhân viên
+  app.post("/employee/update-profile-bypass/:id", upload.single('photo'), async (req, res) => {
+    try {
+      const id = req.body.id || req.params.id;
+      console.log("Employee profile update bypass route called for ID:", id);
+      
+      // Kiểm tra xem người dùng đã đăng nhập và là employee
+      if (!req.isAuthenticated() || req.user.type !== 'employee') {
+        console.log("Unauthorized access attempt");
+        return res.status(403).send("Không có quyền truy cập");
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+        console.log("Employee not found with ID:", id);
+        req.flash("error", "Employee not found");
+        return res.redirect("/employee/view-profile");
+      }
+
+      // Get only the fields we need from the form
+      const { birthName, editPersonalEmail, contactNumber } = req.body;
+      console.log("Form data received:", { birthName, editPersonalEmail, contactNumber });
+
+      // Validate required fields
+      if (!editPersonalEmail || !contactNumber) {
+        console.log("Missing required fields");
+        req.flash("error", "Personal Email and Phone Number are required");
+        return res.redirect(`/employee/view-profile`);
+      }
+
+      // Check if email is being changed
+      if (user.email !== editPersonalEmail) {
+        console.log("Checking email uniqueness");
+        const emailExists = await User.findOne({ email: editPersonalEmail });
+        if (emailExists) {
+          console.log("Email already in use:", editPersonalEmail);
+          req.flash("error", "Email is already in use");
+          return res.redirect(`/employee/view-profile`);
+        }
+      }
+
+      // Prepare update object with only the fields we need
+      const updateData = {
+        birthName,
+        email: editPersonalEmail,
+        contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+        lastUpdated: new Date()
+      };
+
+      // Handle photo upload if exists
+      if (req.file) {
+        console.log("Photo uploaded:", req.file.filename);
+        updateData.photo = req.file.filename;
+      }
+
+      // Update the user
+      console.log("Updating user with data:", updateData);
+      const updatedUser = await User.findByIdAndUpdate(id, updateData, { 
+        new: true, 
+        runValidators: true 
+      });
+
+      if (!updatedUser) {
+        console.error("Failed to update user");
+        throw new Error("Update operation failed");
+      }
+
+      console.log("Profile updated successfully");
+      req.flash("success", "Profile updated successfully");
+      req.session.save(() => {
+          console.log("Session saved, redirecting");
+          res.redirect("/employee/view-profile");
+      });
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      
+      // Handle validation errors
+      if (err.name === 'ValidationError') {
+        const messages = Object.values(err.errors).map(val => val.message);
+        console.error("Validation errors:", messages);
+        req.flash("error", messages.join(', '));
+      } else {
+        req.flash("error", "Failed to update profile");
+      }
+      
+      res.redirect(`/employee/view-profile`);
+    }
+});
 
 // Route đặc biệt để bypass CSRF cho form cập nhật hồ sơ
 app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res) => {
-  console.log("Route bypass CSRF cho Update Profile được gọi");
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  
   try {
-    // Kiểm tra xem người dùng đã đăng nhập
-    if (!req.isAuthenticated()) {
+    const id = req.body.id;
+    console.log("Admin profile update bypass route called for ID:", id);
+    
+    // Kiểm tra xem người dùng đã đăng nhập và là admin
+    if (!req.isAuthenticated() || req.user.type !== 'admin') {
+      await session.abortTransaction();
       return res.status(403).send("Không có quyền truy cập");
     }
-    
-    const { _id } = req.user;
-    
-    // Chuẩn bị dữ liệu cập nhật
-    const updateData = {};
-    
-    // Xử lý giới tính - chuyển thành chữ thường
-    if (req.body.gender) {
-      updateData.gender = req.body.gender.toLowerCase();
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      await session.abortTransaction();
+      req.flash("error", "Invalid employee ID");
+      return res.redirect("/admin/view-profile");
     }
-    
-    // Xử lý các trường thông thường
-    const simpleFields = [
-      'contactNumber', 'birthplace', 'province', 'district', 
-      'detailedAddress', 'idNumber', 'jobId', 'department', 'experience'
-    ];
-    
-    simpleFields.forEach(field => {
-      if (req.body[field]) {
-        updateData[field] = req.body[field];
+
+    const user = await User.findById(id).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      req.flash("error", "Employee not found");
+      return res.redirect("/admin/view-profile");
+    }
+
+    // Destructure và validate dữ liệu
+    const {
+      firstName = '',
+      lastName = '',
+      birthName = '',
+      email = '',
+      officeEmail = '',
+      contactNumber = '',
+      designation = '',
+      department = '',
+      employeeType = '',
+      supervisor = '',
+      jobId = '',
+      experience = '',
+      idNumber = '',
+      province = '',
+      district = '',
+      detailedAddress = '',
+      birthplace = '',
+      gender = '',
+      dobDay = '',
+      dobMonth = '',
+      dobYear = '',
+      startDay = '',
+      startMonth = '',
+      startYear = '',
+      skills = []
+    } = req.body;
+
+    // Validate required fields
+    const requiredFields = {
+      firstName: "First name",
+      lastName: "Last name", 
+      email: "Email",
+      contactNumber: "Phone number",
+      designation: "Job title",
+      department: "Department",
+      idNumber: "ID Number"
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([field]) => !req.body[field] || req.body[field].trim() === '')
+      .map(([_, name]) => name);
+
+    if (missingFields.length > 0) {
+      await session.abortTransaction();
+      req.flash("error", `Missing required fields: ${missingFields.join(', ')}`);
+      return res.redirect(`/admin/view-profile`);
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      await session.abortTransaction();
+      req.flash("error", "Invalid email format");
+      return res.redirect(`/admin/view-profile`);
+    }
+
+    // Validate phone number
+    if (!/^[0-9]{9,15}$/.test(contactNumber.replace(/^\+84/, ''))) {
+      await session.abortTransaction();
+      req.flash("error", "Invalid phone number format");
+      return res.redirect(`/admin/view-profile`);
+    }
+
+    // Check email uniqueness
+    if (user.email !== email) {
+      const emailExists = await User.findOne({ email }).session(session);
+      if (emailExists && emailExists._id.toString() !== id) {
+        await session.abortTransaction();
+        req.flash("error", "Email is already in use by another employee");
+        return res.redirect(`/admin/view-profile`);
       }
-    });
-    
-    // Xử lý ngày bắt đầu
-    if (req.body.startDate) {
-      updateData.startDate = new Date(req.body.startDate);
     }
-    
-    // Xử lý loại hình làm việc
-    if (req.body.employeeType) {
-      updateData.employeeType = req.body.employeeType;
-      // Tự động cập nhật employmentType
-      updateData.employmentType = req.body.employeeType === "Full-Time" ? "full-time" : "part-time";
+
+    // Check office email uniqueness
+    if (officeEmail && user.officeEmail !== officeEmail) {
+      const officeEmailExists = await User.findOne({ officeEmail }).session(session);
+      if (officeEmailExists && officeEmailExists._id.toString() !== id) {
+        await session.abortTransaction();
+        req.flash("error", "Office email is already in use by another employee");
+        return res.redirect(`/admin/view-profile`);
+      }
     }
-    
-    // Xử lý ảnh nếu được tải lên
+
+    // Xử lý ngày tháng
+    let dateOfBirth = null;
+    if (dobDay && dobMonth && dobYear) {
+      dateOfBirth = new Date(`${dobYear}-${dobMonth}-${dobDay}`);
+      if (isNaN(dateOfBirth.getTime())) {
+        await session.abortTransaction();
+        req.flash("error", "Invalid date of birth");
+        return res.redirect(`/admin/view-profile`);
+      }
+    }
+
+    let startDate = null;
+    if (startDay && startMonth && startYear) {
+      startDate = new Date(`${startYear}-${startMonth}-${startDay}`);
+      if (isNaN(startDate.getTime())) {
+        await session.abortTransaction();
+        req.flash("error", "Invalid start date");
+        return res.redirect(`/admin/view-profile`);
+      }
+    }
+
+    // Chuẩn bị dữ liệu cập nhật
+    const updateData = {
+      name: `${firstName} ${lastName}`.trim(),
+      birthName: birthName.trim(),
+      email: email.trim(),
+      officeEmail: officeEmail.trim(),
+      dateOfBirth,
+      contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+      designation: designation.trim(),
+      department: department.trim(),
+      employeeType: employeeType.trim(),
+      supervisor: supervisor.trim(),
+      jobId: jobId.trim(),
+      experience: experience.trim(),
+      idNumber: idNumber.trim(),
+      province: province.trim(),
+      district: district.trim(),
+      detailedAddress: detailedAddress.trim(),
+      birthplace: birthplace.trim(),
+      gender: gender.toLowerCase().trim(),
+      skills: Array.isArray(skills) ? skills.filter(skill => skill && skill.trim()) : [],
+      lastUpdated: new Date(),
+      startDate
+    };
+
+    // Xử lý ảnh upload
+    let oldPhotoPath = null;
     if (req.file) {
-      updateData.photo = req.file.filename;
+      oldPhotoPath = user.photo; // Lưu lại path ảnh cũ để xóa sau
+      updateData.photo = `/uploads/employees/${req.file.filename}`;
     }
-    
-    // Thực hiện cập nhật một lần duy nhất
+
+    // Thực hiện update
     const updatedUser = await User.findByIdAndUpdate(
-      _id, 
-      { $set: updateData },
-      { new: true, runValidators: true }
+      id, 
+      updateData, 
+      { new: true, runValidators: true, session }
     );
-    
+
     if (!updatedUser) {
-      throw new Error("User not found");
+      await session.abortTransaction();
+      req.flash("error", "User update failed");
+      return res.redirect(`/admin/view-profile`);
+    }
+
+    // Xóa ảnh cũ nếu có ảnh mới
+    if (req.file && oldPhotoPath) {
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const fullPath = path.join(__dirname, '../public', oldPhotoPath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      } catch (fileError) {
+        console.error("Error deleting old photo:", fileError);
+        // Không abort transaction vì xóa ảnh không thành công không ảnh hưởng đến tính toàn vẹn dữ liệu
+      }
+    }
+
+    await session.commitTransaction();
+    req.flash("success", "Profile updated successfully");
+    return res.redirect("/admin/view-profile");
+
+  } catch (err) {
+    await session.abortTransaction();
+    console.error("Error updating employee:", err);
+    
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(val => val.message);
+      req.flash("error", messages.join(', '));
+    } else if (err.code === 11000) {
+      req.flash("error", "Duplicate key error - email or office email already exists");
+    } else {
+      req.flash("error", "Failed to update employee");
     }
     
-    // Chuyển hướng về trang hồ sơ
-    req.flash('success', 'Profile updated successfully');
-    res.redirect('/admin/view-profile');
-  } catch (err) {
-    console.error("Error updating profile:", err);
-    req.flash('error', 'Error updating profile: ' + err.message);
-    res.redirect('/admin/view-profile');
+    return res.redirect(`/admin/view-profile`);
+  } finally {
+    session.endSession();
   }
 });
 
@@ -424,7 +858,8 @@ app.use((req, res, next) => {
     '/manager/update-project',
     '/manager/remove-project-member',
     '/manager/add-project',
-    '/manager/mark-manager-attendance'
+    '/manager/mark-manager-attendance',
+    '/admin/edit-employee'
   ];
   
   // Kiểm tra nếu request path bắt đầu bằng một trong các route cần bypass
@@ -642,4 +1077,5 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
+module.exports = app;
 module.exports = app;

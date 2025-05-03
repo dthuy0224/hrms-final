@@ -8,7 +8,11 @@ var Attendance = require("../models/attendance");
 var moment = require("moment");
 var Project = require("../models/project");
 var PerformanceAppraisal = require("../models/performance_appraisal");
-
+const bcrypt = require("bcrypt");
+const multer = require("multer");
+const path = require("path");
+const csrfProtection = require("csurf")();
+const mongoose = require('mongoose');
 // Ensure user is logged in
 router.use("/", isLoggedIn, function checkAuthentication(req, res, next) {
   next();
@@ -31,6 +35,8 @@ router.use("/", function isManager(req, res, next) {
     }
   }
 });
+
+
 
 /**
  * Displays home to the manager
@@ -468,6 +474,66 @@ router.get("/apply-for-leave", async function applyForLeave(req, res, next) {
   }
 });
 
+// Displays the list of all the leave applications applied by all employees.
+// Displays the list of all the leave applications applied by all employees.
+router.get("/all-applications", async (req, res, next) => {
+  try {
+    const leaves = await Leave.find({}).sort({ _id: -1 });
+    const hasLeave = leaves.length > 0 ? 1 : 0;
+
+    const employeeChunks = await Promise.all(
+      leaves.map((leave) => User.findById(leave.applicantID))
+    );
+
+    res.render("Manager/allApplications", {
+      title: "List Of Leave Applications",
+      csrfToken: req.csrfToken(),
+      hasLeave,
+      leaves,
+      employees: employeeChunks,
+      moment: moment,
+      userName: req.user.name,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving leave applications");
+  }
+});
+
+
+router.get(
+  "/respond-application/:leave_id/:employee_id",
+  async (req, res, next) => {
+    const { leave_id: leaveID, employee_id: employeeID } = req.params;
+    try {
+      const leave = await Leave.findById(leaveID);
+      const user = await User.findById(employeeID);
+
+      res.render("Manager/applicationResponse", {
+        title: "Respond Leave Application",
+        csrfToken: req.csrfToken(),
+        leave,
+        employee: user,
+        moment: moment,
+        userName: req.user.name,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Error responding to application");
+    }
+  }
+);
+// Sets the response field of that leave according to response given by employee from body of the post request.
+router.post("/respond-application", async (req, res) => {
+  try {
+    const leave = await Leave.findById(req.body.leave_id);
+    leave.adminResponse = req.body.status;
+    await leave.save();
+    res.redirect("/manager/all-applications");
+  } catch (err) {
+    console.log(err);
+  }
+});
 /**
  * Description:
  * Manager gets the list of all his/her applied leaves.
@@ -503,7 +569,33 @@ router.get("/applied-leaves", function appliedLeaves(req, res, next) {
       });
     });
 });
+// Cấu hình lưu trữ cho upload ảnh
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, path.join(__dirname, '../public/uploads/'));
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
 
+// Kiểm tra loại file
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// Khởi tạo multer
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 1024 * 1024 * 5 // giới hạn 5MB
+  },
+  fileFilter: fileFilter
+});
 /**
  * Description:
  * Displays logged in manager his/her profile.
@@ -515,19 +607,61 @@ router.get("/applied-leaves", function appliedLeaves(req, res, next) {
  * Known Bugs: None
  */
 
-router.get("/view-profile", function viewProfile(req, res, next) {
-  User.findById(req.user._id, function getUser(err, user) {
-    if (err) {
-      console.log(err);
-    }
-    res.render("Manager/viewManagerProfile", {
+router.get("/view-profile", async (req, res, next) => {
+  const { _id, name } = req.user;
+  try {
+    const user = await User.findById(_id);
+    res.render("manager/viewManagerProfile", {
       title: "Profile",
       csrfToken: req.csrfToken(),
       employee: user,
       moment: moment,
-      userName: req.user.name,
+      userName: name,
+      hasErrors: false,
+      messages: req.flash() || {}
     });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving profile");
+  }
+});
+
+// Route for updating manager profile
+router.post("/update-profile", csrfProtection, upload.single('photo'), async (req, res, next) => {
+  const { _id } = req.user;
+  try {
+    // Get current user data
+    const user = await User.findById(_id);
+    
+    // Update basic fields if provided
+    if (req.body.gender) user.gender = req.body.gender;
+    if (req.body.contactNumber) user.contactNumber = req.body.contactNumber;
+    if (req.body.birthplace) user.birthplace = req.body.birthplace;
+    if (req.body.province) user.province = req.body.province;
+    if (req.body.district) user.district = req.body.district;
+    if (req.body.detailedAddress) user.detailedAddress = req.body.detailedAddress;
+    if (req.body.idNumber) user.idNumber = req.body.idNumber;
+    if (req.body.jobId) user.jobId = req.body.jobId;
+    if (req.body.startDate) user.startDate = new Date(req.body.startDate);
+    if (req.body.department) user.department = req.body.department;
+    if (req.body.experience) user.experience = req.body.experience;
+    
+    // Update photo if uploaded
+    if (req.file) {
+      user.photo = req.file.filename;
+    }
+    
+    // Save updated user
+    await user.save();
+    
+    // Redirect back to profile page
+    req.flash('success', 'Profile updated successfully');
+    res.redirect('/manager/view-profile');
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    req.flash('error', 'Error updating profile: ' + err.message);
+    res.redirect('/manager/view-profile');
+  }
 });
 
 /**

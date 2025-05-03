@@ -16,6 +16,7 @@ const path = require("path");
 const csrfProtection = require("csurf")();
 const mongoose = require('mongoose');
 
+
 // Cấu hình lưu trữ cho upload ảnh
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -241,6 +242,7 @@ router.get("/edit-employee/:id", async (req, res, next) => {
       moment: moment,
       message: "",
       userName: req.user.name,
+      hasErrors: false,
     });
   } catch (err) {
     console.error(err);
@@ -259,6 +261,7 @@ router.get("/view-profile", async (req, res, next) => {
       employee: user,
       moment: moment,
       userName: name,
+      hasErrors: false,
       messages: req.flash() || {}
     });
   } catch (err) {
@@ -1694,53 +1697,181 @@ router.post("/respond-application", async (req, res) => {
     console.log(err);
   }
 });
-
+// Helper function to handle file uploads (example implementation)
+async function saveUploadedFile(file) {
+  // Implementation depends on your file storage (local, S3, etc.)
+  // Example for local storage:
+  const uploadPath = path.join(__dirname, '../public/uploads', file.originalname);
+  await fs.promises.rename(file.path, uploadPath);
+  return `/uploads/${file.originalname}`;
+};
 // Gets the id of the employee from the parameters.
 // Gets the edited fields of the project from body of the post request.
 // Saves the update field to the project of the employee  in Project Schema.
 // Edits the project of the employee.
-router.post("/edit-employee/:id", async (req, res) => {
-  const { id } = req.params;
-  const { email, designation, name, DOB, number, department, skills } =
-    req.body;
-  const newUser = {
+router.post("/admin/edit-employee/:id", upload.single('photo'), async (req, res) => {
+  
+  console.log("Route bypass CSRF cho Add Employee được gọi");
+  try {
+    const { id } = req.params;
+    // Kiểm tra xem người dùng đã đăng nhập và là admin
+    if (!req.isAuthenticated() || req.user.type !== 'admin') {
+      return res.status(403).send("Không có quyền truy cập");
+    }}
+    catch (err) {
+      console.error("ERROR trong edit-employee-bypass:", err);
+      req.flash("error", "Error adding employee: " + err.message);
+      res.redirect("/admin/edit-employee");
+    }
+    const { id } = req.params;
+  const {
+    firstName,
+    lastName,
+    birthName,
     email,
-    type:
-      designation === "Accounts Manager"
-        ? "accounts_manager"
-        : designation === "Project Manager"
-        ? "project_manager"
-        : "employee",
-    name,
-    dateOfBirth: new Date(DOB),
-    contactNumber: number,
-    department,
-    Skills: skills,
+    officeEmail,
+    contactNumber,
     designation,
-  };
+    department,
+    employeeType,
+    supervisor,
+    jobId,
+    experience,
+    idNumber,
+    province,
+    district,
+    detailedAddress,
+    birthplace,
+    gender,
+    dobDay,
+    dobMonth,
+    dobYear,
+    startDay,
+    startMonth,
+    startYear,
+    skills = [] // Default to empty array if no skills selected
+  } = req.body;
 
   try {
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email || !contactNumber || !designation || !department) {
+      req.flash("error", "Please fill all required fields");
+      return res.redirect(`/admin/edit-employee/${id}`);
+    }
+
+    // Construct dates from day/month/year components
+    const dateOfBirth = dobDay && dobMonth && dobYear 
+      ? new Date(`${dobYear}-${dobMonth}-${dobDay}`)
+      : null;
+    
+    const startDate = startDay && startMonth && startYear
+      ? new Date(`${startYear}-${startMonth}-${startDay}`)
+      : null;
+
+    // Prepare update object
+    const updateData = {
+      name: `${firstName} ${lastName}`.trim(),
+      birthName,
+      email,
+      officeEmail,
+      contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+      designation,
+      department,
+      employeeType,
+      supervisor,
+      jobId,
+      experience,
+      idNumber,
+      province,
+      district,
+      detailedAddress,
+      birthplace,
+      gender,
+      dateOfBirth,
+      startDate,
+      Skills: Array.isArray(skills) ? skills : [skills], // Ensure skills is an array
+      lastUpdated: new Date()
+    };
+
+    // Check if email is being changed
     const user = await User.findById(id);
+    if (!user) {
+      req.flash("error", "Employee not found");
+      return res.redirect("/admin/");
+    }
+
     if (user.email !== email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.render("Admin/editEmployee", {
-          title: "Edit Employee",
-          csrfToken: req.csrfToken(),
-          employee: newUser,
-          moment: moment,
-          message: "Email is already in use",
-          userName: req.user.name,
-        });
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        req.flash("error", "Email is already in use");
+        return res.redirect(`/admin/edit-employee/${id}`);
       }
     }
-    Object.assign(user, newUser);
-    await user.save();
-    res.redirect(`/admin/employee-profile/${id}`);
-  } catch (err) {
-    console.log(err);
-    res.redirect("/admin/");
+
+    // Check if office email is being changed
+    if (officeEmail && user.officeEmail !== officeEmail) {
+      const officeEmailExists = await User.findOne({ officeEmail });
+      if (officeEmailExists) {
+        req.flash("error", "Office email is already in use");
+        return res.redirect(`/admin/edit-employee/${id}`);
+      }
+    }
+
+    // Handle photo upload if exists
+    if (req.file) {
+      // Process and save the file (implementation depends on your file storage)
+      const photoUrl = await saveUploadedFile(req.file); // Implement this function
+      updateData.photo = photoUrl;
+    }
+
+    // Update the user
+    await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+
+    req.flash("success", "Employee updated successfully");
+    res.redirect("/admin/view-all-employees");
+  }catch (err) {
+    console.error("Error updating employee:", err);
+    
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(val => val.message);
+      req.flash("error", messages.join(', '));
+    } else {
+      req.flash("error", "Failed to update employee");
+    }
+    
+    res.redirect(`/admin/edit-employee/${id}`);
   }
+});
+
+
+
+
+// Displays add employee form to the admin.
+router.get("/edit-employee", (req, res, next) => {
+  const { name } = req.user;
+  const messages = req.flash("error");
+  // Format dates for display
+    const formattedUser = {
+      ...user._doc,
+      dobDay: user.dateOfBirth ? user.dateOfBirth.getDate() : '',
+      dobMonth: user.dateOfBirth ? user.dateOfBirth.getMonth() + 1 : '',
+      dobYear: user.dateOfBirth ? user.dateOfBirth.getFullYear() : '',
+      startDay: user.startDate ? user.startDate.getDate() : '',
+      startMonth: user.startDate ? user.startDate.getMonth() + 1 : '',
+      startYear: user.startDate ? user.startDate.getFullYear() : ''
+    };
+
+  res.render("Admin/editEmployee", {
+    title: "Edit Employee",
+    user: config_passport.User,
+    messages,
+    hasErrors: messages.length > 0,
+    userName: name,
+    csrfToken: req.csrfToken()
+    
+  });
 });
 
 router.post("/add-employee-project/:id", async (req, res) => {
