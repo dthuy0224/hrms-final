@@ -1,31 +1,89 @@
 <!-- Sidebar -->
-<div id="sidebar-wrapper" style="min-height: 100vh;">
-    <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-        <li class="<%= typeof path !== 'undefined' && path === '/manager' ? 'active' : '' %>">
-            <a href="/manager"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span> Dashboard</a>
-        </li>
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/view-employees' ? 'active' : '' %>">
-            <a href="/manager/view-employees"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span> Employees</a>
-        </li>
-<li class="<%= typeof path !== 'undefined' && path === '/manager/applied-leaves' ? 'active' : '' %>">
-                    <a href="/manager/applied-leaves"><span class="fa-stack fa-lg pull-left"><i
-                                class="fa fa-dashboard fa-stack-1x "></i></span> My Leaves</a>
-                </li>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
 
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/apply-for-leave' ? 'active' : '' %>">
-            <a href="/manager/apply-for-leave"><span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope-square fa-stack-1x"></i></span>Apply for Leave</a>
-        </li>
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/mark-attendance' ? 'active' : '' %>">
-            <a href="#" data-toggle="modal" data-target="#myModal2"><span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>Mark Attendance</a>
-        </li>
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/view-attendance' ? 'active' : '' %>">
-            <a href="#" data-toggle="modal" data-target="#myModal"><span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>View Attendance</a>
-        </li>
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/view-profile' ? 'active' : '' %>">
-            <a href="/manager/view-profile"><span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x "></i></span>My Profile</a>
-        </li>
-        <li class="<%= typeof path !== 'undefined' && path === '/manager/view-all-personal-projects' ? 'active' : '' %>">
-            <a href="/manager/view-all-personal-projects"><span class="fa-stack fa-lg pull-left"><i class="fa fa-tasks fa-stack-1x"></i></span>Projects</a>
-        </li>
-    </ul>
-</div><!-- /#sidebar-wrapper --> 
+<div id="sidebar-wrapper" style="min-height: 100vh;">
+  <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager' ? 'active' : '' %>">
+      <a href="/manager">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+        Dashboard
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/applied-leaves' ? 'active' : '' %>">
+      <a href="/manager/applied-leaves">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope fa-stack-1x"></i></span>
+        My Leaves
+      </a>
+    </li>
+
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/apply-for-leave' ? 'active' : '' %>">
+      <a href="/manager/apply-for-leave">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope-square fa-stack-1x"></i></span>
+        Apply for Leave
+      </a>
+    </li>
+
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/view-employees' ? 'active' : '' %>">
+      <a href="/manager/view-employees">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
+        Employees
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/mark-attendance' ? 'active' : '' %>">
+      <a href="/manager/mark-attendance" id="markAttendance" data-toggle="modal" data-target="#myModal2">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
+        Mark Attendance
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/view-attendance' ? 'active' : '' %>">
+      <a href="/manager/view-attendance" data-toggle="modal" data-target="#myModal">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>
+        View Attendance
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/view-profile' ? 'active' : '' %>">
+      <a href="/manager/view-profile">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x"></i></span>
+        My Profile
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/manager/view-all-personal-projects' ? 'active' : '' %>">
+      <a href="/manager/view-all-personal-projects">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-tasks fa-stack-1x"></i></span>
+        Projects
+      </a>
+    </li>
+
+  </ul>
+</div>
+ <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const path = window.location.pathname;
+    const menuLinks = document.querySelectorAll('#menu li a');
+  
+    menuLinks.forEach(link => {
+      const li = link.parentElement;
+      if (link.getAttribute('href') === path) {
+        li.classList.add('active');
+      } else {
+        li.classList.remove('active');
+      }
+    });
+  });
+document.getElementById('markAttendance').addEventListener('click', function () {
+  document.querySelectorAll('#menu li').forEach(item => item.classList.remove('active'));
+  this.parentElement.classList.add('active');
+});
+  </script>
+<!-- /#sidebar-wrapper -->

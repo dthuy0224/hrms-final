@@ -1,61 +1,116 @@
 <!-- Sidebar -->
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
+
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-    <li class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
-      <a href="/admin"><span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
-        Dashboard</a>
+    <li class="<%= typeof activePage !== 'undefined' && activePage === '/admin' ? 'active' : '' %>">
+      <a href="/admin">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
+        Dashboard
+      </a>
     </li>
- <li <%= typeof path !== 'undefined' && path === '/admin/applied-leaves' ? 'class="active"' : '' %>>
-            <a href="/admin/applied-leaves"><span class="fa-stack fa-lg pull-left"><i
-                        class="fa fa-dashboard fa-stack-1x"></i></span>
-                View Leaves</a>
-        </li>
-        <li <%= typeof path !== 'undefined' && path === '/admin/apply-for-leave' ? 'class="active"' : '' %>>
-            <a href="/admin/apply-for-leave"><span class="fa-stack fa-lg pull-left"><i
-                        class="fa fa-envelope-square fa-stack-1x"></i></span>Apply for Leave</a>
-        </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/admin/applied-leaves' ? 'active' : '' %>">
+      <a href="/admin/applied-leaves">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope fa-stack-1x"></i></span>
+        My Leaves
+      </a>
+    </li>
+
+    <li class="<%= typeof path !== 'undefined' && path === '/admin/apply-for-leave' ? 'active' : '' %>">
+      <a href="/admin/apply-for-leave">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-envelope-square fa-stack-1x"></i></span>
+        Apply for Leave
+      </a>
+    </li>
+
+ <li class="<%= typeof activePage !== 'undefined' && activePage === 'leaveApplications' ? 'active' : '' %>">
+      <a href="/admin/leave-applications">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>
+        Approve Leave
+      </a>
+    </li>
 
     <li class="<%= typeof activePage !== 'undefined' && (activePage === 'viewEmployees' || activePage === 'addEmployee') ? 'active' : '' %>">
-      <a href="#" id="menu3"><span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
-        Employees</a>
+      <a href="#" id="menu3">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
+        Employees<i class="fa fa-caret-down"></i>
+      </a>
       <ul class="nav-pills nav-stacked" style="list-style-type: none">
         <li class="<%= typeof activePage !== 'undefined' && activePage === 'viewEmployees' ? 'active' : '' %>">
-          <a href="/admin/view-all-employees"><span class="fa-stack fa-lg pull-left"><i
-                class="fa fa-eye fa-stack-1x"></i></span>View Employees</a>
+          <a href="/admin/view-all-employees">
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-eye fa-stack-1x"></i></span>
+            View Employees
+          </a>
         </li>
         <li class="<%= typeof activePage !== 'undefined' && activePage === 'addEmployee' ? 'active' : '' %>">
-          <a href="/admin/add-employee"><span class="fa-stack fa-lg pull-left"><i
-                class="fa fa-plus fa-stack-1x"></i></span>Add Employees</a>
+          <a href="/admin/add-employee">
+            <span class="fa-stack fa-lg pull-left"><i class="fa fa-plus fa-stack-1x"></i></span>
+            Add Employees
+          </a>
         </li>
       </ul>
     </li>
-    <li class="<%= typeof activePage !== 'undefined' && activePage === 'leaveApplications' ? 'active' : '' %>">
-      <a href="/admin/leave-applications"><span class="fa-stack fa-lg pull-left"><i
-            class="fa fa-envelope-square fa-stack-1x"></i></span>
-        Leave Applications</a>
-    </li>
-    <li class="<%= typeof activePage !== 'undefined' && activePage === 'employeesAttendance' ? 'active' : '' %>">
-      <a href="/admin/employees-attendance">
-        <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>Employee Attendance</a>
-    </li>
-    <li class="<%= typeof activePage !== 'undefined' && activePage === 'attendanceDashboard' ? 'active' : '' %>">
-      <a href="/admin/admin-attendance-dashboard">
-        <span class="fa-stack fa-lg pull-left"><i class="fa fa-clock-o fa-stack-1x"></i></span>Attendance Dashboard</a>
-    </li>
+
+
     <li data-toggle="modal" data-target="#myModal2">
-      <a href="#"><span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>Mark
-        Attendance</a>
+      <a href="#">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-check-circle fa-stack-1x"></i></span>
+        Mark Attendance
+      </a>
     </li>
+
     <% if (typeof showCheckOut !== 'undefined' && showCheckOut) { %>
     <li data-toggle="modal" data-target="#checkOutModal">
-      <a href="#"><span class="fa-stack fa-lg pull-left"><i
-            class="fa fa-sign-out fa-stack-1x"></i></span>Check Out</a>
+      <a href="#">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-sign-out fa-stack-1x"></i></span>
+        Check Out
+      </a>
     </li>
     <% } %>
+
+
+    <li class="<%= typeof activePage !== 'undefined' && activePage === 'employeesAttendance' ? 'active' : '' %>">
+      <a href="/admin/employees-attendance">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-list-ol fa-stack-1x"></i></span>
+        Employee Attendance
+      </a>
+    </li>
+
+   
+
+    <li class="<%= typeof activePage !== 'undefined' && activePage === 'attendanceDashboard' ? 'active' : '' %>">
+      <a href="/admin/admin-attendance-dashboard">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-clock-o fa-stack-1x"></i></span>
+        Attendance Dashboard
+      </a>
+    </li>
+
     <li class="<%= typeof activePage !== 'undefined' && activePage === 'viewProfile' ? 'active' : '' %>">
-      <a href="/admin/view-profile"><span class="fa-stack fa-lg pull-left"><i
-            class="fa fa-user fa-stack-1x"></i></span>My Profile</a>
+      <a href="/admin/view-profile">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-user fa-stack-1x"></i></span>
+        My Profile
+      </a>
     </li>
   </ul>
 </div>
-<!-- /#sidebar-wrapper --> 
+<!-- /#sidebar-wrapper -->
+ <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const path = window.location.pathname;
+    const menuLinks = document.querySelectorAll('#menu li a');
+  
+    menuLinks.forEach(link => {
+      const li = link.parentElement;
+      if (link.getAttribute('href') === path) {
+        li.classList.add('active');
+      } else {
+        li.classList.remove('active');
+      }
+    });
+  });
+  </script>
+
