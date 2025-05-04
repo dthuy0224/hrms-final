@@ -30,40 +30,36 @@
     </head>
 
   <body>
-    <nav class="navbar navbar-default no-margin">
-      <!-- Brand and toggle get grouped for better mobile display -->
+   <nav class="navbar navbar-default no-margin">
+    <!-- Brand and toggle get grouped for better mobile display -->
 
-      <div class="navbar-header fixed-brand">
+    <div class="navbar-header fixed-brand">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
-          <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
         </button>
-        <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
-          <%= userName %>
-        </a>
-      </div>
-      <!-- navbar-header-->
+        <a class="navbar-brand" href="#"> <%= userName %></a>
+    </div><!-- navbar-header-->
 
-      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li class="active">
-            <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
-              <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-            </button>
-          </li>
-          <li class="navbar-brand">
-            <form action="/logout" method="get">
-              <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
-                <i class="fa fa-user" aria-hidden="true"></i> Logout
-              </button>
-            </form>
-          </li>
+            <li class="active">
+                <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
+                            class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+            </li>
+            <li class="navbar-brand">
+                <form action="/logout" method="get">
+                    <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
+                                class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                    </button>
+                </form>
+            </li>
         </ul>
-      </div>
-      <!-- bs-example-navbar-collapse-1 -->
-    </nav>
-    <div id="wrapper">
-      <!-- Sidebar -->
-      <%- include('../partials/adminSidebar') %>
+    </div><!-- bs-example-navbar-collapse-1 -->
+</nav>
+<div id="wrapper">
+    <!-- Sidebar -->
+    <%- include('../partials/adminSidebar') %>
+
       <!-- /#sidebar-wrapper -->
       <!-- Page Content -->
       <div id="page-content-wrapper">
@@ -375,6 +371,22 @@
         });
       });
     </script>
+ <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const path = window.location.pathname;
+    const menuLinks = document.querySelectorAll('#menu li a');
+  
+    menuLinks.forEach(link => {
+      const li = link.parentElement;
+      if (link.getAttribute('href') === path) {
+        li.classList.add('active');
+      } else {
+        li.classList.remove('active');
+      }
+    });
+  });
+  </script>
+
     <script>
       $(document).ready(function () {
         // DataTable với chức năng tìm kiếm và sắp xếp
@@ -582,10 +594,10 @@
           </div>
           <div class="modal-footer">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <button type="reset" class="btn btn-default" data-dismiss="modal">
-              No
+<button type="submit" class="btn btn-primary">Yes</button>            <button type="reset" class="btn btn-default" data-dismiss="modal">
+              Cancel
             </button>
-            <button type="submit" class="btn btn-primary">Yes</button>
+            
           </div>
         </div>
       </form>

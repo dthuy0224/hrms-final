@@ -2,39 +2,55 @@
 <html>
 
 <head>
-    <%- include('../partials/header') %>
+<style>
+/* Fix hoàn toàn vấn đề backdrop */
+.modal-backdrop {
+    display: none !important;
+}
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.modal {
+background-color: rgba(0,0,0,0.5);}
+</style>    
+<%- include('../partials/header') %>
 
       <link rel="stylesheet" href="/stylesheets/leave-form.css" />
 
 </head>
     <body>
         <nav class="navbar navbar-default no-margin">
+         <nav class="navbar navbar-default no-margin">
             <!-- Brand and toggle get grouped for better mobile display -->
 
             <div class="navbar-header fixed-brand">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
-                    <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
                 </button>
                 <a class="navbar-brand" href="#">
                     <%= userName %>
                 </a>
-            </div><!-- navbar-header-->
+            </div>
+            <!-- navbar-header-->
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li class="active">
-                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
-                                class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
                     </li>
                     <li class="navbar-brand">
                         <form action="/logout" method="get">
-                            <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
-                                    class="fa fa-user" aria-hidden="true"></i> Logout
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
                             </button>
                         </form>
                     </li>
                 </ul>
-            </div><!-- bs-example-navbar-collapse-1 -->
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
         </nav>
         <div id="wrapper">
             <!-- Include the common employee sidebar -->
@@ -111,7 +127,7 @@
                        
         </div>
          <div class="form-buttons">
-                          <button type="submit" class="btn-apply" data-toggle="modal" data-target="#myModal1">Send</button>
+                          <button type="submit" class="btn-apply">Send</button>
                           <button type="button" onclick="history.go(-1);" class="btn btn-default">Cancel</button>
                         </div>
                         <div id="loadingSpinner" style="display:none;text-align:center">
@@ -130,9 +146,10 @@
 </div>
 <!-- /#wrapper -->
 <!-- jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
-<script>
+<!-- Đặt trong head hoặc cuối body -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"><script>
   // Các biến ngày hôm nay
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -175,11 +192,11 @@ const delegateContent = document.getElementById("delegateContent");
 title: () => {
     const val = title.value.trim();
     if (!val) {
-        showError("title", "Vui lòng nhập tiêu đề đơn.");
+        showError("title", "Please enter the title!");
         return false;
     }
     if (val.length > 100) {
-        showError("title", "Tiêu đề không được vượt quá 100 ký tự.");
+        showError("title", "Title must not exceed 100 characters.");
         return false;
     }
     clearError("title");
@@ -189,7 +206,7 @@ title: () => {
 start_date: () => {
     const startVal = startDate.value;
     if (!startVal) {
-        showError("start_date", "Vui lòng chọn ngày bắt đầu.");
+        showError("start_date", "Please select start date");
         return false;
     }
     
@@ -198,12 +215,12 @@ start_date: () => {
     today.setHours(0, 0, 0, 0);
     
     if (isNaN(start.getTime())) {
-        showError("start_date", "Ngày không hợp lệ.");
+        showError("start_date", "Invalid day!!!");
         return false;
     }
     
     if (start < today) {
-        showError("start_date", "Ngày bắt đầu phải từ hôm nay trở đi.");
+        showError("start_date", "The start date must be from today onwards.");
         return false;
     }
     
@@ -217,7 +234,7 @@ end_date: () => {
     const endVal = endDate.value;
     
     if (!endVal) {
-        showError("end_date", "Vui lòng chọn ngày kết thúc.");
+        showError("end_date", "Please select end date.");
         return false;
     }
     
@@ -225,12 +242,12 @@ end_date: () => {
     const end = new Date(endVal);
     
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        showError("end_date", "Ngày không hợp lệ.");
+        showError("end_date", "Invalid day!");
         return false;
     }
     
     if (end < start) {
-        showError("end_date", "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu.");
+        showError("end_date", "The end date must be equal to or after the start date.");
         return false;
     }
     
@@ -247,7 +264,7 @@ end_date: () => {
 
 leaveType: () => {
     if (!leaveType.value || leaveType.value === "-- Select Leave Period Type --") {
-        showError("leaveType", "Vui lòng chọn loại thời gian nghỉ phép.");
+        showError("leaveType", "Please select the type of leave.");
         return false;
     }
     clearError("leaveType");
@@ -256,7 +273,7 @@ leaveType: () => {
 
 type: () => {
     if (!type.value || type.value === "-- Select Leave Type --") {
-        showError("type", "Vui lòng chọn loại nghỉ phép.");
+        showError("type", "Please select leave type.");
         return false;
     }
     clearError("type");
@@ -266,11 +283,11 @@ type: () => {
 reason: () => {
     const val = reason.value.trim();
     if (!val) {
-        showError("reason", "Vui lòng nhập lý do nghỉ phép.");
+        showError("reason", "Please enter reason for leave.");
         return false;
     }
     if (val.length > 4000) {
-        showError("reason", "Lý do không được vượt quá 4000 ký tự.");
+        showError("reason", "Reason must not exceed 4000 characters.");
         return false;
     }
     clearError("reason");
@@ -279,7 +296,7 @@ reason: () => {
 
 delegateTo: () => {
     if (!delegateTo.value) {
-        showError("delegateTo", "Vui lòng chọn người được ủy quyền.");
+        showError("delegateTo", "Please select an delegated person.");
         return false;
     }
     clearError("delegateTo");
@@ -289,11 +306,11 @@ delegateTo: () => {
 delegateContent: () => {
     const val = delegateContent.value.trim();
     if (!val) {
-        showError("delegateContent", "Vui lòng mô tả công việc được ủy quyền.");
+        showError("delegateContent", "Please describe the work delegated.");
         return false;
     }
     if (val.length > 4000) {
-        showError("delegateContent", "Nội dung ủy quyền không được vượt quá 4000 ký tự.");
+        showError("delegateContent", "Delegate content must not exceed 4000 characters.");
         return false;
     }
     clearError("delegateContent");
@@ -317,7 +334,7 @@ for (let i = 0; i < currentIndex; i++) {
   
   if (prevElement && errorSpan) {
     if (!prevElement.value.trim()) {
-      errorSpan.textContent = "Vui lòng điền thông tin.";
+      errorSpan.textContent = "Please fill in the information.";
       prevElement.classList.add("error-border");
     } else {
       errorSpan.textContent = "";
@@ -388,13 +405,13 @@ document.head.appendChild(style);
     const period = parseFloat(periodHidden.value);
   
     if (period === 1 && diffDays < 2) {
-      alert("Đơn nghỉ 1 ngày phải gửi trước ít nhất 2 ngày.");
+      alert("1 day leave request must be submitted at least 2 days in advance.");
       e.preventDefault();
       return;
     }
   
     if (period > 1 && diffDays < 7) {
-      alert("Đơn nghỉ nhiều ngày phải gửi trước ít nhất 7 ngày.");
+      alert("Multiple leave requests must be submitted at least 7 days in advance.");
       e.preventDefault();
       return;
     }
@@ -420,8 +437,7 @@ document.head.appendChild(style);
     });
   });
   </script>
-  
-        
+       
     </body>
 
     <div id="myModal2" class="modal fade" role="dialog">
@@ -430,32 +446,34 @@ document.head.appendChild(style);
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
                         <h4 class="modal-title">Mark Attendance</h4>
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to mark attendance.</p>
                     </div>
                     <div class="modal-footer">
-
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button type="submit" class="btn btn-default">Yes</button>
-                        <button type="reset" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+               <button type="submit" class="btn btn-default">Yes</button>         <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Cancel
+                        </button>
                         
                     </div>
-
                 </div>
             </form>
         </div>
     </div>
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
-
             <!-- Modal content-->
             <div class="modal-content">
                 <form method="post" action="/employee/view-attendance">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
                         <h4 class="modal-title">Select Month/Year</h4>
                     </div>
                     <div class="modal-body">
@@ -478,19 +496,62 @@ document.head.appendChild(style);
                         </div>
                         <div class="form-group">
                             <label for="year">Year:</label>
-                            <select class="form-control" id="year" name="year">
-                            </select>
+                            <select class="form-control" id="year" name="year"></select>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
                         <button type="submit" class="btn btn-default">View</button>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
+
+<script>
+$(document).ready(function() {
+    // Tắt hoàn toàn backdrop mặc định
+    $.fn.modal.Constructor.DEFAULTS.backdrop = 'static';
+    
+    // Xử lý sự kiện modal
+    $('.modal').on('show.bs.modal', function() {
+        // Xóa backdrop cũ nếu có
+        $('.modal-backdrop').remove();
+    });
+    
+    $('.modal').on('hidden.bs.modal', function() {
+        // Đảm bảo xóa hoàn toàn backdrop
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+    });
+
+    // Xử lý nút đóng mạnh mẽ
+    $('[data-dismiss="modal"], .close').click(function(e) {
+        e.preventDefault();
+        var $modal = $(this).closest('.modal');
+        $modal.modal('hide');
+        
+        // Force remove backdrop sau 300ms nếu còn
+        setTimeout(function() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        }, 300);
+    });
+
+    // Khởi tạo năm cho dropdown
+    const yearSelect = document.getElementById('year');
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+});
+</script>
 
 </html>
