@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+    <%- include('../partials/header') %>
+
+    <body>
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
+
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+                    <%=userName%>
+                </a>
+            </div>
+            <!-- navbar-header-->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+            <!-- Sidebar -->
+           <%- include('../partials/adminSidebar') %>
+            <!-- /#sidebar-wrapper -->
+            <!-- Page Content -->
+          <!-- Page Content -->
+<div id="page-content-wrapper">
+    <div class="container-fluid xyz">
+      <h1 class="page-header"><i class="fas fa-chevron-right"></i>Leave Detail</h1>
+      <div class="row">
+        <div class="col-lg-12">
+          <div id="menu1" style="height: auto;">
+            <div class="bordered-box1">
+              <form class="form-group-sm" action="/manager/respond-application" method="post">
+  
+                <!-- Application Details -->
+<h3 class="page-header1">Application Details</h3>
+<table class="info-table">
+  <tr>
+    <th>Employee Name</th>
+    <th>Job ID</th>
+    <th>Department</th>
+    <th>Contact Number</th>
+    <th>Designation</th>
+    <th>Email</th>
+  </tr>
+  <tr>
+    <td><%= employee.name %></td>
+    <td><%= employee.employeeId || 'N/A' %></td>
+    <td><%= employee.department || 'N/A' %></td>
+    <td><%= employee.phone || 'N/A' %></td>
+    <td><%= employee.designation || 'N/A' %></td>
+    <td><%= employee.email %></td>
+  </tr>
+</table>
+
+<!-- Leave Request -->
+<div class="leave-request-header">
+    <h3 class="page-header2">Leave Requests</h3>
+
+  <div><strong>Applied Date:</strong> <%= moment(leave.appliedDate).format('DD/MM/YYYY') %></div>
+</div>
+
+<div class="info-card">
+  <div class="info-row">
+    <div class="info-group">
+      <div class="info-column">
+        <div class="info-row">
+          <div class="info-label">Title:</div>
+          <div class="info-value"><%= leave.title %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Leave Date:</div>
+          <div class="info-value"><%=moment(leave.startDate).format('DD/MM/YYYY')%> to <%=moment(leave.end_date).format('DD/MM/YYYY')%></div>
+        </div>
+      </div>
+      <div class="info-column">
+        <div class="info-row">
+          <div class="info-label">Type of Leave:</div>
+          <div class="info-value"><%= leave.type %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Period (days):</div>
+          <div class="info-value"><%=leave.leaveType || 'Full Day'%></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="leave-info1">
+    <div class="leave-info-row">
+        <div class="leave-info-label">Reason:</div>
+        <div class="leave-info-value"><%= leave.reason %></div>
+    </div>
+  </div>
+
+<div class="leave-info">
+    <div class="leave-info-row">
+      <div class="leave-info-label">Delegate To:</div>
+      <div class="leave-info-value"><%= leave.delegateToName || 'N/A' %></div>
+    </div>
+  </div>
+  <div class="leave-info1">
+    <div class="leave-info-row">
+        <div class="leave-info-label">Reason:</div>
+        <div class="leave-info-value"><%= leave.reason %></div>
+    </div>
+  </div>
+
+
+
+  
+                <!-- Status and Buttons -->
+                <div class="status-buttons-container">
+                  <div class="status-section">
+                    <div class="leave-info-label"> Status:</div>
+                    <select class="form-control status-select" id="status" name="status">
+                      <option value="<%= leave.adminResponse %>"><%= leave.adminResponse %></option>
+                      <% if(leave.adminResponse !== "Pending") { %>
+                      <option value="Pending">Pending</option>
+                      <% } %>
+                      <% if(leave.adminResponse !== "Approved") { %>
+                      <option value="Approved">Approved</option>
+                      <% } %>
+                      <% if(leave.adminResponse !== "Disapproved") { %>
+                      <option value="Disapproved">Disapproved</option>
+                      <% } %>
+                    </select>
+                  </div>
+  
+                  <div class="form-buttons">
+                    <button type="button" onclick="history.go(-1);" class="btn btn-back">Cancel</button>
+                    <button type="submit" class="btn btn-submit">Submit</button>
+                  </div>
+                </div>
+  
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" id="leave_id" name="leave_id" value="<%= leave._id %>" />
+  
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+            <!-- /#page-content-wrapper -->
+        </div>
+        <!-- /#wrapper -->
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+        <script src="/javascripts/sidebar_menu.js"></script>
+        <script>
+            $(document).ready(function () {
+                var box1height = $("#menu1").height();
+                // Set box2 height equal to box1
+                $("#sidebar-wrapper").height(box1height * 1.1);
+                for (i = new Date().getFullYear(); i > 1950; i--) {
+                    $("#year").append($("<option />").val(i).html(i));
+                }
+
+                // Disable submit button if status is not changed
+                var initialStatus = $('#status').val();
+                var submitBtn = $('.btn-submit');
+
+                function toggleSubmitButton() {
+                    if ($('#status').val() && $('#status').val() !== initialStatus) {
+                        submitBtn.prop('disabled', false);
+                    } else {
+                        submitBtn.prop('disabled', true);
+                    }
+                }
+
+                toggleSubmitButton();
+
+                $('#status').on('change', function () {
+                    toggleSubmitButton();
+                });
+            });
+        </script>
+    </body>
+    <div id="myModal1" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to approve this application.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        No
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/admin/mark-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Mark Attendance</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to mark attendance.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            No
+                        </button>
+                        <button type="submit" class="btn btn-default">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post" action="/admin/view-attendance">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Select Month/Year</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Month">Month:</label>
+                            <select class="form-control" id="month" name="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year:</label>
+                            <select class="form-control" id="year" name="year"></select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-default">View</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <style>
+      /* --- Form Container --- */
+      .form-group-sm {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        max-width: 1000px;
+        margin: 0 auto;
+        border: 1px solid #e0e6ed;
+      }
+    
+      /* --- Page Headers --- */
+      .page-header {
+        font-size: 1.8em;
+        color: #2c3e50;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #2980b9;
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .page-header1 {
+        font-size: 1.5em;
+        color: #2980b9;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        width: 240px;
+        border: 1.65px solid #2980b9;
+        padding: 12px 15px;
+        border-radius: 8px;
+        background-color: #ecf6fc;
+        box-shadow: 0 4px 8px rgba(41, 128, 185, 0.2);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+      }
+      
+      .page-header2 {
+        font-size: 1.5em;
+        color: #2980b9;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        width: 240px;
+        padding: 12px 15px;
+        border-radius: 8px;
+        background-color: #ecf6fc;
+        box-shadow: 0 4px 8px rgba(41, 128, 185, 0.2);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+      }
+      /* --- Table hiển thị info --- */
+      .info-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 25px 0;
+        border: 1px solid #2980b9;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f0f8ff;
+        box-shadow: 0 4px 12px rgba(41, 128, 185, 0.15);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .info-table th, .info-table td {
+        padding: 12px 15px;
+        font-size: 15px;
+        text-align: center;
+        border-bottom: 1px solid #d6e9f8;
+        color: #2c3e50;
+      }
+    
+      .info-table th {
+        background-color: #d6e9f8;
+        color: #1b3a57;
+        font-weight: 700;
+      }
+      /* Align first 5 columns consistently */
+      .info-table th:nth-child(-n+5),
+      .info-table td:nth-child(-n+5) {
+        width: 16%;
+        min-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    
+      /* --- Leave Table --- */
+      .leave-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+    
+      .leave-table td {
+        padding: 10px;
+        font-size: 14px;
+        text-align: center;
+      }
+    
+      /* --- Leave Header --- */
+      .leave-header {
+        margin: 15px 0;
+        font-size: 14px;
+      }
+    
+      /* --- Bordered Box (Reason, Delegate Content) --- */
+      .bordered-box, .bordered-box1 {
+        background: #eaf4fb;
+        border: 2px solid #2980b9;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(41, 128, 185, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #2c3e50;
+      }
+      .leave-info {
+        background: #eaf4fb;
+        border: 1.5px solid #2980b9;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(41, 128, 185, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #2c3e50;
+      }
+      .leave-info1 {
+        background: #eaf4fb;
+        border: 1.5px solid #2980b9;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 10px rgba(41, 128, 185, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #2c3e50;
+      }
+      .leave-info11 {
+  
+        border: 0px solid #eee;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        margin-bottom: 20px;
+      }
+      /* --- Reason Content --- */
+      .reason-content {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #2c3e50;
+        line-height: 1.6;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      /* --- Leave Request Header --- */
+      .leave-request-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #2980b9;
+        font-weight: 700;
+      }
+    
+      /* --- Leave Info Fields --- */
+      .leave-info {
+        width: 100%;
+      }
+    
+      .leave-info-row {
+        display: flex;
+        margin-bottom: 8px;
+      }
+    
+      .leave-info-label {
+        min-width: 180px;
+        font-weight: 700;
+        color: #1b3a57;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .leave-info-value {
+        flex: 1;
+        color: #2c3e50;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      /* --- Status and Buttons Section --- */
+      .status-buttons-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+        padding: 20px;
+        border: 1px solid #2980b9;
+        border-radius: 12px;
+        background: #d6e9f8;
+        box-shadow: 0 4px 12px rgba(41, 128, 185, 0.15);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .status-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 700;
+        color: #1b3a57;
+      }
+    
+      .form-buttons {
+        display: flex;
+        gap: 15px;
+      }
+    
+      .btn-back, .btn-submit {
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .btn-back {
+        background-color: #fff;
+        color: #2980b9;
+        border: 2px solid #2980b9;
+        box-shadow: 0 2px 6px rgba(41, 128, 185, 0.2);
+      }
+    
+      .btn-back:hover {
+        background-color: #2980b9;
+        color: #fff;
+        border-color: #1b3a57;
+        box-shadow: 0 4px 12px rgba(27, 58, 87, 0.4);
+      }
+    
+      .btn-submit {
+        background-color: #2980b9;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(41, 128, 185, 0.4);
+      }
+    
+      .btn-submit:hover {
+        background-color: #1b3a57;
+        box-shadow: 0 4px 12px rgba(27, 58, 87, 0.6);
+      }
+    
+      /* --- Select box for Status --- */
+      .status-select {
+        width: 220px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #2980b9;
+        background: #ecf6fc;
+        font-size: 15px;
+        color: #1b3a57;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .form-group-sm select.form-control {
+        width: 130px;
+        margin: -25px;
+      }
+      .leave-info-value1 {
+        width: 110px;
+        margin: -20px;
+        color: #1b3a57;
+        font-weight: 700;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      /* --- Info Card Fields --- */
+      .info-card {
+        background: #eaf4fb;
+        border: 2px solid #2980b9;
+        border-radius: 12px;
+        padding: 15px 20px;
+        margin: 15px 0 20px;
+        box-shadow: 0 4px 10px rgba(41, 128, 185, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #2c3e50;
+      }
+    
+      .info-row {
+        display: flex;
+        margin-bottom: 8px;
+      }
+    
+      .info-group {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+    
+      .info-column {
+        width: 48%;
+      }
+    
+      .info-label {
+        min-width: 180px;
+        font-weight: 700;
+        color: #1b3a57;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    
+      .info-value {
+        flex: 1;
+        color: #2c3e50;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      /* --- Status Badge --- */
+      .status-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 14px;
+        color: #fff;
+        text-align: center;
+        min-width: 100px;
+      }
+      .status-approved {
+        background-color: #27ae60;
+        box-shadow: 0 2px 6px rgba(39, 174, 96, 0.4);
+      }
+      .status-pending {
+        background-color: #f39c12;
+        box-shadow: 0 2px 6px rgba(243, 156, 18, 0.4);
+      }
+      .status-rejected {
+        background-color: #c0392b;
+        box-shadow: 0 2px 6px rgba(192, 57, 43, 0.4);
+      }
+    </style>
+<style>
+      .leave-info-value1{
+        width: 110px;
+        margin: -20px;}
+/* --- Info Card Fields --- */
+.info-card {
+background: #f9f9f9;
+  border: 1px solid #4a4848;
+  border-radius: 10px;
+  padding-bottom: 5px;
+  padding-top: 15px;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin: 15px 0 20px;
+}
+
+.info-row {
+display: flex;
+margin-bottom: 8px;
+}
+
+.info-group {
+display: flex;
+justify-content: space-between;
+width: 100%;
+}
+
+.info-column {
+width: 48%;
+}
+
+.info-label {
+min-width: 180px;
+font-weight: bold;
+}
+
+.info-value {
+flex: 1;
+}
+
+    </style>
+    
+</html>

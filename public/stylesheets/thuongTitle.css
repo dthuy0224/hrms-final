@@ -1,0 +1,12 @@
+.ThuongTitle {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 1.6em;
+    padding-bottom: 9px;
+    margin: 40px 0 20px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    color: #333;
+  }
+  
+
+<h2 class="ThuongTitle"><i class="fa fa-angle-right"></i> My Profile</h2>

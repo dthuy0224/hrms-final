@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <%- include('../partials/header') %>
-
+<link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
 <body>
   <nav class="navbar navbar-default no-margin">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -61,7 +61,8 @@
       <div class="container-fluid xyz">
         <div class="row">
           <div class="col-lg-12">
-            <h2><i class="fa fa-dashboard"></i> Admin Dashboard</h2>
+            <h1 class="ThuongTitle"><i class="fa fa-angle-right"></i> Admin Dashboard</h1>
+     
             <div class="time-container" style="margin-bottom: 15px; position: relative;">
               <p class="text-muted" id="current-time">
               <%= moment().format('dddd') %><br>

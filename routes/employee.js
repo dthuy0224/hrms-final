@@ -425,7 +425,9 @@ router.get("/view-profile", function viewProfile(req, res, next) {
       employee: user,
       moment: moment,
       userName: req.user.name,
+      hasErrors: false,
       path: req.path
+      
     });
   });
 });

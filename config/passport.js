@@ -100,12 +100,12 @@ passport.use(
   "local.signin",
   new LocalStrategy(
     {
-      usernameField: "email",
+      usernameField: "officeEmail",
       passwordField: "password",
       passReqToCallback: true,
     },
-    async function (req, email, password, done) {
-      req.checkBody("email", "Invalid email").notEmpty().isEmail();
+    async function (req, officeEmail, password, done) {
+      req.checkBody("officeEmail", "Invalid office email").notEmpty().isEmail();
       req.checkBody("password", "Invalid password").notEmpty();
       let errors = req.validationErrors();
       if (errors) {
@@ -119,8 +119,8 @@ passport.use(
         // Tìm user bằng email hoặc officeEmail
         let user = await User.findOne({ 
           $or: [
-            { email: email },
-            { officeEmail: email }
+            { email: officeEmail },
+            { officeEmail: officeEmail }
           ] 
         });
         if (!user) {

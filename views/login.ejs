@@ -67,12 +67,12 @@
       
       <form action="/login" method="post" id="loginForm">
         <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" placeholder="Enter Email Address" required="required" 
+          <label for="officeEmail">Office Email:</label>
+          <input type="email" id="officeEmail" name="officeEmail" placeholder="Enter Office Email Address" required="required" 
                  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
-                 title="Please enter a valid email address" />
+                 title="Please enter a valid office email address" />
           <div class="email-error" style="display: none; color: #d9534f; font-size: 12px; margin-top: 5px;">
-            Invalid email format!
+            Invalid office email format!
           </div>
         </div>
         <div class="form-group">
@@ -93,38 +93,38 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const emailInput = document.getElementById('email');
-      const emailError = document.querySelector('.email-error');
-      const loginForm = document.getElementById('loginForm');
-      
-      // Validate email on input
-      emailInput.addEventListener('input', function() {
-        const isValid = validateEmail(this.value);
-        if (!isValid && this.value) {
-          emailError.style.display = 'block';
-        } else {
-          emailError.style.display = 'none';
-        }
-      });
-      
-      // Validate on form submit
-      loginForm.addEventListener('submit', function(event) {
-        if (!validateEmail(emailInput.value)) {
-          event.preventDefault();
-          emailError.style.display = 'block';
-          emailInput.focus();
-        }
-      });
-      
-      // Email validation function
-      function validateEmail(email) {
-        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return re.test(String(email).toLowerCase());
-      }
-    });
-  </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const officeEmailInput = document.getElementById('officeEmail');
+          const emailError = document.querySelector('.email-error');
+          const loginForm = document.getElementById('loginForm');
+          
+          // Validate office email on input
+          officeEmailInput.addEventListener('input', function() {
+            const isValid = validateEmail(this.value);
+            if (!isValid && this.value) {
+              emailError.style.display = 'block';
+            } else {
+              emailError.style.display = 'none';
+            }
+          });
+          
+          // Validate on form submit
+          loginForm.addEventListener('submit', function(event) {
+            if (!validateEmail(officeEmailInput.value)) {
+              event.preventDefault();
+              emailError.style.display = 'block';
+              officeEmailInput.focus();
+            }
+          });
+          
+          // Office email validation function
+          function validateEmail(email) {
+            const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return re.test(String(email).toLowerCase());
+          }
+        });
+      </script>
 </body>
 <script src="/javascripts/prefixfree.min.js"></script>
 

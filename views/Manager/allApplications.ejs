@@ -3,138 +3,142 @@
     <%- include('../partials/header') %>
     <link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
     <body>
-      <nav class="navbar navbar-default no-margin">
-    <!-- Brand and toggle get grouped for better mobile display -->
+        <nav class="navbar navbar-default no-margin">
+            <!-- Brand and toggle get grouped for better mobile display -->
 
-    <div class="navbar-header fixed-brand">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
-            <span class="glyphicon glyphicon-th-large" style="margin-left:5px;" aria-hidden="true"></span>
-        </button>
-        <a class="navbar-brand" href="#"> <%= userName %></a>
-    </div><!-- navbar-header-->
+            <div class="navbar-header fixed-brand">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
+                    <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
+                </button>
+                <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
+                    <%= userName %>
+                </a>
+            </div>
+            <!-- navbar-header-->
 
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-        <ul class="nav navbar-nav">
-            <li class="active">
-                <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2"><span
-                            class="glyphicon glyphicon-th-large" aria-hidden="true"></span></button>
-            </li>
-            <li class="navbar-brand">
-                <form action="/logout" method="get">
-                    <button id="logout" type="submit" style="margin-top: -3px;" class="btn btn-default"><i
-                                class="fa fa-sign-out" aria-hidden="true"></i> Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </div><!-- bs-example-navbar-collapse-1 -->
-</nav>
-<div id="wrapper">
-    <!-- Sidebar -->
-    <%- include('../partials/adminSidebar') %>
-
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <button class="navbar-toggle collapse in" data-toggle="collapse" id="menu-toggle-2">
+                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                        </button>
+                    </li>
+                    <li class="navbar-brand">
+                        <form action="/logout" method="get">
+                            <button id="logout" type="submit" style="margin-top: -3px" class="btn btn-default">
+                                <i class="fa fa-user" aria-hidden="true"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <!-- bs-example-navbar-collapse-1 -->
+        </nav>
+        <div id="wrapper">
+          <%- include('../partials/sidebar') %>
+            <!-- /#sidebar-wrapper -->
 
             <!-- Page Content -->
-          <!-- Page Content -->
-          <div id="page-content-wrapper">
-            <div class="container-fluid xyz">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h2 class="ThuongTitle"><i class="fa fa-angle-right"></i> Leave Applications</h2>
-                 
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <!-- Search input bên trái -->
-                            <div style="position: relative; width: 250px; font-size: 13px;">
-                                <input type="text" id="searchTitle" class="form-control" placeholder="Search by title..." 
-                                    style="padding-right: 30px; padding-left: 15px;">
-                            </div>
-                        
-                            <!-- Hai ô select bên phải -->
-                            <div style="display: flex; gap: 20px;">
-                                <div style="position: relative; width: 180px;">
-                                    <select id="searchType" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
-                                        <option value="">All Types</option>
-                                        <option value="Annual Leave">Annual Leave</option>
-                                        <option value="Sick Leave">Sick Leave</option>
-                                        <option value="Maternity Leave">Maternity Leave</option>
-                                        <option value="Emergency Leave">Emergency Leave</option>
-                                    </select>
+                <!-- Page Content -->
+                <div id="page-content-wrapper">
+                    <div class="container-fluid xyz">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h1 class="ThuongTitle"><i class="fa fa-angle-right"></i> Leave Applications</h1>
+                      
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <!-- Search input bên trái -->
+                                    <div style="position: relative; width: 250px; font-size: 13px;">
+                                        <input type="text" id="searchTitle" class="form-control" placeholder="Search by title..." 
+                                            style="padding-right: 30px; padding-left: 15px;">
+                                    </div>
+                                
+                                    <!-- Hai ô select bên phải -->
+                                    <div style="display: flex; gap: 20px;">
+                                        <div style="position: relative; width: 180px;">
+                                            <select id="searchType" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                                <option value="">All Types</option>
+                                                <option value="Annual Leave">Annual Leave</option>
+                                                <option value="Sick Leave">Sick Leave</option>
+                                                <option value="Maternity Leave">Maternity Leave</option>
+                                                <option value="Emergency Leave">Emergency Leave</option>
+                                            </select>
+                                        </div>
+                                        <div style="position: relative; width: 180px;">
+                                            <select id="searchStatus" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                                <option value="Pending" selected>Pending</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Disapproved">Disapproved</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="position: relative; width: 180px;">
-                                    <select id="searchStatus" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
-                                        <option value="Pending" selected>Pending</option>
-                                        <option value="Approved">Approved</option>
-                                        <option value="Disapproved">Disapproved</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="height: 717px; overflow: auto">
-                            <% if(hasLeave===1){ %>
-                                <table id="example" class="display" cellspacing="0"
-                                    style="height: 10%; overflow: auto">
-                                    <thead>
-                                        <tr>
-                                            <th>Applicant's Name</th>
-                                            <th>Title</th>
-                                            <th>Type</th>
-                                            <th>Applied Date</th>
-                                            <th>Period(Days)</th>
-                                            <th>Status</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% for(var i=0;i < leaves.length;i++){ %>
-                                            <tr>
-                                                <td>
-                                                    <%= employees[i].name %>
-                                                </td>
-                                                <td>
-                                                    <%= leaves[i].title %>
-                                                </td>
-                                                <td>
-                                                    <%= leaves[i].type %>
-                                                </td>
-                                                <td>
-                                                    <%= moment(leaves[i].appliedDate).format('MMMM Do YYYY') %>
-                                                </td>
-                                                <td>
-                                                    <% if (leaves[i].period === 0.5) { %>
-                                                        Half day (4 hours)
-                                                    <% } else if (leaves[i].period === 1) { %>
-                                                        1 day
-                                                    <% } else { %>
-                                                        <%= leaves[i].period / 1 %> days
+                                
+                                <div style="height: 717px; overflow: auto">
+                                    <% if(hasLeave===1){ %>
+                                        <table id="example" class="display" cellspacing="0"
+                                            style="height: 10%; overflow: auto">
+                                            <thead>
+                                                <tr>
+                                                    <th>Applicant's Name</th>
+                                                    <th>Title</th>
+                                                    <th>Type</th>
+                                                    <th>Applied Date</th>
+                                                    <th>Period(Days)</th>
+                                                    <th>Status</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% for(var i=0;i < leaves.length;i++){ %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= employees[i].name %>
+                                                        </td>
+                                                        <td>
+                                                            <%= leaves[i].title %>
+                                                        </td>
+                                                        <td>
+                                                            <%= leaves[i].type %>
+                                                        </td>
+                                                        <td>
+                                                            <%= moment(leaves[i].appliedDate).format('MMMM Do YYYY') %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (leaves[i].period === 0.5) { %>
+                                                                Half day (4 hours)
+                                                            <% } else if (leaves[i].period === 1) { %>
+                                                                1 day
+                                                            <% } else { %>
+                                                                <%= leaves[i].period / 1 %> days
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <span class="status <%= leaves[i].adminResponse.toLowerCase() %>">
+                                                                <%= leaves[i].adminResponse %>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <form method="get"
+                                                                action="/manager/respond-application/<%= leaves[i]._id %>/<%= employees[i]._id %>">
+                                                                <button type="submit">
+                                                                    <i class="fa fa-reply fa-lg" title="Responsd"
+                                                                        aria-hidden="true"></i>
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
                                                     <% } %>
-                                                </td>
-                                                <td>
-                                                    <span class="status <%= leaves[i].adminResponse.toLowerCase() %>">
-                                                        <%= leaves[i].adminResponse %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <form method="get"
-                                                        action="/admin/respond-application/<%= leaves[i]._id %>/<%= employees[i]._id %>">
-                                                        <button type="submit">
-                                                            <i class="fa fa-reply fa-lg" title="Responsd"
-                                                                aria-hidden="true"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <% }else{ %>
+                                            <p>Leave Applications not found</p>
                                             <% } %>
-                                    </tbody>
-                                </table>
-                                <% }else{ %>
-                                    <p>Leave Applications not found</p>
-                                    <% } %>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
             <!-- /#page-content-wrapper -->
         </div>
         <!-- /#wrapper -->
@@ -188,7 +192,7 @@
 
     <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">
-            <form method="post" action="/admin/mark-attendance">
+            <form method="post" action="/manager/mark-attendance">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
@@ -215,7 +219,7 @@
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
-                <form method="post" action="/admin/view-attendance">
+                <form method="post" action="/manager/view-attendance">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal">
                             &times;
