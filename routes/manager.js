@@ -1106,11 +1106,11 @@ router.post("/check-out", async (req, res) => {
     await attendance.save();
     
     req.flash("success", "Đã ghi nhận thời gian check-out thành công");
-    res.redirect("/manager");
+    res.redirect("/manager/view-attendance-current");
   } catch (err) {
     console.error("Lỗi khi check-out:", err);
     req.flash("error", "Đã xảy ra lỗi khi check-out: " + err.message);
-    res.redirect("/manager");
+    res.redirect("/manager/view-attendance-current");
   }
 });
 

@@ -43,45 +43,43 @@
                 <div class="container-fluid xyz">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div class="page-header">
-                                <ol class="breadcrumb">
-                                    <li><a href="/manager">Dashboard</a></li>
-                                    <li class="active">Attendance Records</li>
-                                </ol>
-                                <h3><i class="fa fa-calendar"></i> Attendance for <%= moment().month(Number(month)-1).format('MMMM') %> <%= new Date().getFullYear() %></h3>
-                            </div>
-
+                            <ol class="breadcrumb" style="margin-bottom: 10px; margin-top: 10px;">
+                                <li><a href="/manager">Dashboard</a></li>
+                                <li class="active">Attendance Records</li>
+                            </ol>
+                            <h3 style="margin-top: 0;"><i class="fa fa-calendar"></i> Attendance for <%= moment().month(Number(month)-1).format('MMMM') %> <%= new Date().getFullYear() %></h3>
+                            
                             <!-- Attendance Summary Cards -->
-                            <div class="row mb-4">
+                            <div class="row" style="margin-top: 20px; margin-bottom: 20px;">
                                 <!-- Present Days Card -->
                                 <div class="col-md-3">
-                                    <div class="panel panel-primary">
+                                    <div class="panel panel-primary" style="margin-bottom: 10px;">
                                         <div class="panel-heading">
                                             <i class="fa fa-calendar-check-o"></i> Present Days
                                         </div>
                                         <div class="panel-body text-center">
-                                            <h2><%= attendance ? attendance.length : 0 %></h2>
-                                            <p>Days marked as present</p>
+                                            <h2 style="margin: 5px 0;"><%= attendance ? attendance.length : 0 %></h2>
+                                            <p style="margin-bottom: 5px;">Days marked as present</p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Working Days Card -->
                                 <div class="col-md-3">
-                                    <div class="panel panel-info">
+                                    <div class="panel panel-info" style="margin-bottom: 10px;">
                                         <div class="panel-heading">
                                             <i class="fa fa-calendar"></i> Working Days
                                         </div>
                                         <div class="panel-body text-center">
-                                            <h2><%= moment().month(Number(month)-1).daysInMonth() - moment().month(Number(month)-1).startOf('month').day() - moment().month(Number(month)-1).endOf('month').day() || 20 %></h2>
-                                            <p>Total working days this month</p>
+                                            <h2 style="margin: 5px 0;"><%= moment().month(Number(month)-1).daysInMonth() - moment().month(Number(month)-1).startOf('month').day() - moment().month(Number(month)-1).endOf('month').day() || 20 %></h2>
+                                            <p style="margin-bottom: 5px;">Total working days this month</p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Attendance Rate Card -->
                                 <div class="col-md-3">
-                                    <div class="panel panel-success">
+                                    <div class="panel panel-success" style="margin-bottom: 10px;">
                                         <div class="panel-heading">
                                             <i class="fa fa-percent"></i> Attendance Rate
                                         </div>
@@ -91,20 +89,20 @@
                                                 var presentDays = attendance ? attendance.length : 0;
                                                 var attendanceRate = workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
                                             %>
-                                            <h2><%= attendanceRate %>%</h2>
-                                            <p><%= presentDays %> of <%= workingDays %> days</p>
+                                            <h2 style="margin: 5px 0;"><%= attendanceRate %>%</h2>
+                                            <p style="margin-bottom: 5px;"><%= presentDays %> of <%= workingDays %> days</p>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <!-- Average Check-in Card -->
                                 <div class="col-md-3">
-                                    <div class="panel panel-warning">
+                                    <div class="panel panel-warning" style="margin-bottom: 10px;">
                                         <div class="panel-heading">
                                             <i class="fa fa-clock-o"></i> Average Check-in
                                         </div>
                                         <div class="panel-body text-center">
-                                            <h2>
+                                            <h2 style="margin: 5px 0;">
                                                 <% 
                                                     if (attendance && attendance.length > 0) {
                                                         var totalHours = 0;
@@ -144,14 +142,14 @@
                                                     }
                                                 %>
                                             </h2>
-                                            <p>Average arrival time</p>
+                                            <p style="margin-bottom: 5px;">Average arrival time</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Controls -->
-                            <div class="row mb-3">
+                            <div class="row" style="margin-bottom: 15px;">
                                 <div class="col-md-6">
                                     <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">
                                         <i class="fa fa-filter"></i> Change Month/Year
@@ -170,7 +168,7 @@
                             <!-- Attendance Table Panel -->
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <h4><i class="fa fa-list"></i> Daily Attendance Records</h4>
+                                    <h4 style="margin: 5px 0;"><i class="fa fa-list"></i> Daily Attendance Records</h4>
                                 </div>
                                 <div class="panel-body">
                                 <% if (found===1){ %>
@@ -183,6 +181,7 @@
                                                         <th>Check-in Time</th>
                                                         <th>Check-out Time</th>
                                                         <th>Work Hours</th>
+                                                        <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tfoot>
@@ -192,6 +191,7 @@
                                                         <th>Check-in Time</th>
                                                         <th>Check-out Time</th>
                                                         <th>Work Hours</th>
+                                                        <th>Actions</th>
                                             </tr>
                                         </tfoot>
                                         <tbody>
@@ -242,6 +242,16 @@
                                                                         <%
                                                                     }
                                                                 %>
+                                                            </td>
+                                                            <td>
+                                                                <% if (!item.checkOutTime) { %>
+                                                                    <form method="post" action="/manager/check-out">
+                                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                                                        <button type="submit" class="btn btn-primary btn-sm">Check Out</button>
+                                                                    </form>
+                                                                <% } else { %>
+                                                                    <button class="btn btn-info btn-sm" disabled>Request Edit</button>
+                                                                <% } %>
                                                             </td>
                                                 </tr>
                                                 <% }); %>

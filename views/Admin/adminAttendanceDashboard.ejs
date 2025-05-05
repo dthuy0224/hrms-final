@@ -134,6 +134,7 @@
                     <th>Check-out</th>
                     <th>Work Hours</th>
                     <th>Overtime</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -262,6 +263,15 @@
                             --
                           <% } %>
                         </td>
+                        <td>
+                          <% if (!record.checkOutTime) { %>
+                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#checkoutModal">
+                              <i class="fa fa-sign-out"></i> Check Out
+                            </button>
+                          <% } else { %>
+                            <button class="btn btn-info btn-sm" disabled>Completed</button>
+                          <% } %>
+                        </td>
                       </tr>
                     <% }); %>
                   <% } else { %>
@@ -324,12 +334,16 @@
             <h4 class="modal-title">Check Out</h4>
           </div>
           <div class="modal-body">
-            <p>Are you sure you want to check out?</p>
+            <p>Are you sure you want to check out for today?</p>
+            <p id="currentTimeDisplay"></p>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="date" value="<%= currentDate.getDate() %>" />
+            <input type="hidden" name="month" value="<%= currentDate.getMonth() + 1 %>" />
+            <input type="hidden" name="year" value="<%= currentDate.getFullYear() %>" />
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-success">Yes</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+            <button type="submit" class="btn btn-success">Yes, Check Out</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
           </div>
         </form>
       </div>
@@ -358,6 +372,27 @@
       $("#exportExcel").click(function() {
         // Implement export to excel functionality
         alert("Export to Excel functionality will be implemented here");
+      });
+      
+      // Check-out modal time display
+      $('#checkoutModal').on('show.bs.modal', function () {
+        function updateCurrentTime() {
+          var now = new Date();
+          var hours = String(now.getHours()).padStart(2, '0');
+          var minutes = String(now.getMinutes()).padStart(2, '0');
+          var seconds = String(now.getSeconds()).padStart(2, '0');
+          var timeString = "Current time: <strong>" + hours + ":" + minutes + ":" + seconds + "</strong>";
+          $('#currentTimeDisplay').html(timeString);
+        }
+        
+        updateCurrentTime();
+        // Update time every second
+        var timeInterval = setInterval(updateCurrentTime, 1000);
+        
+        // Clear interval when modal is closed
+        $(this).on('hidden.bs.modal', function () {
+          clearInterval(timeInterval);
+        });
       });
     });
   </script>
