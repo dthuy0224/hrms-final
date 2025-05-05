@@ -73,11 +73,11 @@ background-color: rgba(0,0,0,0.5);}
 
         <label>Start Date:</label>
         <input type="date" name="start_date" id="start_date" required min="<%= new Date().toISOString().split('T')[0] %>" />
-        <span class="error-message" id="start-error"></span>
+        <span class="error-message" id="start_date-error"></span>
 
         <label>End Date:</label>
         <input type="date" name="end_date" id="end_date" required min="<%= new Date().toISOString().split('T')[0] %>" />
-        <span class="error-message" id="end-error"></span>
+        <span class="error-message" id="end_date-error"></span>
 
         <label>Period of Leave (days):</label>
         <input type="text" id="period_display" disabled placeholder="Calculated automatically" />
@@ -127,14 +127,16 @@ background-color: rgba(0,0,0,0.5);}
                        
         </div>
          <div class="form-buttons">
-                          <button type="submit" class="btn-apply">Send</button>
-                          <button type="button" onclick="history.go(-1);" class="btn btn-default">Cancel</button>
+                          <button type="submit" class="btn-apply" data-toggle="modal" data-target="#myModal1">Send</button>
+                          <button type="button" id="cancelButton" class="btn btn-default">Cancel</button>
                         </div>
                         <div id="loadingSpinner" style="display:none;text-align:center">
-                          <i class="fas fa-spinner fa-spin fa-2x"></i> Applying Leave...
+                          <i class="fas fa-spinner fa-spin fa-2x"></i> Sending Leave...
                         </div>
                         
                       </form>
+
+
                     </div>
                    
                 </div>
@@ -146,14 +148,14 @@ background-color: rgba(0,0,0,0.5);}
 </div>
 <!-- /#wrapper -->
 <!-- jQuery -->
-<!-- Đặt trong head hoặc cuối body -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"><script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
+<script>
+
   // Các biến ngày hôm nay
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = today.toISOString().split("T")[0];
+const todayStr = today.toISOString().split('T')[0]; 
+const selectedDate = document.getElementById('start_date').value; 
   
   // Lấy các phần tử HTML
   const title = document.getElementById("title");
@@ -176,27 +178,49 @@ const delegateContent = document.getElementById("delegateContent");
   const fields = ["title", "start_date", "end_date", "leaveType", "type", "reason", "delegateTo", "delegateContent"];
   
   // Hàm hiển thị lỗi
-  const showError = (id, msg) => {
-    document.getElementById(id + "-error").textContent = msg;
-    document.getElementById(id).classList.add("invalid");
-  };
-  
-  // Hàm xóa lỗi
-  const clearError = (id) => {
-    document.getElementById(id + "-error").textContent = "";
-    document.getElementById(id).classList.remove("invalid");
-  };
+  // Hàm hiển thị lỗi
+const showError = (id, msg) => {
+    const element = document.getElementById(id);
+    const errorElement = document.getElementById(id + "-error");
+    
+    if (element && errorElement) {
+        element.classList.add("invalid");
+        errorElement.textContent = msg;
+        errorElement.style.display = "block";
+    }
+};
+
+// Hàm xóa lỗi
+const clearError = (id) => {
+    const element = document.getElementById(id);
+    const errorElement = document.getElementById(id + "-error");
+    
+    if (element && errorElement) {
+        element.classList.remove("invalid");
+        errorElement.textContent = "";
+    }
+};
+
+// Tự động validate khi ngày thay đổi
+startDate.addEventListener("change", function() {
+    validators.start_date();
+    if (endDate.value) validators.end_date(); // Validate lại end_date nếu có giá trị
+});
+
+endDate.addEventListener("change", function() {
+    validators.end_date();
+});
   
   // Các hàm kiểm tra từng trường
   const validators = {
 title: () => {
     const val = title.value.trim();
     if (!val) {
-        showError("title", "Please enter the title!");
+        showError("title", "Please enter the leave request title.");
         return false;
     }
     if (val.length > 100) {
-        showError("title", "Title must not exceed 100 characters.");
+        showError("title", "The title must not exceed 100 characters.");
         return false;
     }
     clearError("title");
@@ -206,7 +230,7 @@ title: () => {
 start_date: () => {
     const startVal = startDate.value;
     if (!startVal) {
-        showError("start_date", "Please select start date");
+        showError("start_date", "Please select a start date.");
         return false;
     }
     
@@ -215,15 +239,15 @@ start_date: () => {
     today.setHours(0, 0, 0, 0);
     
     if (isNaN(start.getTime())) {
-        showError("start_date", "Invalid day!!!");
+        showError("start_date", "Invalid date.");
         return false;
     }
     
     if (start < today) {
-        showError("start_date", "The start date must be from today onwards.");
+        showError("start_date", "Start date must not be before today (" + today.toLocaleDateString() + ").");
         return false;
     }
-    
+
     clearError("start_date");
     endDate.min = startVal;
     return true;
@@ -234,37 +258,43 @@ end_date: () => {
     const endVal = endDate.value;
     
     if (!endVal) {
-        showError("end_date", "Please select end date.");
+        showError("end_date", "Please select an end date.");
         return false;
     }
-    
+
     const start = new Date(startVal);
     const end = new Date(endVal);
-    
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        showError("end_date", "Invalid day!");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (isNaN(end.getTime())) {
+        showError("end_date", "Invalid date.");
         return false;
     }
-    
+
+    if (end < today) {
+        showError("end_date", "End date must not be before today (" + today.toLocaleDateString() + ").");
+        return false;
+    }
+
     if (end < start) {
-        showError("end_date", "The end date must be equal to or after the start date.");
+        showError("end_date", "End date must not be before start date (" + start.toLocaleDateString() + ").");
         return false;
     }
-    
-    // Tính toán số ngày nghỉ
+
     const timeDiff = end - start;
     const periodDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
-    
+
     periodDisplay.value = periodDays;
     periodHidden.value = periodDays;
-    
+
     clearError("end_date");
     return true;
 },
 
 leaveType: () => {
     if (!leaveType.value || leaveType.value === "-- Select Leave Period Type --") {
-        showError("leaveType", "Please select the type of leave.");
+        showError("leaveType", "Please select a leave period type.");
         return false;
     }
     clearError("leaveType");
@@ -273,7 +303,7 @@ leaveType: () => {
 
 type: () => {
     if (!type.value || type.value === "-- Select Leave Type --") {
-        showError("type", "Please select leave type.");
+        showError("type", "Please select a leave type.");
         return false;
     }
     clearError("type");
@@ -283,11 +313,11 @@ type: () => {
 reason: () => {
     const val = reason.value.trim();
     if (!val) {
-        showError("reason", "Please enter reason for leave.");
+        showError("reason", "Please provide a reason for your leave.");
         return false;
     }
     if (val.length > 4000) {
-        showError("reason", "Reason must not exceed 4000 characters.");
+        showError("reason", "The reason must not exceed 4000 characters.");
         return false;
     }
     clearError("reason");
@@ -296,7 +326,7 @@ reason: () => {
 
 delegateTo: () => {
     if (!delegateTo.value) {
-        showError("delegateTo", "Please select an delegated person.");
+        showError("delegateTo", "Please select a delegate.");
         return false;
     }
     clearError("delegateTo");
@@ -306,119 +336,160 @@ delegateTo: () => {
 delegateContent: () => {
     const val = delegateContent.value.trim();
     if (!val) {
-        showError("delegateContent", "Please describe the work delegated.");
+        showError("delegateContent", "Please describe the delegated work.");
         return false;
     }
     if (val.length > 4000) {
-        showError("delegateContent", "Delegate content must not exceed 4000 characters.");
+        showError("delegateContent", "The content must not exceed 4000 characters.");
         return false;
     }
     clearError("delegateContent");
     return true;
 }
 };
-  
- // Khi focus vào trường sau thì kiểm tra tất cả các trường trước
 
-
-// Gắn event cho tất cả các trường
+// Field focus validation
 fields.forEach((field, currentIndex) => {
-const element = document.getElementById(field);
+    const element = document.getElementById(field);
+    element.addEventListener("focus", () => {
+        for (let i = 0; i < currentIndex; i++) {
+            const prevFieldId = fields[i];
+            const prevElement = document.getElementById(prevFieldId);
+            const errorSpan = document.getElementById(prevFieldId + "-error");
 
-element.addEventListener("focus", () => {
-// Khi focus vào field hiện tại, kiểm tra tất cả các field trước nó
-for (let i = 0; i < currentIndex; i++) {
-  const prevFieldId = fields[i];
-  const prevElement = document.getElementById(prevFieldId);
-  const errorSpan = document.getElementById(prevFieldId + "-error");
-  
-  if (prevElement && errorSpan) {
-    if (!prevElement.value.trim()) {
-      errorSpan.textContent = "Please fill in the information.";
-      prevElement.classList.add("error-border");
-    } else {
-      errorSpan.textContent = "";
-      prevElement.classList.remove("error-border");
-    }
-  }
-}
-});
+            if (prevElement && errorSpan) {
+                // Kiểm tra cho các trường ngày riêng biệt
+                let val = prevElement.value.trim();
+                if (prevElement.type === 'date' && val === "") {
+                    val = null; // Không có ngày chọn
+                }
+
+                if (!val) {
+                    errorSpan.textContent = "Please fill out this field.";
+                    prevElement.classList.add("error-border");
+                } else {
+                    errorSpan.textContent = "";
+                    prevElement.classList.remove("error-border");
+                }
+            }
+        }
+    });
 });
 
-// CSS cho border đỏ khi lỗi
+
+// CSS for error borders
 const style = document.createElement('style');
 style.innerHTML = `
 .error-border {
-border: 1px solid red !important;
+    border: 1px solid red !important;
 }
 `;
 document.head.appendChild(style);
 
+// Validate dates on change/input
+startDate.addEventListener('input', validateDates);
+endDate.addEventListener('input', validateDates);
+startDate.addEventListener('change', validateDates);
+endDate.addEventListener('change', validateDates);
 
+function validateDates() {
+    const startVal = startDate.value;
+    const endVal = endDate.value;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  // Cập nhật form khi chọn loại nghỉ phép hoặc ngày thay đổi
-  const updateLeaveForm = () => {
+    clearError('start_date');
+    clearError('end_date');
+
+    if (!startVal) return;
+
+    const start = new Date(startVal);
+
+    if (start < today) {
+        showError('start_date', `Start date must be from ${today.toLocaleDateString()} onward.`);
+        return;
+    }
+
+    if (!endVal) return;
+
+    const end = new Date(endVal);
+
+    if (end < today) {
+        showError('end_date', `End date must be from ${today.toLocaleDateString()} onward.`);
+        return;
+    }
+
+    if (end < start) {
+        showError('end_date', `End date must be on or after the start date (${start.toLocaleDateString()}).`);
+        return;
+    }
+
+    const timeDiff = end - start;
+    const periodDays = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) + 1;
+    periodDisplay.value = periodDays;
+    periodHidden.value = periodDays;
+}
+
+const updateLeaveForm = () => {
     const start = new Date(startDate.value);
     const end = new Date(endDate.value);
     const isHalfDay = leaveType.value.startsWith('half');
-  
+
     if (isHalfDay) {
-      endDate.value = startDate.value;
-      endDate.disabled = true;
-      periodDisplay.value = 0.5;
-      periodHidden.value = 0.5;
+        endDate.value = startDate.value;
+        endDate.disabled = true;
+        periodDisplay.value = 0.5;
+        periodHidden.value = 0.5;
     } else {
-      endDate.disabled = false;
-      if (!isNaN(start) && !isNaN(end)) {
-        const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-        periodDisplay.value = days;
-        periodHidden.value = days;
-      }
+        endDate.disabled = false;
+        if (!isNaN(start) && !isNaN(end)) {
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            periodDisplay.value = days;
+            periodHidden.value = days;
+        }
     }
-  };
-  
-  // Gắn sự kiện thay đổi
-  leaveType.addEventListener("change", updateLeaveForm);
-  startDate.addEventListener("change", updateLeaveForm);
-  endDate.addEventListener("change", updateLeaveForm);
-  
-  // Kiểm tra dữ liệu khi submit
-  form.addEventListener("submit", (e) => {
+};
+
+leaveType.addEventListener("change", updateLeaveForm);
+startDate.addEventListener("change", updateLeaveForm);
+endDate.addEventListener("change", updateLeaveForm);
+
+form.addEventListener("submit", (e) => {
     const start = new Date(startDate.value);
     const end = new Date(endDate.value);
     const isHalfDay = leaveType.value.startsWith('half');
-  
+
     if (isNaN(start)) {
-      alert("Ngày bắt đầu không hợp lệ.");
-      e.preventDefault();
-      return;
+        alert("Invalid start date.");
+        e.preventDefault();
+        return;
     }
-  
+
     if (!isHalfDay && isNaN(end)) {
-      alert("Ngày kết thúc không hợp lệ.");
-      e.preventDefault();
-      return;
+        alert("Invalid end date.");
+        e.preventDefault();
+        return;
     }
-  
-    // Kiểm tra hạn nộp đơn
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const diffDays = Math.floor((start - today) / (1000 * 60 * 60 * 24));
     const period = parseFloat(periodHidden.value);
-  
+
     if (period === 1 && diffDays < 2) {
-      alert("1 day leave request must be submitted at least 2 days in advance.");
-      e.preventDefault();
-      return;
+        alert("One-day leave must be requested at least 2 days in advance.");
+        e.preventDefault();
+        return;
     }
-  
+
     if (period > 1 && diffDays < 7) {
-      alert("Multiple leave requests must be submitted at least 7 days in advance.");
-      e.preventDefault();
-      return;
+        alert("Multiple-day leave must be requested at least 7 days in advance.");
+        e.preventDefault();
+        return;
     }
-  
-    // Hiển thị loading
+
     document.getElementById("loadingSpinner").style.display = "block";
-  });
+});
   </script>
   
   <!-- Script đánh dấu menu -->
@@ -436,7 +507,15 @@ document.head.appendChild(style);
       }
     });
   });
+document.getElementById("cancelButton").addEventListener("click", function (e) {
+    e.preventDefault();
+ if (confirm("Are you sure you want to clear the form? All entered data will be lost.")) {
+        window.location.href = window.location.href; 
+    }
+    
+});
   </script>
+
        
     </body>
 
