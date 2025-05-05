@@ -547,7 +547,15 @@ router.get("/view-project/:project_id", function viewProject(req, res, next) {
   Project.findById(projectId, function getProject(err, project) {
     if (err) {
       console.log(err);
+      req.flash("error", "Error finding project");
+      return res.redirect("/manager/view-all-personal-projects");
     }
+    
+    if (!project) {
+      req.flash("error", "Project not found");
+      return res.redirect("/manager/view-all-personal-projects");
+    }
+    
     res.render("Manager/viewManagerProject", {
       title: "Project Details",
       project: project,
@@ -575,6 +583,7 @@ router.get(
     var projectChunks = [];
     // Check if filter parameter exists
     var activeFilter = req.query.filter === 'active';
+    var outdateFilter = req.query.filter === 'outdate';
     
     // Create query object
     var query = { employeeID: req.user._id };
@@ -582,6 +591,8 @@ router.get(
     // Add status filter if active filter is applied
     if (activeFilter) {
       query.status = { $regex: /^in\s*progress$/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
+    } else if (outdateFilter) {
+      query.status = 'Out Date';
     }
     
     // Check for sort parameter
@@ -624,6 +635,7 @@ router.get(
           csrfToken: req.csrfToken(),
           userName: req.user.name,
           activeFilter: activeFilter,
+          outdateFilter: outdateFilter,
           sortBy: req.query.sort || null
         });
       });
@@ -1207,7 +1219,7 @@ router.post("/update-project/:project_id", skipCSRF, function updateProject(req,
         console.log(err);
         req.flash("error", "Error updating project");
       } else {
-        req.flash("success", "Project updated successfully");
+        req.flash("success", "Project '" + project.title + "' updated successfully");
       }
       res.redirect("/manager/edit-project/" + projectId);
     });
@@ -1271,7 +1283,7 @@ router.post("/add-project-member/:project_id", skipCSRF, function addProjectMemb
         req.flash("error", "Error adding team member(s)");
       } else {
         if (addedCount > 0) {
-          req.flash("success", addedCount + " team member(s) added successfully");
+          req.flash("success", addedCount + " team member(s) added successfully to project '" + project.title + "'");
         }
         if (alreadyInProjectCount > 0) {
           req.flash("info", alreadyInProjectCount + " employee(s) were already in the project");
@@ -1311,7 +1323,7 @@ router.post("/remove-project-member/:project_id/:member_id", skipCSRF, function 
         console.log(err);
         req.flash("error", "Error removing team member");
       } else {
-        req.flash("success", "Team member removed successfully");
+        req.flash("success", "Team member removed successfully from project '" + project.title + "'");
       }
       res.redirect("/manager/edit-project/" + projectId);
     });
@@ -1414,7 +1426,7 @@ router.post("/add-project", skipCSRF, function(req, res, next) {
       return res.redirect("/manager/add-project");
     }
     
-    req.flash("success", "Project created successfully");
+    req.flash("success", "Project '" + newProject.title + "' created successfully");
     res.redirect("/manager/view-all-personal-projects");
   });
 });

@@ -563,42 +563,6 @@ app.post('/manager/remove-project-member/:project_id/:member_id', async (req, re
   }
 });
 
-// Direct handler for add-project
-app.post('/manager/add-project', async (req, res) => {
-  console.log("Direct route handler for add-project called");
-  try {
-    const Project = require('./models/project');
-    
-    const newProject = new Project();
-    
-    newProject.employeeID = req.user._id; // Người tạo dự án
-    newProject.title = req.body.title;
-    newProject.type = req.body.type;
-    newProject.status = req.body.status;
-    newProject.startDate = req.body.startDate;
-    newProject.endDate = req.body.endDate;
-    newProject.description = req.body.description;
-    
-    // Khởi tạo mảng thành viên nếu có
-    if (req.body.teamMembers && Array.isArray(req.body.teamMembers)) {
-      newProject.teamMembers = req.body.teamMembers;
-    } else if (req.body.teamMembers) {
-      newProject.teamMembers = [req.body.teamMembers];
-    } else {
-      newProject.teamMembers = [];
-    }
-    
-    await newProject.save();
-    
-    req.flash("success", "Project created successfully");
-    res.redirect("/manager/view-all-personal-projects");
-  } catch (err) {
-    console.error("Error creating project:", err);
-    req.flash("error", "Error creating project");
-    res.redirect("/manager/add-project");
-  }
-});
-
 // Thêm route API (đặt trước CSRF để API không bị ảnh hưởng bởi CSRF)
 app.use('/api', api);
 
@@ -617,6 +581,62 @@ app.use("/employee", employee);
 
 // Add error handler for CSRF after the routes
 app.use(csrf.errorHandler);
+
+// Thêm chức năng tự động cập nhật trạng thái dự án quá hạn sang "Out Date"
+const autoUpdateProjectStatus = async () => {
+  try {
+    const Project = require('./models/project');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Tìm các dự án quá hạn và chưa hoàn thành
+    const overdueProjects = await Project.find({
+      endDate: { $lt: today },
+      status: { $nin: ['Completed', 'Finished', 'Out Date'] }
+    });
+    
+    if (overdueProjects.length > 0) {
+      console.log(`Found ${overdueProjects.length} overdue projects. Updating status to "Out Date"...`);
+      
+      // Cập nhật trạng thái thành "Out Date"
+      await Project.updateMany(
+        {
+          endDate: { $lt: today },
+          status: { $nin: ['Completed', 'Finished', 'Out Date'] }
+        },
+        { $set: { status: 'Out Date' } }
+      );
+      
+      console.log('Projects status updated successfully');
+    }
+  } catch (error) {
+    console.error('Error updating overdue projects status:', error);
+  }
+};
+
+// Chạy chức năng cập nhật trạng thái khi khởi động ứng dụng
+autoUpdateProjectStatus();
+
+// Đặt lịch chạy hàm cập nhật trạng thái hàng ngày vào lúc 0:00
+const schedule = () => {
+  const now = new Date();
+  const night = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1, // ngày mai
+    0, 0, 0 // 00:00:00
+  );
+  const timeToMidnight = night.getTime() - now.getTime();
+  
+  setTimeout(() => {
+    autoUpdateProjectStatus();
+    // Đặt lịch lặp lại hàng ngày (24h = 86400000ms)
+    setInterval(autoUpdateProjectStatus, 86400000);
+  }, timeToMidnight);
+};
+
+// Bắt đầu lịch trình cập nhật trạng thái
+schedule();
 
 // Add logging middleware to see all incoming requests
 app.use((req, res, next) => {
@@ -659,5 +679,60 @@ app.use(function (err, req, res, next) {
     console.error('Error initializing holidays:', error);
   }
 })();
+
+// Thêm route kiểm tra dự án quá hạn
+app.get('/manager/check-overdue-projects', async (req, res) => {
+  try {
+    // Đảm bảo người dùng đã đăng nhập và là manager
+    if (!req.isAuthenticated() || req.user.type !== 'project_manager') {
+      return res.redirect('/');
+    }
+    
+    const Project = require('./models/project');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Tìm các dự án quá hạn của manager hiện tại (nhưng chưa được đánh dấu Out Date)
+    const overdueProjects = await Project.find({
+      employeeID: req.user._id,
+      endDate: { $lt: today },
+      status: { $nin: ['Completed', 'Finished', 'Out Date'] }
+    });
+    
+    // Kiểm tra và cập nhật trạng thái Out Date
+    if (overdueProjects.length > 0) {
+      // Thông báo người dùng về việc cập nhật
+      req.flash('warning', `Hệ thống đã phát hiện ${overdueProjects.length} dự án đã quá hạn. Các dự án này đã được tự động chuyển sang trạng thái "Out Date".`);
+      
+      // Cập nhật trạng thái dự án
+      await Project.updateMany(
+        {
+          employeeID: req.user._id,
+          endDate: { $lt: today },
+          status: { $nin: ['Completed', 'Finished', 'Out Date'] }
+        },
+        { $set: { status: 'Out Date' } }
+      );
+    } else {
+      req.flash('info', 'Không tìm thấy dự án quá hạn nào.');
+    }
+    
+    // Kiểm tra các dự án đã chuyển sang Out Date
+    const outdatedProjects = await Project.find({
+      employeeID: req.user._id,
+      status: 'Out Date'
+    });
+    
+    if (outdatedProjects.length > 0) {
+      req.flash('info', `Bạn có ${outdatedProjects.length} dự án đang ở trạng thái "Out Date". Vui lòng xem lại và cập nhật thông tin cho các dự án này.`);
+    }
+    
+    res.redirect('/manager/view-all-personal-projects?filter=outdate');
+  } catch (err) {
+    console.error('Error checking overdue projects:', err);
+    req.flash('error', 'Error checking overdue projects');
+    res.redirect('/manager');
+  }
+});
 
 module.exports = app;

@@ -113,12 +113,6 @@
                                 </div>
                             </div>
 
-                            <!-- Search box -->
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label for="search">Search:</label>
-                                <input type="text" id="searchInput" class="form-control" placeholder="Search employees...">
-                            </div>
-
                             <!-- Employees table -->
                             <div class="table-responsive">
                                 <table id="employeesTable" class="table table-striped table-bordered">
@@ -178,12 +172,8 @@
                 // Initialize DataTable
                 var table = $('#employeesTable').DataTable({
                     responsive: true,
-                    "order": []
-                });
-                
-                // Search functionality
-                $('#searchInput').on('keyup', function() {
-                    table.search(this.value).draw();
+                    "order": [],
+                    "dom": '<"top"f>rt<"bottom"lip>' // Show only the DataTables search box
                 });
                 
                 // Print functionality

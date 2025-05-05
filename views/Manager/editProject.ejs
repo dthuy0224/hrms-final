@@ -50,6 +50,34 @@
                                 <li class="active">Edit Project</li>
                             </ol>
 
+                            <!-- Flash Messages -->
+                            <% if (messages && messages.success && messages.success.length > 0) { %>
+                                <div class="alert alert-success alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong><i class="fa fa-check-circle"></i> Success!</strong> <%= messages.success %>
+                                </div>
+                            <% } %>
+                            
+                            <% if (messages && messages.error && messages.error.length > 0) { %>
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong><i class="fa fa-exclamation-circle"></i> Error!</strong> <%= messages.error %>
+                                </div>
+                            <% } %>
+                            
+                            <% if (messages && messages.info && messages.info.length > 0) { %>
+                                <div class="alert alert-info alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong><i class="fa fa-info-circle"></i> Info:</strong> <%= messages.info %>
+                                </div>
+                            <% } %>
+
                             <!-- Project Edit Form -->
                             <div class="panel panel-default">
                                 <div class="panel-heading">
@@ -78,9 +106,10 @@
                                                 <div class="form-group">
                                                     <label for="status">Project Status <span class="text-danger">*</span></label>
                                                     <select class="form-control" id="status" name="status" required>
-                                                        <option value="Not started" <%= (project.status === 'Not started' || project.status === 'pending') ? 'selected' : '' %>>Not started</option>
-                                                        <option value="In Progress" <%= project.status === 'In Progress' ? 'selected' : '' %>>In Progress</option>
-                                                        <option value="Completed" <%= project.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                                                        <option value="Not Started" <%= (project.status === 'Not Started' || project.status === 'Not started' || project.status === 'pending') ? 'selected' : '' %>>Not Started</option>
+                                                        <option value="In Progress" <%= (project.status === 'In Progress' || project.status === 'On Going' || project.status === 'On going') ? 'selected' : '' %>>In Progress</option>
+                                                        <option value="Out Date" <%= (project.status === 'Out Date') ? 'selected' : '' %>>Out Date</option>
+                                                        <option value="Completed" <%= (project.status === 'Completed' || project.status === 'Finished') ? 'selected' : '' %>>Completed</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -100,7 +129,7 @@
                                                 
                                                 <div class="form-group">
                                                     <label for="description">Description</label>
-                                                    <textarea class="form-control" id="description" name="description" rows="4"><%= project.description || '' %></textarea>
+                                                    <textarea class="form-control" id="description" name="description" rows="4" required><%= project.description %></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -218,30 +247,48 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
         <script src="/javascripts/sidebar_menu.js"></script>
+        
+        <!-- Form Validation Script -->
         <script>
             $(document).ready(function() {
                 // Form validation
-                $('#editProjectForm').submit(function(e) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date($('#endDate').val());
+                $('#editProjectForm').on('submit', function(e) {
+                    let isValid = true;
+                    const title = $('#title').val().trim();
+                    const startDate = new Date($('#startDate').val());
+                    const endDate = new Date($('#endDate').val());
+                    const description = $('#description').val().trim();
                     
-                    if (startDate > endDate) {
-                        alert('End date must be after start date');
+                    // Reset error messages
+                    $('.error-message').remove();
+                    
+                    // Validate title
+                    if (title.length < 3) {
+                        $('#title').after('<span class="error-message text-danger">Title must be at least 3 characters</span>');
+                        isValid = false;
+                    }
+                    
+                    // Validate description 
+                    if (description.length < 10) {
+                        $('#description').after('<span class="error-message text-danger">Description must be at least 10 characters</span>');
+                        isValid = false;
+                    }
+                    
+                    // Validate dates
+                    if (startDate >= endDate) {
+                        $('#endDate').after('<span class="error-message text-danger">End date must be after start date</span>');
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
                         e.preventDefault();
                     }
                 });
                 
-                // Ensure only one checkbox is selected at a time
-                $('input[type="checkbox"][name="employeeId"]').on('change', function() {
-                    if($(this).is(':checked')) {
-                        $('input[type="checkbox"][name="employeeId"]').not(this).prop('checked', false);
-                    }
-                });
-                
-                // Populate year dropdown for modals
-                for (i = new Date().getFullYear(); i > 1900; i--) {
-                    $('#year').append($('<option />').val(i).html(i));
-                }
+                // Auto hide alerts after 5 seconds
+                setTimeout(function() {
+                    $('.alert-dismissible').fadeOut('slow');
+                }, 5000);
             });
         </script>
     </body>

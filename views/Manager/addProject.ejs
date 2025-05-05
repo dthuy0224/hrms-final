@@ -50,6 +50,25 @@
                                 <li class="active">Add New Project</li>
                             </ol>
 
+                            <!-- Flash Messages -->
+                            <% if (messages && messages.success && messages.success.length > 0) { %>
+                                <div class="alert alert-success alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong><i class="fa fa-check-circle"></i> Success!</strong> <%= messages.success %>
+                                </div>
+                            <% } %>
+                            
+                            <% if (messages && messages.error && messages.error.length > 0) { %>
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong><i class="fa fa-exclamation-circle"></i> Error!</strong> <%= messages.error %>
+                                </div>
+                            <% } %>
+
                             <!-- Project Add Form -->
                             <div class="panel panel-default">
                                 <div class="panel-heading">
@@ -78,8 +97,8 @@
                                                 <div class="form-group">
                                                     <label for="status">Project Status <span class="text-danger">*</span></label>
                                                     <select class="form-control" id="status" name="status" required>
-                                                        <option value="Not started">Not started</option>
-                                                        <option value="On Going">On Going</option>
+                                                        <option value="Not Started">Not Started</option>
+                                                        <option value="In Progress">In Progress</option>
                                                         <option value="Completed">Completed</option>
                                                     </select>
                                                 </div>
@@ -147,27 +166,57 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
         <script src="/javascripts/sidebar_menu.js"></script>
+        
+        <!-- Form Validation Script -->
         <script>
             $(document).ready(function() {
                 // Form validation
-                $('#addProjectForm').submit(function(e) {
-                    var startDate = new Date($('#startDate').val());
-                    var endDate = new Date($('#endDate').val());
+                $('#addProjectForm').on('submit', function(e) {
+                    let isValid = true;
+                    const title = $('#title').val().trim();
+                    const startDate = new Date($('#startDate').val());
+                    const endDate = new Date($('#endDate').val());
+                    const description = $('#description').val().trim();
                     
-                    if (startDate > endDate) {
-                        alert('End date must be after start date');
+                    // Reset error messages
+                    $('.error-message').remove();
+                    
+                    // Validate title
+                    if (title.length < 3) {
+                        $('#title').after('<span class="error-message text-danger">Title must be at least 3 characters</span>');
+                        isValid = false;
+                    }
+                    
+                    // Validate description 
+                    if (description.length < 10) {
+                        $('#description').after('<span class="error-message text-danger">Description must be at least 10 characters</span>');
+                        isValid = false;
+                    }
+                    
+                    // Validate dates
+                    if (startDate >= endDate) {
+                        $('#endDate').after('<span class="error-message text-danger">End date must be after start date</span>');
+                        isValid = false;
+                    }
+                    
+                    // Check if today is after start date
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (startDate < today) {
+                        $('#startDate').after('<span class="error-message text-danger">Start date cannot be in the past</span>');
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
                         e.preventDefault();
                     }
                 });
                 
-                // Set today as default for start date
-                var today = new Date().toISOString().split('T')[0];
-                document.getElementById('startDate').value = today;
-                
-                // Set date 1 month from now as default for end date
-                var nextMonth = new Date();
-                nextMonth.setMonth(nextMonth.getMonth() + 1);
-                document.getElementById('endDate').value = nextMonth.toISOString().split('T')[0];
+                // Auto hide alerts after 5 seconds
+                setTimeout(function() {
+                    $('.alert-dismissible').fadeOut('slow');
+                }, 5000);
             });
         </script>
     </body>
