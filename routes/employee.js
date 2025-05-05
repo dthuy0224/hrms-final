@@ -497,19 +497,71 @@ router.get("/view-personal-projects", function viewPersonalProjects(req, res, ne
 
 router.get("/view-project/:project_id", function viewProject(req, res, next) {
   var projectId = req.params.project_id;
-  Project.findById(projectId, function getProject(err, project) {
-    if (err) {
-      console.log(err);
-    }
-    res.render("Employee/viewProject", {
-      title: "Project Details",
-      project: project,
-      csrfToken: req.csrfToken(),
-      moment: moment,
-      userName: req.user.name,
-      path: req.path
+  Project.findById(projectId)
+    .populate('teamMembers', 'name email department position')
+    .exec(async function getProject(err, project) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      
+      if (!project) {
+        return res.status(404).send("Project not found");
+      }
+      
+      // Tìm project manager từ teamRoles
+      let projectManager = "Not Assigned";
+      let projectTeam = [];
+      
+      if (project.teamMembers && project.teamMembers.length > 0) {
+        // Tạo danh sách thành viên với vai trò
+        project.teamMembers.forEach(member => {
+          const role = project.teamRoles ? project.teamRoles.get(member._id.toString()) : "Team Member";
+          
+          if (role === "Project Manager") {
+            projectManager = member;
+          }
+          
+          projectTeam.push({
+            _id: member._id,
+            name: member.name,
+            email: member.email,
+            department: member.department,
+            position: member.position,
+            role: role || "Team Member"
+          });
+        });
+      }
+      
+      // Tính toán tiến độ dự án (dựa trên thời gian)
+      const today = new Date();
+      const startDate = new Date(project.startDate);
+      const endDate = new Date(project.endDate);
+      const totalDuration = endDate - startDate;
+      let progress = 0;
+      
+      if (today >= endDate) {
+        progress = 100;
+      } else if (today <= startDate) {
+        progress = 0;
+      } else {
+        const elapsed = today - startDate;
+        progress = Math.min(Math.round((elapsed / totalDuration) * 100), 100);
+      }
+      
+      res.render("Employee/viewProject", {
+        title: "Project Details",
+        project: project,
+        projectManager: projectManager,
+        projectTeam: projectTeam,
+        progress: progress,
+        csrfToken: req.csrfToken(),
+        moment: moment,
+        userName: req.user.name,
+        path: req.path,
+        userId: req.user._id
+      });
     });
-  });
 });
 
 /**

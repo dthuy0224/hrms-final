@@ -43,44 +43,174 @@
                 <div class="container-fluid xyz">
                     <div class="row">
                         <div class="col-lg-12">
-                            <div id="menu1">
-                                <h1>Project Details</h1>
-                                <br />
-                                <form class="form-group-sm">
-                                    <h4>
-                                        Title : <label id="title">
-                                            <%= project.title %>
-                                        </label>
-                                    </h4>
-                                    <h4>Type : <label id="type">
-                                            <%= project.type %>
-                                        </label></h4>
-                                    <h4>
-                                        Status : <label id="status">
-                                            <%= project.status %>
-                                        </label>
-                                    </h4>
-                                    <h4>
-                                        Start Date :
-                                        <label id="start">
-                                            <%= moment(project.startDate).format('MMMM Do YYYY'); %>
-                                        </label>
-                                    </h4>
-                                    <h4>
-                                        End Date :
-                                        <label id="end">
-                                            <%= moment(project.endDate).format('MMMM Do YYYY'); %>
-                                        </label>
-                                    </h4>
-                                    <br />
-                                    <h4 style="font-size: x-large">Description:</h4>
-                                    <div style="height: 250px; overflow: auto">
-                                        <p style="font-family: 'Arial Nova'; font-size: medium" id="description"
-                                            style="word-wrap: break-word">
-                                            <%= project.description; %>
-                                        </p>
+                            <h1>
+                                <i class="fa fa-clipboard"></i> Project Details
+                                <a href="/employee/view-personal-projects" class="btn btn-default pull-right">
+                                    <i class="fa fa-arrow-left"></i> Back to Projects
+                                </a>
+                            </h1>
+                            <hr>
+                            
+                            <!-- Project Header Section -->
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <div class="project-header">
+                                        <h2><%= project.title %></h2>
+                                        <div class="project-meta">
+                                            <span class="badge project-type"><%= project.type %></span>
+                                            <span class="badge <%= project.status === 'Running' ? 'badge-success' : 'badge-warning' %>">
+                                                <%= project.status %>
+                                            </span>
+                                        </div>
                                     </div>
-                                </form>
+                                </div>
+                                <div class="col-lg-4 text-right">
+                                    <div class="project-dates">
+                                        <div><strong>Start Date:</strong> <%= moment(project.startDate).format('MMMM Do YYYY') %></div>
+                                        <div><strong>End Date:</strong> <%= moment(project.endDate).format('MMMM Do YYYY') %></div>
+                                        <div><strong>Duration:</strong> <%= moment(project.endDate).diff(moment(project.startDate), 'days') %> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Progress -->
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Progress</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-success progress-bar-striped active" 
+                                                     role="progressbar" 
+                                                     aria-valuenow="<%= progress %>" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100" 
+                                                     style="width: <%= progress %>%">
+                                                    <%= progress %>% Complete
+                                                </div>
+                                            </div>
+                                            <div class="row text-center">
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-calendar-check-o"></i>
+                                                        <p>Start Date</p>
+                                                        <h4><%= moment(project.startDate).format('MMM Do YY') %></h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-clock-o"></i>
+                                                        <p>Time Elapsed</p>
+                                                        <h4><%= Math.max(0, moment().diff(moment(project.startDate), 'days')) %> days</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xs-4">
+                                                    <div class="milestone">
+                                                        <i class="fa fa-calendar-times-o"></i>
+                                                        <p>End Date</p>
+                                                        <h4><%= moment(project.endDate).format('MMM Do YY') %></h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Information -->
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Description</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <div style="max-height: 300px; overflow-y: auto">
+                                                <p style="white-space: pre-line;"><%= project.description %></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <!-- Project Manager Card -->
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Manager</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <% if (typeof projectManager === 'object' && projectManager._id) { %>
+                                                <div class="media">
+                                                    <div class="media-left">
+                                                        <img class="media-object img-circle" src="https://via.placeholder.com/64" alt="Profile Image">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <h4 class="media-heading"><%= projectManager.name %></h4>
+                                                        <p><strong>Email:</strong> <%= projectManager.email || 'Not available' %></p>
+                                                        <p><strong>Department:</strong> <%= projectManager.department || 'Not specified' %></p>
+                                                    </div>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No project manager assigned</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Project Team -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Team</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <% if (projectTeam && projectTeam.length > 0) { %>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Name</th>
+                                                                <th>Role</th>
+                                                                <th>Department</th>
+                                                                <th>Email</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% projectTeam.forEach(function(member) { %>
+                                                                <tr <%= member._id.toString() === userId.toString() ? 'class="info"' : '' %>>
+                                                                    <td><%= member.name %> <%= member._id.toString() === userId.toString() ? '(You)' : '' %></td>
+                                                                    <td><%= member.role %></td>
+                                                                    <td><%= member.department || 'Not specified' %></td>
+                                                                    <td><%= member.email || 'Not available' %></td>
+                                                                </tr>
+                                                            <% }); %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No team members assigned to this project.</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Documents & Links (Placeholder) -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Resources</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <p><i class="fa fa-info-circle"></i> No additional resources available for this project.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -94,6 +224,64 @@
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
 
         <script src="/javascripts/sidebar_menu.js"></script>
+        
+        <style>
+            .project-header {
+                margin-bottom: 20px;
+            }
+            .project-meta {
+                margin-top: 10px;
+            }
+            .badge {
+                padding: 5px 10px;
+                margin-right: 5px;
+                font-size: 12px;
+            }
+            .project-type {
+                background-color: #5bc0de;
+                color: white;
+            }
+            .badge-success {
+                background-color: #5cb85c;
+                color: white;
+            }
+            .badge-warning {
+                background-color: #f0ad4e;
+                color: white;
+            }
+            .progress {
+                height: 25px;
+                margin-bottom: 20px;
+            }
+            .progress-bar {
+                line-height: 25px;
+                font-size: 14px;
+            }
+            .milestone {
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .milestone i {
+                font-size: 24px;
+                color: #337ab7;
+            }
+            .milestone p {
+                margin: 5px 0;
+                color: #666;
+            }
+            .milestone h4 {
+                margin: 5px 0;
+                font-weight: bold;
+            }
+            .mt-4 {
+                margin-top: 20px;
+            }
+            .media-object {
+                width: 64px;
+                height: 64px;
+            }
+        </style>
+        
         <script>
             $(document).ready(function () {
                 for (i = new Date().getFullYear(); i > 1950; i--) {
