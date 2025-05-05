@@ -410,7 +410,7 @@ $(document).ready(function() {
   console.log("Provinces.js loaded and ready");
   
   // Thêm thông báo trạng thái tải
-  $('select[name="province"]').after('<small class="text-muted load-status" style="display:none">Đang tải dữ liệu...</small>');
+  $('select[name="province"]').after('<small class="text-muted load-status" style="display:none"></small>');
   
   $(document).ajaxStart(function() {
     $('.load-status').show();
