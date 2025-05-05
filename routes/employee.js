@@ -411,6 +411,20 @@ router.get(
 );
 
 /**
+ * Displays a form to select month and year for viewing attendance.
+ */
+router.get("/view-attendance", function viewAttendanceForm(req, res, next) {
+  res.render("Employee/viewAttendance", {
+    title: "Select Attendance Month",
+    csrfToken: req.csrfToken(),
+    userName: req.user.name,
+    path: req.path,
+    found: -1, // -1 indicates form mode
+    moment: moment
+  });
+});
+
+/**
  * Displays employee his/her profile.
  */
 
