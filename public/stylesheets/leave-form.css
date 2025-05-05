@@ -155,3 +155,21 @@ input:disabled, select:disabled, textarea:disabled {
   margin-bottom: 5px;
   display: block;
 }
+
+.error-message {
+    color: #d9534f; 
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: -5px;
+    display: block;
+}
+
+input.invalid, select.invalid {
+    border-color: #d9534f !important;
+    box-shadow: 0 0 0 0.2rem rgba(217, 83, 79, 0.25) !important;
+}
+
+/* Style cụ thể cho lỗi ngày */
+#start_date.invalid, #end_date.invalid {
+    background-color: #fff0f0;
+}
