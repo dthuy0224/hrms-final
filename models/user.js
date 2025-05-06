@@ -45,7 +45,11 @@ var UserSchema = new Schema({
   // Metadata
   dateAdded: { type: Date, default: Date.now },
   lastUpdated: { type: Date, default: Date.now },
-  status: { type: String, enum: ['active', 'inactive', 'probation', 'terminated'], default: 'active' }
+  status: { type: String, enum: ['active', 'inactive', 'probation', 'terminated'], default: 'active' },
+  
+  // Thông tin bảo mật
+  failedLoginAttempts: { type: Number, default: 0 },
+  accountLockedUntil: { type: Date, default: null }
 });
 
 UserSchema.methods.encryptPassword = function (password) {
@@ -55,4 +59,35 @@ UserSchema.methods.encryptPassword = function (password) {
 UserSchema.methods.validPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
+
+// Kiểm tra xem tài khoản có bị khóa không
+UserSchema.methods.isAccountLocked = function() {
+  if (!this.accountLockedUntil) return false;
+  
+  // Kiểm tra xem thời gian khóa đã hết chưa
+  return this.accountLockedUntil > new Date();
+};
+
+// Reset số lần đăng nhập thất bại
+UserSchema.methods.resetFailedLoginAttempts = function() {
+  this.failedLoginAttempts = 0;
+  this.accountLockedUntil = null;
+  return this.save();
+};
+
+// Tăng số lần đăng nhập thất bại và kiểm tra để khóa tài khoản nếu cần
+UserSchema.methods.incrementFailedLoginAttempts = function() {
+  this.failedLoginAttempts += 1;
+  
+  // Nếu đăng nhập sai 5 lần, khóa tài khoản trong 15 phút
+  if (this.failedLoginAttempts >= 5) {
+    // Tính thời điểm mở khóa (15 phút sau)
+    const lockUntil = new Date();
+    lockUntil.setMinutes(lockUntil.getMinutes() + 15);
+    this.accountLockedUntil = lockUntil;
+  }
+  
+  return this.save();
+};
+
 module.exports = mongoose.model("User", UserSchema);

@@ -11,6 +11,7 @@ router.get("/", function viewLoginPage(req, res, next) {
   }
 
   const messages = req.flash("error");
+  console.log("Flash messages at login page:", messages); // Log để debug
 
   res.render("login", {
     title: "Log In",
@@ -20,14 +21,40 @@ router.get("/", function viewLoginPage(req, res, next) {
   });
 });
 
-router.post(
-  "/login",
-  passport.authenticate("local.signin", {
-    successRedirect: "/check-type",
-    failureRedirect: "/",
-    failureFlash: true,
-  })
-);
+router.post("/login", function(req, res, next) {
+  passport.authenticate("local.signin", function(err, user, info) {
+    if (err) {
+      console.error("Authentication error:", err);
+      return next(err);
+    }
+    
+    // Xử lý thông báo lỗi khi xác thực thất bại
+    if (!user) {
+      console.log("Authentication failed, info:", info);
+      
+      // Thêm thông báo lỗi vào URL để hiển thị ở client
+      let errorMsg = "Wrong password! Check Again!";
+      if (info && info.message) {
+        errorMsg = info.message;
+        console.log("Using error message from passport:", errorMsg);
+      }
+      
+      // Mã hóa để truyền an toàn qua URL
+      errorMsg = encodeURIComponent(errorMsg);
+      return res.redirect(`/?errorMessage=${errorMsg}`);
+    }
+    
+    // Xác thực thành công, đăng nhập user
+    req.logIn(user, function(err) {
+      if (err) {
+        console.error("Login error:", err);
+        return next(err);
+      }
+      console.log("Authentication successful, redirecting to check-type");
+      return res.redirect('/check-type');
+    });
+  })(req, res, next);
+});
 
 router.get("/forgot-password", function(req, res, next) {
   const messages = req.flash("error");

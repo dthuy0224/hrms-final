@@ -125,6 +125,63 @@
           }
         });
       </script>
+      
+      <script>
+        // Script để kiểm tra và hiển thị thông báo lỗi từ URL
+        document.addEventListener('DOMContentLoaded', function() {
+          console.log('Page loaded, checking for errors...');
+          
+          // Lấy thông báo lỗi từ URL parameter
+          const urlParams = new URLSearchParams(window.location.search);
+          const errorMessage = urlParams.get('errorMessage');
+          
+          if (errorMessage) {
+            const decodedMessage = decodeURIComponent(errorMessage);
+            console.log('Error message from URL:', decodedMessage);
+            
+            // Tạo phần tử thông báo lỗi
+            const newErrorDiv = document.createElement('div');
+            newErrorDiv.className = 'error-message';
+            
+            // Kiểm tra nếu là thông báo về tài khoản bị khóa
+            if (decodedMessage.includes('temporarily locked') || decodedMessage.includes('more than 5 times')) {
+              // Tạo icon cảnh báo
+              const icon = document.createElement('span');
+              icon.innerHTML = '&#x26A0;'; // Unicode cho biểu tượng cảnh báo
+              icon.style.marginRight = '8px';
+              icon.style.fontSize = '20px';
+              
+              // Tạo nội dung thông báo
+              const errorP = document.createElement('p');
+              errorP.id = 'message';
+              errorP.style.fontWeight = 'bold';
+              errorP.style.color = '#d32f2f';
+              errorP.appendChild(icon);
+              errorP.appendChild(document.createTextNode(decodedMessage));
+              
+              newErrorDiv.appendChild(errorP);
+            } else {
+              // Thông báo lỗi thông thường
+              const errorP = document.createElement('p');
+              errorP.id = 'message';
+              errorP.textContent = decodedMessage;
+              
+              newErrorDiv.appendChild(errorP);
+            }
+            
+            // Chèn vào sau tiêu đề
+            const loginTitle = document.querySelector('.login-form h1');
+            loginTitle.insertAdjacentElement('afterend', newErrorDiv);
+            
+            // Xóa tham số khỏi URL để tránh hiển thị thông báo khi refresh trang
+            const url = new URL(window.location);
+            url.searchParams.delete('errorMessage');
+            window.history.replaceState({}, '', url);
+            
+            console.log('Error message displayed');
+          }
+        });
+      </script>
 </body>
 <script src="/javascripts/prefixfree.min.js"></script>
 

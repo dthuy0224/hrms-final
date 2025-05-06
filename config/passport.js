@@ -123,14 +123,81 @@ passport.use(
             { officeEmail: officeEmail }
           ] 
         });
+         
+        // Kiểm tra xem tài khoản có tồn tại không
         if (!user) {
+          console.log("Authentication failed: Account not registered");
           return done(null, false, { message: "This account is not registered!" });
         }
-        if (!user.validPassword(password)) {
-          return done(null, false, { message: "Wrong password! Check Again!" });
+         
+        // Lấy thông tin cần thiết từ user để kiểm tra
+        const userId = user._id;
+        const failedAttempts = user.failedLoginAttempts || 0;
+        const lockedUntil = user.accountLockedUntil;
+        
+        console.log(`Login attempt for ${officeEmail}. Failed attempts: ${failedAttempts}, Locked until: ${lockedUntil}`);
+
+        // Kiểm tra xem tài khoản có bị khóa không
+        if (lockedUntil && lockedUntil > new Date()) {
+          // Tính thời gian còn lại đến khi mở khóa
+          const remainingTime = Math.ceil((lockedUntil - new Date()) / (60 * 1000));
+          console.log(`Account locked. Remaining time: ${remainingTime} minutes`);
+          return done(null, false, { 
+            message: `Your account is temporarily locked due to multiple failed login attempts. Please try again in ${remainingTime} minutes.` 
+          });
         }
+         
+        // Kiểm tra mật khẩu
+        if (!user.validPassword(password)) {
+          // Tăng số lần đăng nhập sai và lưu trực tiếp vào database
+          const newFailedAttempts = failedAttempts + 1;
+          console.log(`Wrong password. Failed attempts increased to ${newFailedAttempts}`);
+          
+          // Kiểm tra và cập nhật khóa tài khoản nếu cần
+          let updateData = { failedLoginAttempts: newFailedAttempts };
+          
+          // Nếu đăng nhập sai 5 lần trở lên, khóa tài khoản trong 15 phút
+          if (newFailedAttempts >= 5) {
+            const lockUntil = new Date();
+            lockUntil.setMinutes(lockUntil.getMinutes() + 15);
+            updateData.accountLockedUntil = lockUntil;
+            
+            console.log(`Account locked until ${lockUntil}`);
+            
+            // Cập nhật thông tin với updateOne để không kích hoạt validation
+            await User.updateOne({ _id: userId }, updateData);
+            
+            return done(null, false, { 
+              message: `You have entered the wrong password more than 5 times. Please try again in 15 minutes.` 
+            });
+          }
+          
+          // Cập nhật số lần đăng nhập sai mà không kích hoạt validation
+          await User.updateOne({ _id: userId }, updateData);
+          
+          // Thông báo số lần còn lại trước khi bị khóa
+          const attemptsLeft = 5 - newFailedAttempts;
+          console.log(`Attempts left: ${attemptsLeft}`);
+          
+          return done(null, false, { 
+            message: `Wrong password! You have ${attemptsLeft} attempts left before your account is temporarily locked.` 
+          });
+        }
+         
+        // Đăng nhập thành công, reset số lần đăng nhập sai
+        console.log(`Login successful. Resetting failed attempts.`);
+        
+        // Cập nhật thông tin với updateOne để không kích hoạt validation
+        await User.updateOne(
+          { _id: userId }, 
+          { 
+            $set: { failedLoginAttempts: 0, accountLockedUntil: null } 
+          }
+        );
+        
         return done(null, user);
       } catch (err) {
+        console.error("Authentication error:", err);
         return done(err);
       }
     }
