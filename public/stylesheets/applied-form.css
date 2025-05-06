@@ -104,18 +104,18 @@ nav.navbar {
 
 /* Cỡ chữ cho phần header */
 #example thead th {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
 }
 
 /* Cỡ chữ cho phần footer (nếu bạn dùng filter ở footer) */
 #example tfoot th {
-    font-size: 10px;
+    font-size: 12px;
 }
 /* Toggle button */
 
 .page-header  {
-  font-size: 1.5em;
+  font-size: 20px;
   color: #000000;
   text-align: center;
   margin-top: 20px;
@@ -168,9 +168,10 @@ div[style*="overflow: auto"] {
 }
 /* Container phân trang canh giữa */
 .dataTables_wrapper .dataTables_paginate {
-    margin-top: -10px;
-    text-align: center;
-    margin-right: 550px;
+    text-align: center !important;
+    margin: 20px auto 0 auto; /* căn giữa với margin tự động trái/phải */
+    float: none !important;   /* đảm bảo không bị lệch do float */
+    clear: both;
 }
 div.dataTables_wrapper div.dataTables_paginate {
   position: sticky;
@@ -181,44 +182,49 @@ div.dataTables_wrapper div.dataTables_paginate {
 }
 
 /* Nút phân trang */
+/* Nút phân trang lớn hơn, dễ nhìn */
 .dataTables_wrapper .dataTables_paginate .paginate_button {
     display: inline-block;
-    padding: 0.5px 7px;
-    margin-top: 150px;
-    border: 1px solid #696969;
-    border-radius: 6px;
-    background-color: #888888;
-    color: #000000 !important;
-    font-size: 10px;
+    padding: 4px 9px; /* tăng padding */
+    margin: 6px;
+    border: 1px solid #007bff;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #007bff !important;
+    font-size: 12px; /* tăng cỡ chữ */
+    font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin-top: 80px;
 }
 
 /* Hover nút */
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
     background-color: #007bff;
-    color: #c0c0c0 !important;
-    border-color: #007bff;
+    color: #fff !important;
+    border-color: #0056b3;
 }
 
 /* Nút đang active */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
     background-color: #007bff;
-    color: #e6e6e6 !important;
-    border-color: #007bff;
+    color: #535353 !important;
+    border-color: #0056b3;
+    font-weight: bold;
 }
 
-/* Vô hiệu hóa nút không bấm được (ví dụ khi ở trang đầu hoặc cuối) */
+/* Nút disabled */
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
-/* Ẩn focus mặc định */
+/* Ẩn focus viền xanh xấu */
 .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
     outline: none;
     box-shadow: none;
 }
+
 .form-control{
   border-radius: 20px;
   border: 1px solid #818181;

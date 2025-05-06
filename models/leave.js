@@ -18,7 +18,6 @@ var LeaveSchema = new Schema({
   reason: { type: String, required: true,
     maxlength: 4000   },
   adminResponse: { type: String, default: "Pending" },
-  statusAdmin: { type: String, default:"Approved"},
   delegateTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
   delegateContent: { type: String, required: true,
     maxlength: 4000   },

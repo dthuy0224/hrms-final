@@ -102,8 +102,8 @@
                                               </td>
                                               
                                             <td>
-                                                <span class="status <%= item.statusAdmin.toLowerCase() %>">
-                                                    <%= item.statusAdmin %>
+                                                <span class="status <%= item.adminResponse.toLowerCase() %>">
+                                                    <%= item.adminResponse %>
                                                 </span>
                                             </td>
                                             
@@ -119,7 +119,9 @@
                 </div>
             </div>
         </div>
+
     </div>
+
     <!-- /#page-content-wrapper -->
 </div>
 <!-- /#wrapper -->
@@ -135,7 +137,7 @@
          order: [],
          dom: 'tip', // Tắt phần show entries và filter mặc định
          paging: true,
-         pageLength: 3 // Số lượng bản ghi trên mỗi trang
+         pageLength: 5 // Số lượng bản ghi trên mỗi trang
      });
  
      // Tìm kiếm theo cột "Title" (cột 0)
@@ -188,6 +190,11 @@
  });
  
          </script>
+
+
+
+
+
     </body>
     <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">
