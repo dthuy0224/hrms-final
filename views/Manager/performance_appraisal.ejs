@@ -44,11 +44,22 @@
             <div class="container-fluid xyz">
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1>Performance Appraisal</h1>
-                        <h3>Employee: <%= employee.name %>
-                        </h3>
+                    
+                        <h2 class="ThuongTitlePerformanceAppraisal"><i class="fa fa-angle-right"></i> Performance Appraisal</h2>
+              <style>
+                .ThuongTitlePerformanceAppraisal {
+                    font-family: "Times New Roman", Times, serif;
+                    font-size: 1.6em;
+                    padding-bottom: 9px;
+                    margin: 10px 0 20px;
+                    border-bottom: 1px solid #eee;
+                    font-weight: bold;
+                    color: #333;
+                  }
+                  </style>
+                        <h4>Employee: <%= employee.name %>
+                        </h4>
 
-                        <br>
                         <div id="menu1" style="height:717px;overflow: auto;">
                             <form action="/manager/provide-performance-appraisal" method="post">
                                 <div class="form-group">
