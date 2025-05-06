@@ -387,11 +387,62 @@
                 margin-bottom: 15px;
             }
         </style>
-        <script>
-            $(document).ready(function () {
-                // Any additional script can go here
-            });
-        </script>
+            <script>
+                $(document).ready(function () {
+                   // Any additional script can go here
+
+                   var originalValues = {
+                       birthName: '',
+                       personalEmail: '',
+                       contactNumber: '',
+                       photoFileName: ''
+                   };
+
+                   var $saveButton = $('#editProfileModal').find('button.btn-primary.btn-custom[type="submit"]');
+
+                   // Disable Save button initially when modal opens
+                   $('#editProfileModal').on('show.bs.modal', function () {
+                       // Store original values
+                       originalValues.birthName = $('#editbirthName').val() || '';
+                       originalValues.personalEmail = $('#editEmail').val() || '';
+                       originalValues.contactNumber = $('#editContactNumber').val() || '';
+                       originalValues.photoFileName = $('#file-name-display').text().trim() || '';
+
+                       // Disable Save button initially
+                       $saveButton.prop('disabled', true);
+                   });
+
+                   // Function to check if any field has changed
+                   function checkForChanges() {
+                       var currentBirthName = $('#editbirthName').val() || '';
+                       var currentPersonalEmail = $('#editEmail').val() || '';
+                       var currentContactNumber = $('#editContactNumber').val() || '';
+                       var currentPhotoFileName = $('#file-name-display').text().trim() || '';
+
+                       if (
+                           currentBirthName !== originalValues.birthName ||
+                           currentPersonalEmail !== originalValues.personalEmail ||
+                           currentContactNumber !== originalValues.contactNumber ||
+                           currentPhotoFileName !== originalValues.photoFileName
+                       ) {
+                           $saveButton.prop('disabled', false);
+                       } else {
+                           $saveButton.prop('disabled', true);
+                       }
+                   }
+
+                   // Attach event listeners to inputs
+                   $('#editbirthName, #editEmail, #editContactNumber').on('input', function () {
+                       checkForChanges();
+                   });
+
+                   // Listen for photo file input change
+                   $('#photo').on('change', function () {
+                       // The file name display is updated by existing code, so just check changes
+                       checkForChanges();
+                   });
+                });
+            </script>
     </body>
 <!-- Edit Profile Modal -->
 <div id="editProfileModal" class="modal fade" role="dialog">
@@ -404,7 +455,7 @@
     <div class="profile-header">
         <h4 class="profile-title">My Profile</h4>
         <div class="profile-buttons">
-            <button type="button" onclick="window.location.href='/admin/view-profile'" class="btn btn-default btn-custom">Cancel</button>
+            <button type="button" onclick="window.location.href='/manager/view-profile'" class="btn btn-default btn-custom">Cancel</button>
             <button type="submit" class="btn btn-primary btn-custom">Save</button>
         </div>
     </div>
@@ -782,10 +833,9 @@
                 setFormValue('editIdNumber', '<%= employee.idNumber || "" %>');
                 setFormValue('editPersonalEmail', '<%= employee.officeEmail || "" %>');
                 setFormValue('editJobId', '<%= employee.jobId || "" %>');
-                setFormValue('editContactNumber', '<%= employee.contactNumber || "" %>');
+                setFormValue('editContactNumber', "<%= (employee.contactNumber || '').replace(/^\\+84/, '') %>");
                 setFormValue('editDepartment', '<%= employee.department || "HR & Administration" %>');
                 setFormValue('editExperience', '<%= employee.experience || "Senior" %>');
-                setFormValue('editSupervisor', '<%= employee.supervisor || "" %>');
                 setFormValue('editSkills', '<%= employee.Skills ? employee.Skills.join(", ") : "" %>');
                    // Set department value if it exists
                    var deptValue = '<%= employee.department || "HR & Administration" %>';

@@ -48,7 +48,7 @@
                       <h3>Edit Employee</h3>
                   </div>
 
-                  <div id="menu1" style="height:717px; overflow: auto;">
+<div id="menu1">
                       <form id="employee-form" class="form-horizontal" action="/admin/edit-employee/<%= employee._id %>" method="post" enctype="multipart/form-data">
                           
                           <!-- Personal Information Section -->
@@ -205,11 +205,11 @@
                                         <div class="row">
                                             <div class="col-sm-4">
                                                 <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
-                                                    <img id="preview-image"
-                                                         src="<%= employee.photo ? ('/uploads/' + employee.photo) : 'https://bootdey.com/img/Content/avatar/avatar7.png' %>"
-                                                         alt="<%= employee.name || 'Upload Photo' %>"
-                                                         style="max-width: 100%; max-height: 100%;"
-                                                         class="img-circle">
+                                                    <% if(employee.photo) { %>
+                                                        <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle">
+                                                    <% } else { %>
+                                                        <img src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
+                                                    <% } %>
                                                 </div>
                                             </div>
                                             <script>
@@ -460,9 +460,9 @@
                           <!-- Form Buttons -->
                           <div class="form-group">
                               <div class="col-sm-offset-2 col-sm-10">
-                                  <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default">Cancel</button>
-                                  <button type="submit" class="btn btn-primary btn-lg">Save</button>
-                              </div>
+                                  <button type="button" onclick="window.location.href='/admin/view-all-employees'" class="btn btn-default"style="width: 100px; height:45px; margin-right: 15px;" >Cancel</button>
+                                  <button type="submit" class="btn btn-primary btn-lg" id="saveButton" style="width: 100px;" disabled>Save</button>
+                                </div>
                           </div>
                       </form>
                   </div>
@@ -1102,9 +1102,9 @@ if (link.getAttribute('href') === path) {
     "positionClass": "toast-top-center", // Changed from toast-top-right for better visibility
     "preventDuplicates": false,
     "onclick": null,
-    "showDuration": "500", // Increased from 300
+    "showDuration": "9000", // Increased from 300
     "hideDuration": "1000",
-    "timeOut": "7000", // Increased from 5000 to give more time to read
+    "timeOut": "9000", // Increased from 5000 to give more time to read
     "extendedTimeOut": "2000", // Increased from 1000
     "showEasing": "swing",
     "hideEasing": "linear",
@@ -1315,6 +1315,9 @@ if (link.getAttribute('href') === path) {
           }, 200);
           return false;
       }
+      
+      // Show success popup immediately on submit
+      toastr.success('Employee information saved successfully!', 'Success');
       
       // Trim khoảng trắng đầu/cuối cho email
       var emailInput = $('input[name="email"]');
@@ -1682,7 +1685,54 @@ if (link.getAttribute('href') === path) {
           }
         });
         }
-        
+       // Hàm tải dữ liệu tỉnh/thành phố vào select box
+function loadProvincesData(selector = 'select[name="province"]') {
+  try {
+    const provinceSelect = $(selector);
+    if (!provinceSelect.length) {
+      console.log(`Element not found: ${selector}`);
+      return;
+    }
+
+    // Hiển thị loading...
+    provinceSelect.prop('disabled', true);
+    const firstOption = provinceSelect.find('option:first-child');
+    provinceSelect.empty();
+    provinceSelect.append(firstOption);
+    
+    // Sử dụng cache nếu có
+    if (provincesCache) {
+      populateProvinces(provinceSelect, provincesCache);
+      return;
+    }
+    
+    // Tải dữ liệu từ API proxy
+    console.log('Đang tải dữ liệu tỉnh/thành phố từ API...');
+    $.ajax({
+      url: `${API_BASE_URL}/provinces`,
+      type: 'GET',
+      dataType: 'json',
+      timeout: 5000,
+      success: function(data) {
+        console.log('Tải dữ liệu tỉnh/thành phố thành công');
+        provincesCache = data;
+        populateProvinces(provinceSelect, data);
+      },
+      error: function(xhr, status, error) {
+        console.error("Không thể tải dữ liệu tỉnh/thành phố từ API:", error);
+        console.log("Sử dụng dữ liệu dự phòng");
+        provincesCache = backupProvincesData;
+        populateProvinces(provinceSelect, backupProvincesData);
+      }
+    });
+  } catch (error) {
+    console.error(`Error loading provinces into ${selector}:`, error);
+    const provinceSelect = $(selector);
+    provinceSelect.prop('disabled', false);
+    provincesCache = backupProvincesData;
+    populateProvinces(provinceSelect, backupProvincesData);
+  }
+}
         function populateProvinces(data) {
           const $provinceSelect = $('select[name="province"]');
           $provinceSelect.empty().append('<option value="">Select province...</option>');
@@ -1794,4 +1844,128 @@ if (link.getAttribute('href') === path) {
         loadAddressData();
         });
         </script>
+        
+
+
+
+<script>
+  $(document).ready(function () {
+    var initialFormData = {};
+    var $form = $('#employee-form');
+    var $saveButton = $('#saveButton');
+
+    function getFormData() {
+      var unindexed_array = $form.serializeArray();
+      var indexed_array = {};
+
+      $.map(unindexed_array, function (n, i) {
+        indexed_array[n['name']] = n['value'];
+      });
+
+      // Handle unchecked checkboxes and radio buttons
+      $form.find('input[type=checkbox]').each(function () {
+        indexed_array[this.name] = this.checked;
+      });
+      $form.find('input[type=radio]').each(function () {
+        if (this.checked) {
+          indexed_array[this.name] = this.value;
+        } else if (!indexed_array.hasOwnProperty(this.name)) {
+          indexed_array[this.name] = null;
+        }
+      });
+
+      // Handle file inputs by storing file name or empty string
+      $form.find('input[type=file]').each(function () {
+        indexed_array[this.name] = this.files.length > 0 ? this.files[0].name : $('#file-name-display').text().trim();
+      });
+
+      return indexed_array;
+    }
+
+    function isFormChanged(initialData, currentData) {
+      for (var key in initialData) {
+        if (initialData.hasOwnProperty(key)) {
+          if (initialData[key] !== currentData[key]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Capture initial form data on page load
+    initialFormData = getFormData();
+    $saveButton.prop('disabled', true);
+
+    // On any input/select/textarea change, check if form changed and enable/disable Save button
+    $form.on('input change', 'input, select, textarea', function () {
+      var currentFormData = getFormData();
+      if (isFormChanged(initialFormData, currentFormData)) {
+        $saveButton.prop('disabled', false);
+      } else {
+        $saveButton.prop('disabled', true);
+      }
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    var initialFormData = {};
+    var $form = $('#employee-form');
+    var $saveButton = $('#saveButton');
+
+    function getFormData() {
+      var unindexed_array = $form.serializeArray();
+      var indexed_array = {};
+
+      $.map(unindexed_array, function (n, i) {
+        indexed_array[n['name']] = n['value'];
+      });
+
+      // Handle unchecked checkboxes and radio buttons
+      $form.find('input[type=checkbox]').each(function () {
+        indexed_array[this.name] = this.checked;
+      });
+      $form.find('input[type=radio]').each(function () {
+        if (this.checked) {
+          indexed_array[this.name] = this.value;
+        } else if (!indexed_array.hasOwnProperty(this.name)) {
+          indexed_array[this.name] = null;
+        }
+      });
+
+      // Handle file inputs by storing file name or empty string
+      $form.find('input[type=file]').each(function () {
+        indexed_array[this.name] = this.files.length > 0 ? this.files[0].name : $('#file-name-display').text().trim();
+      });
+
+      return indexed_array;
+    }
+
+    function isFormChanged(initialData, currentData) {
+      for (var key in initialData) {
+        if (initialData.hasOwnProperty(key)) {
+          if (initialData[key] !== currentData[key]) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Capture initial form data on page load
+    initialFormData = getFormData();
+    $saveButton.prop('disabled', true);
+
+    // On any input/select/textarea change, check if form changed and enable/disable Save button
+    $form.on('input change', 'input, select, textarea', function () {
+      var currentFormData = getFormData();
+      if (isFormChanged(initialFormData, currentFormData)) {
+        $saveButton.prop('disabled', false);
+      } else {
+        $saveButton.prop('disabled', true);
+      }
+    });
+  });
+</script>
 </html>

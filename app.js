@@ -537,7 +537,7 @@ app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res
       birthName,
       email,
       officeEmail,
-      contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+      contactNumber,
       designation,
       department,
       employeeType,
@@ -571,7 +571,9 @@ app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res
     await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 
     req.flash("success", "Employee updated successfully");
-    res.redirect("/admin/view-profile");
+    req.session.save(() => {
+      res.redirect("/admin/view-profile");
+    });
   } catch (err) {
     console.error("Error updating employee:", err);
     
@@ -583,7 +585,9 @@ app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res
       req.flash("error", "Failed to update employee");
     }
     
-    res.redirect("/admin/view-profile");
+    req.session.save(() => {
+      res.redirect("/admin/view-profile");
+    });
   }
 });
 
@@ -632,7 +636,7 @@ app.post('/admin/update-profile-bypass', upload.single('photo'), async (req, res
       const updateData = {
         birthName,
         email: editPersonalEmail,
-        contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+        contactNumber,
         lastUpdated: new Date()
       };
 
@@ -718,7 +722,7 @@ app.post("/employee/update-profile-bypass/:id", upload.single('photo'), async (r
     const updateData = {
       birthName,
       email: editPersonalEmail,
-      contactNumber: contactNumber.startsWith('+84') ? contactNumber : `+84${contactNumber}`,
+      contactNumber,
       lastUpdated: new Date()
     };
 

@@ -55,7 +55,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: "Admin Admin", // Will be set after admin is created
-    email: "pmad.personal@email.com",
+    email: "pmad.personal@gmail.com",
     department: "Quality Assurance",
     designation: "Project Manager",
     jobTitle: "Backend Developer",
@@ -85,7 +85,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: "Admin Admin", // Will be set after admin is created
-    email: "pman.personal@email.com",
+    email: "pman.personal@gmail.com",
     department: "Quality Assurance",
     designation: "Project Manager",
     jobTitle: "Backend Developer",
@@ -115,7 +115,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: "Project manager", // Will be set after admin is created
-    email: "pmbv.personal@email.com",
+    email: "pmbv.personal@gmail.com",
     department: "Quality Assurance",
     designation: "Software Engineer",
     jobTitle: "Software Engineer",
@@ -148,7 +148,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: "Project manager", // Will be set after admin is created
-    email: "ym.personal@email.com",
+    email: "ym.personal@gmail.com",
     department: "Quality Assurance",
     designation: "Software Engineer",
     jobTitle: "Software Engineer",
@@ -180,7 +180,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: "Project manager", // Will be set after admin is created
-    email: "ymv.personal@email.com",
+    email: "ymv.personal@gmail.com",
     department: "Quality Assurance",
     designation: "Software Engineer",
     jobTitle: "Software Engineer",
@@ -212,7 +212,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: null, // Will be set after admin is created
-    email: "pmcs.personal@email.com",
+    email: "pmcs.personal@gmail.com",
     department: "Human Resource",
     designation: "HR Manager",
     jobTitle: "Backend Developer",
@@ -243,7 +243,7 @@ let users = [
     contactNumber: "325432011",
     photo: "/images/default-avatar.png",
     supervisor: null, // Will be set after admin is created
-    email: "pmgc.personal@email.com",
+    email: "pmgc.personal@gmail.com",
     department: "Human Resource",
     designation: "HR Manager",
     jobTitle: "Backend Developer",
