@@ -937,6 +937,43 @@ app.post('/manager/remove-project-member/:project_id/:member_id', async (req, re
   }
 });
 
+// Direct handler for add-project
+app.post('/manager/add-project', async (req, res) => {
+  console.log("Direct route handler for add-project called");
+  try {
+    const Project = require('./models/project');
+    
+    const newProject = new Project({
+      employeeID: req.user._id,
+      title: req.body.title,
+      type: req.body.type,
+      status: req.body.status,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      description: req.body.description || ''
+    });
+    
+    // Khởi tạo mảng thành viên nếu có
+    if (req.body.teamMembers && Array.isArray(req.body.teamMembers)) {
+      newProject.teamMembers = req.body.teamMembers;
+    } else if (req.body.teamMembers) {
+      newProject.teamMembers = [req.body.teamMembers];
+    } else {
+      newProject.teamMembers = [];
+    }
+    
+    await newProject.save();
+    
+    console.log("Project created successfully:", newProject.title);
+    req.flash("success", "Project '" + newProject.title + "' created successfully");
+    res.redirect("/manager/view-all-personal-projects");
+  } catch (err) {
+    console.error("Error creating project:", err);
+    req.flash("error", "Error creating project");
+    res.redirect("/manager/add-project");
+  }
+});
+
 // Thêm route API (đặt trước CSRF để API không bị ảnh hưởng bởi CSRF)
 app.use('/api', api);
 

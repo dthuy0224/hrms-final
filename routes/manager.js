@@ -1462,6 +1462,9 @@ router.get("/add-project", function(req, res, next) {
  * Xử lý tạo dự án mới
  */
 router.post("/add-project", skipCSRF, function(req, res, next) {
+  // Log để debug
+  console.log("POST /manager/add-project received:", req.body);
+  
   var newProject = new Project();
   
   newProject.employeeID = req.user._id; // Người tạo dự án
@@ -1483,11 +1486,12 @@ router.post("/add-project", skipCSRF, function(req, res, next) {
   
   newProject.save(function(err) {
     if (err) {
-      console.log(err);
+      console.log("Error saving project:", err);
       req.flash("error", "Error creating project");
       return res.redirect("/manager/add-project");
     }
     
+    console.log("Project created successfully:", newProject.title);
     req.flash("success", "Project '" + newProject.title + "' created successfully");
     res.redirect("/manager/view-all-personal-projects");
   });
