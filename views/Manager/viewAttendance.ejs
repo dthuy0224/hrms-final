@@ -162,6 +162,15 @@
                                     <button class="btn btn-default" id="printBtn" onclick="window.print();">
                                         <i class="fa fa-print"></i> Print Report
                                     </button>
+                                        <div class="btn-group" style="margin-left: 5px;">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-download"></i> Export <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a href="#" id="exportPDF"><i class="fa fa-file-pdf-o"></i> PDF</a></li>
+                                            <li><a href="#" id="exportExcel"><i class="fa fa-file-excel-o"></i> Excel</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
 
@@ -272,42 +281,67 @@
             <!-- /#page-content-wrapper -->
         </div>
         <!-- /#wrapper -->
-        <!-- jQuery -->
+        <!-- jQuery and Bootstrap JS -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.js" charset="UTF-8"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js" charset="UTF-8"></script>
         <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+        <!-- DataTables Buttons and export libraries -->
+        <script src="https://cdn.datatables.net/buttons/1.6.5/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.6.5/js/buttons.print.min.js"></script>
         <script src="/javascripts/sidebar_menu.js"></script>
         <script>
-            $(document).ready(function () {
-                $('#example').dataTable({
-                    /* No ordering applied by DataTables during initialisation */
-                    "order": []
+            $(document).ready(function() {
+                // Initialize DataTable
+                var table = $('#example').DataTable({
+                    responsive: true,
+                    "pageLength": 10,
+                    "dom": '<"top"f>rt<"bottom"lip>B',
+                    "buttons": []
                 });
-                // Setup - add a text input to each footer cell
-                $('#example tfoot th').each(function () {
-                    var title = $(this).text();
-                    if (title != " ") {
-                        $(this).html('<input type="text" class="form-control" placeholder="Search ' + title + '" />');
-                    }
+                
+                // Export PDF functionality
+                $('#exportPDF').on('click', function(e) {
+                    e.preventDefault();
+                    table.button('.buttons-pdf').trigger();
                 });
-
-                // DataTable
-                var table = $('#example').DataTable();
-
-                // Apply the search
-                table.columns().every(function () {
-                    var that = this;
-
-                    $('input', this.footer()).on('keyup change', function () {
-                        if (that.search() !== this.value) {
-                            that
-                                .search(this.value)
-                                .draw();
+                
+                // Export Excel functionality
+                $('#exportExcel').on('click', function(e) {
+                    e.preventDefault();
+                    table.button('.buttons-excel').trigger();
+                });
+                
+                // Add export buttons to DataTable
+                new $.fn.dataTable.Buttons(table, {
+                    buttons: [
+                        {
+                            extend: 'pdfHtml5',
+                            text: 'Export to PDF',
+                            title: 'Attendance Report - <%= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month-1] %>',
+                            className: 'buttons-pdf',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4] // Export all columns except Actions
+                            }
+                        },
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Export to Excel',
+                            title: 'Attendance Report - <%= ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][month-1] %>',
+                            className: 'buttons-excel',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4] // Export all columns except Actions
+                            }
                         }
-                    });
+                    ]
                 });
+                
+                // Year dropdown population
                 for (i = new Date().getFullYear(); i > 1900; i--) {
-                    $('#year').append($('<option />').val(i).html(i));
+                    $("#year").append($("<option />").val(i).html(i));
                 }
             });
         </script>
