@@ -1501,13 +1501,16 @@ router.post("/apply-for-leave", async function (req, res, next) {
       appliedDate: new Date(),
       period: period,
       reason: req.body.reason,
-      statusAdmin: "Approved",
+      adminResponse: "Approved",
       delegateTo: req.body.delegateTo,
       delegateContent: req.body.delegateContent,
     });
+const isAutoApproveUser = ["admin", "project_manager", "accounts_manager"].includes(req.user.type);
+newLeave.adminResponse = isAutoApproveUser ? "Approved" : "Pending";
 
     await newLeave.save();
-    res.redirect("/admin/applied-leaves");
+     res.status(200).send({ message: "Leave application submitted successfully!" });
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");

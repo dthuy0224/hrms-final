@@ -76,7 +76,6 @@
 
         <label>Leave Period Type<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
           <select name="leaveType" id="leaveType">
-           <option value="">-- Select Leave Period Type --</option>
             <option value="full">Full Day</option>
             <option value="half-morning">Half Day - Morning</option>
             <option value="half-afternoon">Half Day - Afternoon</option>
@@ -137,6 +136,24 @@
     <!-- /#page-content-wrapper -->
 
 </div>
+</div>
+<div id="successModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Success</h4>
+            </div>
+            <div class="modal-body">
+                <p>Your leave application has been successfully submitted!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- /#wrapper -->
 <!-- jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.js" charset="UTF-8"></script>
@@ -478,8 +495,6 @@ form.addEventListener("submit", (e) => {
         e.preventDefault();
         return;
     }
-
-    document.getElementById("loadingSpinner").style.display = "block";
 });
   </script>
   
@@ -507,7 +522,26 @@ document.getElementById("cancelButton").addEventListener("click", function (e) {
 });
   </script>
 
-      
+  <script>
+// Khi form được gửi thành công, hiển thị modal thông báo thành công
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+    $.ajax({
+        type: "POST",
+        url: "/manager/apply-for-leave", 
+        data: $(form).serialize(), 
+        success: function(response) {
+            $('#successModal').modal('show');
+            form.reset();
+        },
+        error: function(error) {
+            console.log('Error:', error);
+        }
+    });
+});
+
+</script>
+    
     </body>
 
       
