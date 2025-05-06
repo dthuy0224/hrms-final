@@ -239,6 +239,7 @@ router.get("/edit-employee/:id", async (req, res, next) => {
       csrfToken: req.csrfToken(),
       employee: user,
       moment: moment,
+      hasErrors: false,
       message: "",
       userName: req.user.name,
     });
@@ -258,6 +259,7 @@ router.get("/view-profile", async (req, res, next) => {
       csrfToken: req.csrfToken(),
       employee: user,
       moment: moment,
+      hasErrors: false,
       userName: name,
       messages: req.flash() || {}
     });

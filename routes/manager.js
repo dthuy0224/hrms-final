@@ -436,6 +436,67 @@ router.get(
       });
   }
 );
+// Displays the list of all the leave applications applied by all employees.
+// Displays the list of all the leave applications applied by all employees.
+router.get("/leave-applications", async (req, res, next) => {
+  try {
+    const leaves = await Leave.find({}).sort({ _id: -1 });
+    const hasLeave = leaves.length > 0 ? 1 : 0;
+
+    const employeeChunks = await Promise.all(
+      leaves.map((leave) => User.findById(leave.applicantID))
+    );
+
+    res.render("Manager/allApplications", {
+      title: "List Of Leave Applications",
+      csrfToken: req.csrfToken(),
+      hasLeave,
+      leaves,
+      employees: employeeChunks,
+      moment: moment,
+      userName: req.user.name,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving leave applications");
+  }
+});
+
+
+router.get(
+  "/respond-application/:leave_id/:employee_id",
+  async (req, res, next) => {
+    const { leave_id: leaveID, employee_id: employeeID } = req.params;
+    try {
+      const leave = await Leave.findById(leaveID);
+      const user = await User.findById(employeeID);
+
+      res.render("Manager/applicationResponse", {
+        title: "Respond Leave Application",
+        csrfToken: req.csrfToken(),
+        leave,
+        employee: user,
+        moment: moment,
+        userName: req.user.name,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Error responding to application");
+    }
+  }
+);
+// Sets the response field of that leave according to response given by employee from body of the post request.
+
+router.post("/respond-application", async (req, res) => {
+  try {
+    const leave = await Leave.findById(req.body.leave_id);
+    leave.adminResponse = req.body.status;
+    await leave.save();
+    res.redirect("/manager/leave-applications");
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 /**
  * Description:
@@ -526,6 +587,7 @@ router.get("/view-profile", function viewProfile(req, res, next) {
       employee: user,
       moment: moment,
       userName: req.user.name,
+      hasErrors: false
     });
   });
 });

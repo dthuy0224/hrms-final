@@ -50,6 +50,12 @@
         View Attendance
       </a>
     </li>
+    <li class="<%= typeof activePage !== 'undefined' && activePage === 'leaveApplications' ? 'active' : '' %>">
+      <a href="/manager/leave-applications">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>
+        Approve Leave
+      </a>
+    
 
     <li class="<%= typeof path !== 'undefined' && path === '/manager/view-profile' ? 'active' : '' %>">
       <a href="/manager/view-profile">
