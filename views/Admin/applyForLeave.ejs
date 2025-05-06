@@ -46,16 +46,16 @@
                       <form action="/admin/apply-for-leave" method="post" id="formApply" style="display: flex; flex-wrap: wrap; gap: 30px;">
                         <div class="form-row">
                           <div class="leave-form">
-              <label>Title:</label>
+              <label>Title<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
               <input type="text" name="title" id="title" placeholder="e.g. Personal matters, health issue..." required />
                             
         <span class="error-message" id="title-error"></span>
 
-        <label>Start Date:</label>
+        <label>Start Date<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <input type="date" name="start_date" id="start_date" required min="<%= new Date().toISOString().split('T')[0] %>" />
         <span class="error-message" id="start_date-error"></span>
 
-        <label>End Date:</label>
+        <label>End Date<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <input type="date" name="end_date" id="end_date" required min="<%= new Date().toISOString().split('T')[0] %>" />
         <span class="error-message" id="end_date-error"></span>
 
@@ -64,7 +64,7 @@
         <input type="hidden" name="period" id="period" />
         <span class="error-message" id="period-error"></span>
 
-
+        <label>Leave Period Type<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
           <select name="leaveType" id="leaveType">
            <option value="">-- Select Leave Period Type --</option>
             <option value="full">Full Day</option>
@@ -75,7 +75,7 @@
         </div>
                    
         <div class="leave-form" >
-                          <label>Type of Leave:</label>
+                          <label>Type of Leave<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <select name="type" id="type" required>
           <option value="">-- Select Leave Type --</option>
           <option value="Annual Leave">Annual Leave</option> 
@@ -87,11 +87,11 @@
         </select>
         <span class="error-message" id="type-error"></span>
 
-        <label>Reason:</label>
+        <label>Reason<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <textarea name="reason" id="reason" required></textarea>
         <span class="error-message" id="reason-error"></span>
 
-        <label>Delegate to:</label>
+        <label>Delegate to<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <select name="delegateTo" id="delegateTo" required>
           <% coworkers.forEach(function(user) { %>
             <option value="<%= user._id %>"><%= user.name %></option>
@@ -99,7 +99,7 @@
         </select>
         <span class="error-message" id="delegateTo-error"></span>
 
-        <label>Delegate Content:</label>
+        <label>Delegate Content<i class="fa-solid fa-star-of-life fa-2xs" style="color: #ed0000; font-size: 6px; vertical-align: super;"></i>:</label>
         <textarea name="delegateContent" id="delegateContent" required placeholder="Explain what tasks you're delegating..."></textarea>
         <span class="error-message" id="delegateContent-error"></span>
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
