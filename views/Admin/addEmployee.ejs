@@ -42,9 +42,20 @@
                             <li><a href="/admin">Employee</a></li>
                             <li class="active">Add Employee</li>
                         </ol>
-                        <h3 style="margin-top: 5px; margin-bottom: 10px;">Add Employee</h3>
+                        <h5 class="ThuongTitleAddEmployeeAdmin"><i class="fa fa-angle-right"></i> Add Employee</h5>
                     </div>
-
+                    <style>
+                        .ThuongTitleAddEmployeeAdmin {
+                            font-family: "Times New Roman", Times, serif;
+                            font-size: 1.5em;
+                            padding-bottom: 9px;
+                            margin: 10px 0 20px;
+                            border-bottom: 1px solid #eee;
+                            font-weight: bold;
+                            color: #333;
+                          }
+                          </style>
+                        
                     <div id="menu1">
                         <form id="employee-form" class="form-horizontal" action="/admin/add-employee-bypass" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">

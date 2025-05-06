@@ -10,9 +10,9 @@
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" id="menu-toggle">
                     <span class="glyphicon glyphicon-th-large" style="margin-left: 5px" aria-hidden="true"></span>
                 </button>
-                <a class="navbar-brand" href="#"><i class="fa fa-a fa-4"></i>
-                    <%=userName%>
-                </a>
+                <a class="navbar-brand" href="#">
+                  <%= userName %>
+              </a>
             </div>
             <!-- navbar-header-->
 
@@ -36,13 +36,15 @@
         </nav>
         <div id="wrapper">
             <!-- Sidebar -->
-           <%- include('../partials/adminSidebar') %>
+            <%- include('../partials/sidebar') %>
             <!-- /#sidebar-wrapper -->
             <!-- Page Content -->
           <!-- Page Content -->
 <div id="page-content-wrapper">
     <div class="container-fluid xyz">
       <h1 class="page-header"><i class="fas fa-chevron-right"></i> Leave Detail</h1>
+    
+                            
       <div class="row">
         <div class="col-lg-12">
           <div id="menu1" style="height: auto;">
