@@ -43,7 +43,9 @@
                 <div class="container-fluid xyz">
                     <div class="row">
                         <div class="col-lg-12">
-                            <h2 class="ThuongTitleMyProfileManager"><i class="fa fa-angle-right"></i> My Profile</h2>
+                            <div class="page-header">
+                               
+                                <h2 class="ThuongTitleMyProfileManager"><i class="fa fa-angle-right"></i> My Profile</h2>
                                 <style>
                                 .ThuongTitleMyProfileManager {
                                     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -55,7 +57,7 @@
                                     color: #333;
                                   }
                                   </style>
-                            </div>
+                          </div>
 
                             <div class="profile-container" style="margin-top: -5px;">
                                 <div class="row">
@@ -590,9 +592,9 @@
                                     <div class="input-group">
                                         <span class="input-group-addon">+84</span>
                                         
-                                        <input type="text" class="form-control" id="editContactNumber" name="contactNumber" placeholder="Phone number" maxlength="9" pattern="^[1-9]\d{8}$" title="Enter 9 digits starting with a digit from 1-9">
+                                        <input type="text" class="form-control" id="editContactNumber" name="contactNumber" placeholder="Phone number" maxlength="9" pattern="^(3|5|7|8|9)\d{8}$" title="Enter 9 digits starting with 3, 5, 7, 8, or 9 (without the first 0)">
                                     </div>
-                                    <span class="help-block error-message" style="display:none; color:#a94442;">Enter a valid Vietnamese phone number (9 digits starting with a digit from 1-9)</span>
+                                    <span class="help-block error-message" style="display:none; color:#a94442;">Enter a valid Vietnamese phone number (9 digits without first 0)</span>
                                 </div>
                             </div>
                             <!-- Address Fields -->
@@ -1270,13 +1272,13 @@
                 
                 // Phone number validation
                 const phoneNumber = $('input[name="contactNumber"]').val().trim();
-                const phoneRegex = /^[1-9]\d{8}$/;
+                const phoneRegex = /^(3|5|7|8|9)\d{8}$/;
                 if (phoneNumber && !phoneRegex.test(phoneNumber)) {
                     $('input[name="contactNumber"]').addClass('error-input');
                     if (phoneNumber.length !== 9) {
                         $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
                     } else {
-                        $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Invalid format. Must start with a digit from 1-9').show();
+                        $('input[name="contactNumber"]').closest('.form-group').find('.error-message').text('Invalid format. Must start with 3, 5, 7, 8, or 9').show();
                     }
                     hasErrors = true;
                 }
@@ -1375,15 +1377,15 @@
             // Vietnamese phone number validation
             $('input[name="contactNumber"]').on('input blur', function() {
                 const value = $(this).val().trim();
-                // The pattern validates the first digit must be 1-9 followed by 8 digits
-                const phoneRegex = /^[1-9]\d{8}$/;
+                // The pattern validates the first digit must be 3,5,7,8,9 followed by 8 digits
+                const phoneRegex = /^(3|5|7|8|9)\d{8}$/;
                 
                 if (value && value.length !== 9) {
                     $(this).addClass('error-input');
                     $(this).closest('.form-group').find('.error-message').text('Phone number must be exactly 9 digits').show();
                 } else if (value && !phoneRegex.test(value)) {
                     $(this).addClass('error-input');
-                    $(this).closest('.form-group').find('.error-message').text('Invalid format. Must start with a digit from 1-9').show();
+                    $(this).closest('.form-group').find('.error-message').text('Invalid format. Must start with 3, 5, 7, 8, or 9').show();
                 } else if (!value) {
                     $(this).addClass('error-input');
                     $(this).closest('.form-group').find('.error-message').text('Phone number is required!').show();
