@@ -55,6 +55,7 @@ table#example tfoot th input {
 table#example tbody td {
     padding: 12px 15px;
     border-bottom: 1px solid #eee;
+    font-size: 14px
 }
 
 /* Hover row */

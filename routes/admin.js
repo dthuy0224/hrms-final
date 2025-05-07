@@ -1286,6 +1286,7 @@ router.get("/employee-details/:id", csrfProtection, async (req, res, next) => {
       csrfToken: req.csrfToken(),
       userName: req.user.name,
       moment: moment,
+        hasErrors: false,
     });
   } catch (err) {
     console.error('[PAGE] Error rendering employee details:', err);
