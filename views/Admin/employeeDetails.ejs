@@ -69,7 +69,7 @@
                     <div class="text-center">
                       <div class="profile-img-container">
                         <% if (employee.photo) { %>
-                          <img src="/uploads/<%= employee.photo %>" alt="Profile Image" class="img-circle" style="width: 140px; height: 140px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;">
+                          <img src="/uploads/<%= employee.photo %>" alt="Profile Image" class="img-circle" style="width: 140px; height: 140px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;" onerror="this.onerror=null; this.src='/uploads/default.png';">
                         <% } else { %>
                           <img src="/uploads/default.png" alt="Profile Image" class="img-circle" style="width: 140px; height: 140px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;">
                         <% } %>

@@ -62,9 +62,8 @@ router.get("/", function viewHomePage(req, res, next) {
     
     // Get active projects count - với nhiều loại status khác nhau và không phân biệt chữ hoa/chữ thường
     Project.countDocuments({ 
-      employeeID: req.user._id,
       status: { 
-        $regex: /(in\s*progress|on\s*going|ongoing)/i 
+        $regex: /(on going|ongoing|in progress)/i 
       } 
     }, function(err, activeProjectsCount) {
       if (!err) {
@@ -74,8 +73,7 @@ router.get("/", function viewHomePage(req, res, next) {
       
       // Get completed projects count - không phân biệt chữ hoa/chữ thường
       Project.countDocuments({ 
-        employeeID: req.user._id,
-        status: { $regex: /completed|finished/i } 
+        status: { $regex: /completed/i } 
       }, function(err, completedProjectsCount) {
         if (!err) {
           dateVars.completedProjectsCount = completedProjectsCount || 0;
@@ -84,10 +82,7 @@ router.get("/", function viewHomePage(req, res, next) {
         
         // Get in-progress projects count - không phân biệt chữ hoa/chữ thường
         Project.countDocuments({ 
-          employeeID: req.user._id,
-          status: { 
-            $regex: /(in\s*progress|on\s*going|ongoing)/i 
-          } 
+          status: { $regex: /(on going|ongoing|in progress)/i } 
         }, function(err, inProgressProjectsCount) {
           if (!err) {
             dateVars.inProgressProjectsCount = inProgressProjectsCount || 0;
@@ -580,6 +575,8 @@ router.get("/applied-leaves", function appliedLeaves(req, res, next) {
  * Known Bugs: None
  */
 
+
+
 router.get("/view-profile", function viewProfile(req, res, next) {
   User.findById(req.user._id, function getUser(err, user) {
     if (err) {
@@ -595,6 +592,22 @@ router.get("/view-profile", function viewProfile(req, res, next) {
     });
   });
 });
+
+
+router.get('/view-profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).send('User not found');
+    res.render('Manager/viewEmployeeProfile', { user, moment });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
 
 /**
  * Description:
@@ -656,7 +669,7 @@ router.get(
     
     // Add status filter if active filter is applied
     if (activeFilter) {
-      query.status = { $regex: /(in\s*progress|on\s*going|ongoing)/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
+      query.status = { $regex: /^in\s*progress$/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
     } else if (outdateFilter) {
       query.status = 'Out Date';
     }

@@ -1146,4 +1146,21 @@ app.get('/manager/check-overdue-projects', async (req, res) => {
   }
 });
 
+// Add upload-photo endpoint 
+app.post('/upload-photo', upload.single('photo'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    
+    // Send back the URL of the uploaded photo
+    const photoUrl = `/uploads/${req.file.filename}`;
+    console.log('Photo uploaded successfully:', photoUrl);
+    res.json({ success: true, photoUrl });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    res.status(500).json({ error: 'Failed to upload photo' });
+  }
+});
+
 module.exports = app;

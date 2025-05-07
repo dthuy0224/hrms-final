@@ -81,9 +81,9 @@
                                             <div class="profile-body text-center">
                                                 <div class="profile-image">
                                                     <% if(employee.photo) { %>
-                                                        <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle">
+                                                        <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle" onerror="this.onerror=null; this.src='/uploads/default.png';">
                                                     <% } else { %>
-                                                        <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Default Avatar" class="img-circle">
+                                                        <img src="/uploads/default.png" alt="Default Avatar" class="img-circle">
                                                     <% } %>
                                                 </div>
                                                 <h3 class="profile-name"><%= employee.name %></h3>
@@ -1019,11 +1019,7 @@ $(document).ready(function() {
     white-space: nowrap;
     border-color: #c5bebe;
 }
-.profile-header {
-                height: 50px;
-                position: relative;
-             
-            }
+
             /* Header chứa title và button - dùng flex chia trái/phải */
 .profile-header {
     display: flex;
@@ -1034,7 +1030,7 @@ $(document).ready(function() {
      
 .profile-header {
               
-              height: 50px;
+              height: 150px;
               position: relative;
           }
 </style>
@@ -1207,9 +1203,9 @@ $(document).ready(function() {
                                       <div class="col-sm-4">
                                           <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
                                             <% if(employee.photo) { %>
-                                              <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle">
+                                              <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle" onerror="this.onerror=null; this.src='/uploads/default.png';">
                                           <% } else { %>
-                                              <img src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
+                                              <img src="/uploads/default.png" alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
                                           <% } %>
                                           </div>
                                       </div>
