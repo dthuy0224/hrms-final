@@ -54,7 +54,7 @@
                           </style>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                             <!-- Search input bên trái -->
-                            <div style="position: relative; width: 250px; font-size: 13px;">
+                            <div style="position: relative; width: 250px; font-size: 12px;">
                                 <input type="text" id="searchTitle" class="form-control" placeholder="Search by title..." 
                                     style="padding-right: 30px; padding-left: 15px;">
                             </div>
@@ -62,7 +62,7 @@
                             <!-- Hai ô select bên phải -->
                             <div style="display: flex; gap: 20px;">
                                 <div style="position: relative; width: 180px;">
-                                    <select id="searchType" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                    <select id="searchType" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 12px;">
                                         <option value="">All Types</option>
                                         <option value="Annual Leave">Annual Leave</option>
                                         <option value="Sick Leave">Sick Leave</option>
@@ -71,7 +71,7 @@
                                     </select>
                                 </div>
                                 <div style="position: relative; width: 180px;">
-                                    <select id="searchStatus" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 13px;">
+                                    <select id="searchStatus" class="form-control" style="padding-right: 30px; padding-left: 15px; font-size: 12px;">
                                         <option value="Pending" selected>Pending</option>
                                         <option value="Approved">Approved</option>
                                         <option value="Disapproved">Disapproved</option>
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         
-                        <div style="height: 717px; overflow: auto">
+                        <div style="height: 500px; overflow: auto">
                             <% if(hasLeave===1){ %>
                                 <table id="example" class="display" cellspacing="0"
                                     style="height: 10%; overflow: auto">
@@ -92,7 +92,7 @@
                                             <th>Applied Date</th>
                                             <th>Period(Days)</th>
                                             <th>Status</th>
-                                            <th></th>
+                                     
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -124,16 +124,7 @@
                                                         <%= leaves[i].adminResponse %>
                                                     </span>
                                                 </td>
-                                                <td>
-                                                    <form method="get"
-                                                        action="/admin/respond-application/<%= leaves[i]._id %>/<%= employees[i]._id %>">
-                                                        <button type="submit">
-                                                            <i class="fa fa-reply fa-lg" title="Responsd"
-                                                                aria-hidden="true"></i>
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
+                                                                                           </tr>
                                             <% } %>
                                     </tbody>
                                 </table>
@@ -159,7 +150,7 @@
                     order: [],
                     dom: '<"top">rt<"bottom"lp><"clear">',
                     paging: true,
-                    pageLength: 10,
+                    pageLength: 7,
                     info: false,
                     language: {
                         paginate: {
@@ -304,7 +295,7 @@
             padding: 5px 10px;
             border-radius: 20px;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 12px;
             display: inline-block;
             text-transform: capitalize;
         }
@@ -326,7 +317,7 @@
         
         /* Page header */
         .page-header {
-            font-size: 1.5em;
+            font-size: 1.6em;
             color: #000000;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-weight: 600;
@@ -337,7 +328,7 @@
             border-radius: 20px;
             border: 1px solid #ccc;
             padding: 3px;
-            font-size: 14px;
+            font-size: 12px;
             box-sizing: border-box;
             transition: border-color 0.3s ease;
         }
@@ -353,43 +344,42 @@
         }
 
         /* Enhanced Pagination */
-        .dataTables_wrapper .pagination {
-            margin: 15px 0;
-            display: flex;
-            justify-content: center;
-        }
+        .dataTables_length,
+.dataTables_info {
+    display: none !important;
+}
+.dataTables_paginate {
+  text-align: center !important;
+  float: none !important;
+  margin-top: 20px;
+}
 
-        .dataTables_wrapper .paginate_button {
-            margin: 0 3px;
-            padding: 3px 3px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background: #f8f9fa;
-            color: #2c3e50;
-            transition: all 0.3s ease;
-        }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 4px 8px;
+  margin: 0 3px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  color: #007bff !important;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
 
-        .dataTables_wrapper .paginate_button:hover {
-            background: #e9ecef;
-            color: #2c3e50;
-            border-color: #dee2e6;
-        }
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #007bff;
+  color: white !important;
+  border-color: #007bff;
+}
 
-        .dataTables_wrapper .paginate_button.current {
-            background: #2c3e50;
-            color: white;
-            border-color: #2c3e50;
-        }
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #007bff;
+  color: rgb(129, 129, 129) !important;
+  border-color: #007bff;
+  font-weight: bold;
+}
+#example th, #example td {
+    font-size: 12px !important;
+}
 
-        .dataTables_wrapper .paginate_button.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .dataTables_wrapper .paginate_button.previous,
-        .dataTables_wrapper .paginate_button.next {
-            font-weight: bold;
-            min-width: 80px;
-        }
     </style>
 </html>

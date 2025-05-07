@@ -26,6 +26,13 @@
         Apply for Leave
       </a>
     </li>
+<li class="<%= typeof activePage !== 'undefined' && activePage === 'leaveApplications' ? 'active' : '' %>">
+      <a href="/admin/leave-applications">
+        <span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>
+        View Leave Applications
+      </a>
+    </li>
+
     <li class="<%= typeof activePage !== 'undefined' && (activePage === 'viewEmployees' || activePage === 'addEmployee') ? 'active' : '' %>">
       <a href="#" id="menu3">
         <span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
