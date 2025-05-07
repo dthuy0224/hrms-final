@@ -51,7 +51,7 @@
                                     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
                                     font-size: 1.6em;
                                     padding-bottom: 9px;
-                                    margin: 15px 0 20px;
+                                    margin: 15px 0 -10px;
                                     border-bottom: 1px solid #eee;
                                     font-weight: bold;
                                     color: #333;
@@ -635,38 +635,36 @@
                                 </div>
                             </div>
                             
-                            <!-- Photo Upload Field -->
-                            <div class="form-group">
-                              <label class="col-sm-2 control-label">Photo:</label>
-                              <div class="col-sm-10">
-                                  <div class="row">
-                                    <div class="col-sm-4">
-                                        <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
-                                          <% if(employee.photo) { %>
-                                              <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle">
-                                          <% } else { %>
-                                              <img src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
-                                          <% } %>
-    
-                                          
-                                        </div>
-                                    </div>
-                                      <div class="col-sm-8">
-                                          <div class="custom-file-upload">
-                                
-                                              <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
-                                              <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
-                                                  <i class="fa fa-upload"></i> Upload Photo
-                                              </button>
-                                              <span id="file-name-display" style="margin-left: 10px;">
-                                                  <%= employee.photo ? 'Current photo' : 'No file chosen' %>
-                                              </span>
-                                          </div>
-                                          <p class="help-block">Upload a profile photo (optional)</p>
-                                      </div>
+                             <!-- Photo Upload Field -->
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Photo:</label>
+                            <div class="col-sm-10">
+                                <div class="row">
+                                  <div class="col-sm-4">
+  <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+    <% if(employee.photo) { %>
+        <img id="preview-image" src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle" style="max-width: 100%; max-height: 100%;">
+    <% } else { %>
+        <img id="preview-image" src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
+    <% } %>
+  </div>
                                   </div>
-                              </div>
-                          </div>
+                                    <div class="col-sm-8">
+  <div class="custom-file-upload">
+      <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
+          <i class="fa fa-upload"></i> Choose Photo
+      </button>
+    
+      <span id="file-name-display" style="margin-left: 10px;">
+          <%= employee.photo ? 'Current photo' : 'No file chosen' %>
+      </span>
+  </div>
+                                        <p class="help-block">Upload a profile photo (optional)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                             <!-- Password Field (Hidden but required) -->
                             <div class="form-group" style="display: none;">
                                 <label class="col-sm-2 control-label">Password:</label>
