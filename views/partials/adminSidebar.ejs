@@ -3,7 +3,7 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 />
-
+<link rel="stylesheet" href="/stylesheets/navbar.css" />
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
     <li class="<%= typeof activePage !== 'undefined' && activePage === '/admin' ? 'active' : '' %>">
@@ -26,14 +26,6 @@
         Apply for Leave
       </a>
     </li>
-
- <li class="<%= typeof activePage !== 'undefined' && activePage === 'leaveApplications' ? 'active' : '' %>">
-      <a href="/admin/leave-applications">
-        <span class="fa-stack fa-lg pull-left"><i class="fa fa-reply fa-stack-1x"></i></span>
-        Approve Leave
-      </a>
-    </li>
-
     <li class="<%= typeof activePage !== 'undefined' && (activePage === 'viewEmployees' || activePage === 'addEmployee') ? 'active' : '' %>">
       <a href="#" id="menu3">
         <span class="fa-stack fa-lg pull-left"><i class="fa fa-users fa-stack-1x"></i></span>
@@ -113,4 +105,3 @@
     });
   });
   </script>
-

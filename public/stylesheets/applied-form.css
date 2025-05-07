@@ -1,256 +1,258 @@
 ﻿
         /* Reset một số mặc định */
         
-body {
-    background: #f5f7fa;
-    color: #333;
-    margin: 0;
-    padding: 0;
-}
-
-/* Container chính */
-.container-fluid.xyz {
-    padding: 30px;
-}
-
-/* Bảng danh sách */
-table#example {
-    width: 100% !important;
-    background: #fff;
-    margin-bottom: 40px;
-    border-radius: 10px;
-    overflow: hidden;
-    border-collapse: collapse;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    
-}
-
-/* Header bảng */
-table#example thead {
-    background-color: #2c3e50;
-    color: #ecf0f1;
-    font-weight: bold;
-    
-}
-
-table#example thead th {
-    padding: 12px 15px;
-    text-align: left;
-}
-
-/* Footer bảng (input search) */
-table#example tfoot {
-    background-color: #ecf0f1;
-    
-}
-
-table#example tfoot th input {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* Nội dung bảng */
-table#example tbody td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-}
-
-/* Hover row */
-table#example tbody tr:hover {
-    background-color: #f0f8ff;
-}
-
-/* Modal button */
-.modal-footer .btn {
-    min-width: 80px;
-    border-radius: 6px;
-    font-weight: 500;
-}
-
-.modal-header, .modal-footer {
-    background-color: #f7f9fc;
-}
-#wrapper.toggled #sidebar-wrapper {
-  width: 0;
-}
-
-#sidebar-wrapper {
-  margin-top: 58px; /* đảm bảo không bị đè bởi navbar */
-  position: fixed;
-  height: 100%;
-  overflow-y: auto;
-  background-color: #000000;
-}
-
-.dataTables_wrapper .dataTables_length {
-    display: none;
-}
-.dataTables_wrapper .dataTables_info {
-    display: none;
-}
-
-nav.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000; /* đảm bảo navbar hiển thị trên cùng */
-}
-#example {
-    font-size: 10px; 
-}
-
-/* Cỡ chữ cho phần header */
-#example thead th {
-    font-size: 14px;
-    font-weight: bold;
-}
-
-/* Cỡ chữ cho phần footer (nếu bạn dùng filter ở footer) */
-#example tfoot th {
-    font-size: 12px;
-}
-/* Toggle button */
-
-.page-header  {
-  font-size: 20px;
-  color: #000000;
-  text-align: center;
-  margin-top: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 600;
-  margin-right: 1060px;
-}
-/* Responsive Scroll Container */
-div[style*="overflow: auto"] {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: #bdc3c7;
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: #95a5a6;
-}
-.status {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 14px;
-    display: inline-block;
-    text-transform: capitalize;
-}
-
-.status.approved {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.status.disapproved {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-
-.status.pending {
-    background-color: #fff3cd;
-    color: #a58114;
-}
-/* Container phân trang canh giữa */
-.dataTables_wrapper .dataTables_paginate {
-    text-align: center !important;
-    margin: 20px auto 0 auto; /* căn giữa với margin tự động trái/phải */
-    float: none !important;   /* đảm bảo không bị lệch do float */
-    clear: both;
-}
-div.dataTables_wrapper div.dataTables_paginate {
-  position: sticky;
-  bottom: 0;
-  background:#f5f7fa;
-  padding: 10px 0;
-  z-index: 99;
-}
-
-/* Nút phân trang */
-/* Nút phân trang lớn hơn, dễ nhìn */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-    display: inline-block;
-    padding: 4px 9px; /* tăng padding */
-    margin: 6px;
-    border: 1px solid #007bff;
-    border-radius: 8px;
-    background-color: #ffffff;
-    color: #007bff !important;
-    font-size: 12px; /* tăng cỡ chữ */
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 80px;
-}
-
-/* Hover nút */
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background-color: #007bff;
-    color: #fff !important;
-    border-color: #0056b3;
-}
-
-/* Nút đang active */
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background-color: #007bff;
-    color: #535353 !important;
-    border-color: #0056b3;
-    font-weight: bold;
-}
-
-/* Nút disabled */
-.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* Ẩn focus viền xanh xấu */
-.dataTables_wrapper .dataTables_paginate .paginate_button:focus {
-    outline: none;
-    box-shadow: none;
-}
-
-.form-control{
-  border-radius: 20px;
-  border: 1px solid #818181;
-  padding: 10px;
-  font-size: 14px;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-  margin-top: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 400;
-}
-    #search-title::placeholder {
-        color: #000000;
-        font-style: italic;
-    }
-    #search-title {
-        font-size: 12px;
-        padding: 5px 10px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        width: 100%;
-    }
-    #search-title:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        outline: none;
-    }
-
+        body {
+            background: #f5f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .col-lg-12 h2{
+            margin-top: -20px;
+        }
+        /* Container chính */
+        .container-fluid.xyz {
+            padding: 30px;
+        }
+        
+        /* Bảng danh sách */
+        table#example {
+            width: 100% !important;
+            background: #fff;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            border-collapse: collapse;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            
+        }
+        
+        /* Header bảng */
+        table#example thead {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-weight: bold;
+            
+        }
+        
+        table#example thead th {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        /* Footer bảng (input search) */
+        table#example tfoot {
+            background-color: #ecf0f1;
+            
+        }
+        
+        table#example tfoot th input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        /* Nội dung bảng */
+        table#example tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Hover row */
+        table#example tbody tr:hover {
+            background-color: #f0f8ff;
+        }
+        
+        /* Modal button */
+        .modal-footer .btn {
+            min-width: 80px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .modal-header, .modal-footer {
+            background-color: #f7f9fc;
+        }
+        #wrapper.toggled #sidebar-wrapper {
+          width: 0;
+        }
+        
+        #sidebar-wrapper {
+          margin-top: 58px; /* đảm bảo không bị đè bởi navbar */
+          position: fixed;
+          height: 100%;
+          overflow-y: auto;
+          background-color: #000000;
+        }
+        
+        .dataTables_wrapper .dataTables_length {
+            display: none;
+        }
+        .dataTables_wrapper .dataTables_info {
+            display: none;
+        }
+        
+        nav.navbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000; /* đảm bảo navbar hiển thị trên cùng */
+        }
+        #example {
+            font-size: 10px; 
+        }
+        
+        /* Cỡ chữ cho phần header */
+        #example thead th {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        /* Cỡ chữ cho phần footer (nếu bạn dùng filter ở footer) */
+        #example tfoot th {
+            font-size: 12px;
+        }
+        /* Toggle button */
+        
+        .page-header  {
+          font-size: 20px;
+          color: #000000;
+          text-align: center;
+          margin-top: 20px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-weight: 600;
+          margin-right: 1060px;
+        }
+        /* Responsive Scroll Container */
+        div[style*="overflow: auto"] {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: #bdc3c7;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #95a5a6;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+        
+        .status.approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status.disapproved {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.pending {
+            background-color: #fff3cd;
+            color: #a58114;
+        }
+        /* Container phân trang canh giữa */
+        .dataTables_wrapper .dataTables_paginate {
+            text-align: center !important;
+            margin: 20px auto 0 auto; /* căn giữa với margin tự động trái/phải */
+            float: none !important;   /* đảm bảo không bị lệch do float */
+            clear: both;
+        }
+        div.dataTables_wrapper div.dataTables_paginate {
+          position: sticky;
+          bottom: 0;
+          background:#f5f7fa;
+          padding: 10px 0;
+          z-index: 99;
+        }
+        
+        /* Nút phân trang */
+        /* Nút phân trang lớn hơn, dễ nhìn */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            display: inline-block;
+            padding: 4px 9px; /* tăng padding */
+            margin: 6px;
+            border: 1px solid #007bff;
+            border-radius: 8px;
+            background-color: #ffffff;
+            color: #007bff !important;
+            font-size: 12px; /* tăng cỡ chữ */
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 60px;
+        }
+        
+        /* Hover nút */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #007bff;
+            color: #fff !important;
+            border-color: #0056b3;
+        }
+        
+        /* Nút đang active */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #007bff;
+            color: #535353 !important;
+            border-color: #0056b3;
+            font-weight: bold;
+        }
+        
+        /* Nút disabled */
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        /* Ẩn focus viền xanh xấu */
+        .dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        .form-control{
+          border-radius: 20px;
+          border: 1px solid #818181;
+          padding: 10px;
+          font-size: 14px;
+          width: 100%;
+          box-sizing: border-box;
+          transition: border-color 0.3s ease;
+          margin-top: 20px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-weight: 400;
+        }
+            #search-title::placeholder {
+                color: #000000;
+                font-style: italic;
+            }
+            #search-title {
+                font-size: 12px;
+                padding: 5px 10px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+                width: 100%;
+            }
+            #search-title:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+                outline: none;
+            }
+        

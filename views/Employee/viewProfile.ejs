@@ -2,8 +2,10 @@
 <html>
 <%- include('../partials/header') %>
 <link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
-<link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
-    <body>
+
+
+
+ <body>
          <nav class="navbar navbar-default no-margin">
             <!-- Brand and toggle get grouped for better mobile display -->
 
@@ -51,7 +53,7 @@
                                         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
                                         font-size: 1.6em;
                                         padding-bottom: 9px;
-                                        margin: -30px 0 -10px;
+                                        margin: -30px 0 20px;
                                         border-bottom: 1px solid #eee;
                                         font-weight: bold;
                                         color: #333;
@@ -393,6 +395,120 @@
             }
         </style>
     </body>
+ <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/employee/mark-employee-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Mark Attendance</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to mark attendance.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+               <button type="submit" class="btn btn-default">Yes</button>         <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post" action="/employee/view-attendance">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Select Month/Year</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Month">Month:</label>
+                            <select class="form-control" id="month" name="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year:</label>
+                            <select class="form-control" id="year" name="year"></select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-default">View</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+    // Tắt hoàn toàn backdrop mặc định
+    $.fn.modal.Constructor.DEFAULTS.backdrop = 'static';
+    
+    // Xử lý sự kiện modal
+    $('.modal').on('show.bs.modal', function() {
+        // Xóa backdrop cũ nếu có
+        $('.modal-backdrop').remove();
+    });
+    
+    $('.modal').on('hidden.bs.modal', function() {
+        // Đảm bảo xóa hoàn toàn backdrop
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+    });
+
+    // Xử lý nút đóng mạnh mẽ
+    $('[data-dismiss="modal"], .close').click(function(e) {
+        e.preventDefault();
+        var $modal = $(this).closest('.modal');
+        $modal.modal('hide');
+        
+        // Force remove backdrop sau 300ms nếu còn
+        setTimeout(function() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        }, 300);
+    });
+
+    // Khởi tạo năm cho dropdown
+    const yearSelect = document.getElementById('year');
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+});
+</script>
+
     <script>
         $(document).ready(function () {
            // Any additional script can go here
@@ -569,11 +685,7 @@
     white-space: nowrap;
     border-color: #c5bebe;
 }
-.profile-header {
-                height: 50px;
-                position: relative;
-             
-            }
+
             /* Header chứa title và button - dùng flex chia trái/phải */
 .profile-header {
     display: flex;
@@ -584,7 +696,7 @@
      
 .profile-header {
               
-              height: 50px;
+              height: 150px;
               position: relative;
           }
 </style>
@@ -710,25 +822,27 @@
                           <div class="col-sm-10">
                               <div class="row">
                                 <div class="col-sm-4">
-<div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
-  <% if(employee.photo) { %>
-      <img id="preview-image" src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle" style="max-width: 100%; max-height: 100%;">
-  <% } else { %>
-      <img id="preview-image" src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
-  <% } %>
-</div>
+                                    <div class="thumbnail" style="width: 150px; height: 150px; margin-bottom: 10px;">
+                                      <% if(employee.photo) { %>
+                                          <img src="/uploads/<%= employee.photo %>" alt="<%= employee.name %>" class="img-circle">
+                                      <% } else { %>
+                                          <img src="https://bootdey.com/img/Content/avatar/avatar7.png"  alt="Upload Photo" style="max-width: 100%; max-height: 100%;" class="img-circle">
+                                      <% } %>
+
+                                      
+                                    </div>
                                 </div>
                                   <div class="col-sm-8">
-<div class="custom-file-upload">
-    <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
-    <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
-        <i class="fa fa-upload"></i> Choose Photo
-    </button>
-  
-    <span id="file-name-display" style="margin-left: 10px;">
-        <%= employee.photo ? 'Current photo' : 'No file chosen' %>
-    </span>
-</div>
+                                      <div class="custom-file-upload">
+                            
+                                          <input type="file" id="photo" name="photo" accept="image/*" style="position: absolute; left: -9999px;">
+                                          <button type="button" class="btn btn-primary" onclick="document.getElementById('photo').click();">
+                                              <i class="fa fa-upload"></i> Upload Photo
+                                          </button>
+                                          <span id="file-name-display" style="margin-left: 10px;">
+                                              <%= employee.photo ? 'Current photo' : 'No file chosen' %>
+                                          </span>
+                                      </div>
                                       <p class="help-block">Upload a profile photo (optional)</p>
                                   </div>
                               </div>
@@ -1259,56 +1373,23 @@
             });
         }, 10 * 60 * 1000); // 10 phút
         
-$(document).ready(function() {
-    // Image preview
-    $("#photo").change(function() {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview-image').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(this.files[0]);
-            
-            // Hiển thị tên file đã chọn
-            $('#file-name-display').text(this.files[0].name);
-        } else {
-            // Reset về giá trị mặc định nếu không có file nào được chọn
-            $('#preview-image').attr('src', '<%= employee.photo ? "/uploads/" + employee.photo : "https://bootdey.com/img/Content/avatar/avatar7.png" %>');
-            $('#file-name-display').text('<%= employee.photo ? "Current photo" : "No file chosen" %>');
-        }
-    });
-
-    // Upload button click handler
-    $('#upload-button').click(function() {
-        var fileInput = $('#photo')[0];
-        if (fileInput.files.length === 0) {
-            alert('Please select a file to upload.');
-            return;
-        }
-        var formData = new FormData();
-        formData.append('photo', fileInput.files[0]);
-
-        $.ajax({
-            url: '/employee/upload-photo',
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response && response.filePath) {
-                    $('#preview-image').attr('src', response.filePath);
-                    $('#file-name-display').text(fileInput.files[0].name);
-                    alert('Photo uploaded successfully.');
-                } else {
-                    alert('Upload failed: Invalid response from server.');
+        // Image preview
+        $("#photo").change(function() {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview-image').attr('src', e.target.result);
                 }
-            },
-            error: function() {
-                alert('Upload failed: Server error.');
+                reader.readAsDataURL(this.files[0]);
+                
+                // Hiển thị tên file đã chọn
+                $('#file-name-display').text(this.files[0].name);
+            } else {
+                // Reset về giá trị mặc định nếu không có file nào được chọn
+                $('#preview-image').attr('src', 'https://via.placeholder.com/150');
+                $('#file-name-display').text('No file chosen');
             }
         });
-    });
-});
         
         // Auto-scroll to form validation errors if any
         if ($('.text-danger').length > 0) {
@@ -1624,5 +1705,5 @@ $(document).ready(function() {
         });
 });
 </script>
-    <%- include('../partials/modals') %>
+   
 </html>

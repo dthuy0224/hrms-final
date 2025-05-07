@@ -28,7 +28,9 @@ nav.navbar {
   margin-top: 50px;
   margin-right: 1000px;
 }
-
+.col-lg-12 h2{
+  margin-top: 10px;
+}
 .container {
   width: 1050px;
   margin: 0 auto; /* căn giữa */
@@ -51,7 +53,7 @@ nav.navbar {
 .form-row {
   max-width: 1000px;
   width: 100%;
-  height: 490px;
+  height: 480px;
   margin: 0 auto; /* căn giữa */
   display: flex;
   flex-wrap: nowrap; /* hoặc wrap nếu muốn responsive */
@@ -116,7 +118,7 @@ nav.navbar {
 .form-buttons .btn-apply {
   background-color: #007bff;
   color: white;
-  padding: 10px 20px;
+  padding: 8px 18px;
   font-size: 15px;
   font-weight: 600;
   border: none;

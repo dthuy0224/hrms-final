@@ -2,6 +2,7 @@
 <html>
     <%- include('../partials/header') %>
     <head>
+<link rel="stylesheet" href="/stylesheets/viewAllEmployee.css" />
         <!-- Add moment.js in the head section to ensure it loads early -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
         <script>
@@ -126,13 +127,13 @@
                                 <table id="employeesTable" class="table table-striped table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>ID <i class="fa fa-sort"></i></th>
-                                            <th>Name <i class="fa fa-sort"></i></th>
-                                            <th>Email <i class="fa fa-sort"></i></th>
-                                            <th>Contact <i class="fa fa-sort"></i></th>
-                                            <th>Department <i class="fa fa-sort"></i></th>
-                                            <th>Designation <i class="fa fa-sort"></i></th>
-                                            <th>Actions</th>
+                                            <th>ID </th>
+                                            <th>Name </th>
+                                            <th>Email </i></th>
+                                            <th>Contact </i></th>
+                                            <th>Department </i></th>
+                                            <th>Designation </i></th>
+                                         
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -144,19 +145,7 @@
                                                 <td><%= item.contactNumber %></td>
                                                 <td><%= item.department || 'N/A' %></td>
                                                 <td><%= item.designation || 'N/A' %></td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <a href="/manager/all-employee-skills/<%= item._id %>" class="btn btn-xs btn-default" title="View Skills">
-                                                            <i class="fa fa-laptop"></i>
-                                                        </a>
-                                                        <a href="/manager/all-employee-projects/<%= item._id %>" class="btn btn-xs btn-default" title="View Projects">
-                                                            <i class="fa fa-tasks"></i>
-                                                        </a>
-                                                        <a href="/manager/provide-performance-appraisal/<%= item._id %>" class="btn btn-xs btn-default" title="Performance Appraisal">
-                                                            <i class="fa fa-thumbs-up"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
+                                        
                                             </tr>
                                         <% }) %>
                                     </tbody>
