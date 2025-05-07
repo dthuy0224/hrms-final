@@ -212,87 +212,19 @@
                     <p>Are you sure you want to approve this application.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        No
-                    </button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                 <button type="button" class="btn btn-default" data-dismiss="modal">
                         Yes
+                    </button>  
+ <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
                     </button>
+                    
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="myModal2" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <form method="post" action="/admin/mark-attendance">
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                            &times;
-                        </button>
-                        <h4 class="modal-title">Mark Attendance</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to mark attendance.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
-                        <button type="reset" class="btn btn-default" data-dismiss="modal">
-                            No
-                        </button>
-                        <button type="submit" class="btn btn-default">Yes</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div id="myModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <!-- Modal content-->
-            <div class="modal-content">
-                <form method="post" action="/admin/view-attendance">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
-                            &times;
-                        </button>
-                        <h4 class="modal-title">Select Month/Year</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="Month">Month:</label>
-                            <select class="form-control" id="month" name="month">
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="year">Year:</label>
-                            <select class="form-control" id="year" name="year"></select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
-                        <button type="reset" class="btn btn-default" data-dismiss="modal">
-                            Close
-                        </button>
-                        <button type="submit" class="btn btn-default">View</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <%- include('../partials/modals') %>
     <style>
       /* --- Form Container --- */
       .form-group-sm {
@@ -307,18 +239,18 @@
     
       /* --- Page Headers --- */
       .page-header {
-        font-size: 1.8em;
+        font-size: 1.6em;
         color: #2c3e50;
         font-weight: 700;
         margin: 0 0 20px 0;
         padding-bottom: 10px;
         border-bottom: 3px solid #2980b9;
-        text-align: center;
+        
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
     
       .page-header1 {
-        font-size: 1.5em;
+        font-size: 1.2em;
         color: #2980b9;
         font-weight: 700;
         margin: 0 0 20px 0;
@@ -333,7 +265,7 @@
       }
       
       .page-header2 {
-        font-size: 1.5em;
+        font-size: 1.2em;
         color: #2980b9;
         font-weight: 700;
         margin: 0 0 20px 0;
@@ -361,7 +293,7 @@
     
       .info-table th, .info-table td {
         padding: 12px 15px;
-        font-size: 15px;
+        font-size: 12px;
         text-align: center;
         border-bottom: 1px solid #d6e9f8;
         color: #2c3e50;
@@ -391,14 +323,14 @@
     
       .leave-table td {
         padding: 10px;
-        font-size: 14px;
+        font-size: 12px;
         text-align: center;
       }
     
       /* --- Leave Header --- */
       .leave-header {
         margin: 15px 0;
-        font-size: 14px;
+        font-size: 12px;
       }
     
       /* --- Bordered Box (Reason, Delegate Content) --- */
@@ -446,7 +378,7 @@
       /* --- Reason Content --- */
       .reason-content {
         margin-top: 10px;
-        font-size: 14px;
+        font-size: 12px;
         color: #2c3e50;
         line-height: 1.6;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -516,7 +448,7 @@
     
       .btn-back, .btn-submit {
         padding: 10px 20px;
-        font-size: 15px;
+        font-size: 12px;
         border-radius: 8px;
         transition: all 0.2s ease;
         border: none;
@@ -546,7 +478,7 @@
       }
     
       .btn-submit:hover {
-        background-color: #1b3a57;
+        background-color: #ffffff;
         box-shadow: 0 4px 12px rgba(27, 58, 87, 0.6);
       }
     
@@ -557,7 +489,7 @@
         border-radius: 6px;
         border: 1px solid #2980b9;
         background: #ecf6fc;
-        font-size: 15px;
+        font-size: 12px;
         color: #1b3a57;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       }
@@ -617,7 +549,7 @@
         padding: 5px 12px;
         border-radius: 12px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 12px;
         color: #fff;
         text-align: center;
         min-width: 100px;

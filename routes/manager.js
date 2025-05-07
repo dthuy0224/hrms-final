@@ -575,6 +575,8 @@ router.get("/applied-leaves", function appliedLeaves(req, res, next) {
  * Known Bugs: None
  */
 
+
+
 router.get("/view-profile", function viewProfile(req, res, next) {
   User.findById(req.user._id, function getUser(err, user) {
     if (err) {
@@ -590,6 +592,22 @@ router.get("/view-profile", function viewProfile(req, res, next) {
     });
   });
 });
+
+
+router.get('/view-profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).send('User not found');
+    res.render('Manager/viewEmployeeProfile', { user, moment });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
 
 /**
  * Description:

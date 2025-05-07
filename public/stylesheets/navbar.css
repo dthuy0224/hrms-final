@@ -1,0 +1,23 @@
+﻿nav.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* đảm bảo navbar luôn nằm trên các thành phần khác */
+  height: 58px; /* hoặc chiều cao thực tế navbar */
+  background-color: #ffffff; /* hoặc màu của bạn */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* tạo hiệu ứng nổi nhẹ */
+}
+#sidebar-wrapper {
+  margin-top: 0px; /* CHÍNH XÁC chiều cao của navbar */
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #000000;
+  width: 250px; /* hoặc chiều rộng bạn mong muốn */
+ 
+}
+
+body {
+  padding-top: 58px; /* cùng chiều cao với navbar */
+}

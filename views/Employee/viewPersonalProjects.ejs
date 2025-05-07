@@ -189,7 +189,7 @@
             });
         </script>
     </body>
-    <div id="myModal2" class="modal fade" role="dialog">
+ <div id="myModal2" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <form method="post" action="/employee/mark-employee-attendance">
                 <!-- Modal content-->
@@ -205,7 +205,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-  <button type="submit" class="btn btn-default">Yes</button>                      <button type="reset" class="btn btn-default" data-dismiss="modal">
+               <button type="submit" class="btn btn-default">Yes</button>         <button type="reset" class="btn btn-default" data-dismiss="modal">
                             Cancel
                         </button>
                         
@@ -259,6 +259,50 @@
             </div>
         </div>
     </div>
+
+<script>
+$(document).ready(function() {
+    // Tắt hoàn toàn backdrop mặc định
+    $.fn.modal.Constructor.DEFAULTS.backdrop = 'static';
+    
+    // Xử lý sự kiện modal
+    $('.modal').on('show.bs.modal', function() {
+        // Xóa backdrop cũ nếu có
+        $('.modal-backdrop').remove();
+    });
+    
+    $('.modal').on('hidden.bs.modal', function() {
+        // Đảm bảo xóa hoàn toàn backdrop
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+    });
+
+    // Xử lý nút đóng mạnh mẽ
+    $('[data-dismiss="modal"], .close').click(function(e) {
+        e.preventDefault();
+        var $modal = $(this).closest('.modal');
+        $modal.modal('hide');
+        
+        // Force remove backdrop sau 300ms nếu còn
+        setTimeout(function() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        }, 300);
+    });
+
+    // Khởi tạo năm cho dropdown
+    const yearSelect = document.getElementById('year');
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+});
+</script>
+
 
     <style>
         .badge {
@@ -319,4 +363,5 @@
             text-align: center;
         }
     </style>
+
 </html>

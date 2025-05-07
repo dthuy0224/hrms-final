@@ -7,7 +7,9 @@ body {
     margin: 0;
     padding: 0;
 }
-
+.col-lg-12 h2{
+    margin-top: -20px;
+}
 /* Container chính */
 .container-fluid.xyz {
     padding: 30px;
@@ -195,7 +197,7 @@ div.dataTables_wrapper div.dataTables_paginate {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-top: 80px;
+    margin-top: 60px;
 }
 
 /* Hover nút */

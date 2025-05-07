@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <%- include('../partials/header') %>
-
+<link rel="stylesheet" href="/stylesheets/project.css" />
     <body>
         <nav class="navbar navbar-default no-margin">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -44,7 +44,7 @@
                     <div class="row">
                         <div class="col-lg-12">
                             <div id="menu1">
-                                <h1>Project's Details</h1>
+                                <h1><i class="fas fa-chevron-right" style="margin-right: 10px;"></i>Project's Details</h1>
                                 
                                 <!-- Flash Messages -->
                                 <% if (messages && messages.success && messages.success.length > 0) { %>
@@ -83,30 +83,32 @@
                                         </div>
                                         <div class="panel-body">
                                             <div class="row">
-                                                <div class="col-md-6">
-                                                    <h4>Title : <label id="title" class="text-primary"><%= project.title %></label></h4>
-                                                    <h4>Type : <label id="type"><%= project.type %></label></h4>
-                                                    <h4>Status : 
-                                                        <label id="status">
-                                                            <% if(project.status === 'Not Started' || project.status === 'Not started' || project.status === 'pending') { %>
-                                                                <span class="label label-default" style="background-color: #f39c12;">Not Started</span>
-                                                            <% } else if(project.status === 'In Progress' || project.status === 'On Going' || project.status === 'On going') { %>
-                                                                <span class="label label-primary" style="background-color: #2ecc71;">In Progress</span>
-                                                            <% } else if(project.status === 'Out Date') { %>
-                                                                <span class="label label-danger" style="background-color: #e74c3c;">Out Date</span>
-                                                            <% } else if(project.status === 'Completed' || project.status === 'Finished') { %>
-                                                                <span class="label label-success" style="background-color: #95a5a6;">Completed</span>
-                                                            <% } else { %>
-                                                                <span class="label label-default"><%= project.status %></span>
-                                                            <% } %>
-                                                        </label>
-                                                    </h4>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h4>Start Date : <label id="start"><%= moment(project.startDate).format('MMMM Do YYYY'); %></label></h4>
-                                                    <h4>End Date : <label id="end"><%= moment(project.endDate).format('MMMM Do YYYY'); %></label></h4>
-                                                    <h4>Duration : <label><%= Math.ceil((new Date(project.endDate) - new Date(project.startDate)) / (1000 * 60 * 60 * 24)) %> days</label></h4>
-                                                </div>
+                                         <div class="col-md-6">
+    <h4><strong>Title :</strong> <label id="title" class="text-primary"><%= project.title %></label></h4>
+    <h4><strong>Type :</strong> <label id="type"><%= project.type %></label></h4>
+    <h4><strong>Status :</strong> 
+        <label id="status">
+            <% if (project.status === 'Not Started' || project.status === 'Not started' || project.status === 'pending') { %>
+                <span class="label label-warning">Not Started</span>
+            <% } else if (project.status === 'In Progress' || project.status === 'On Going' || project.status === 'On going') { %>
+                <span class="label label-success">In Progress</span>
+            <% } else if (project.status === 'Out Date') { %>
+                <span class="label label-danger">Out Date</span>
+            <% } else if (project.status === 'Completed' || project.status === 'Finished') { %>
+                <span class="label label-secondary">Completed</span>
+            <% } else { %>
+                <span class="label label-default"><%= project.status %></span>
+            <% } %>
+        </label>
+    </h4>
+</div>
+
+<div class="col-md-6">
+    <h4><strong>Start Date :</strong> <label id="start"><%= moment(project.startDate).format('MMMM Do YYYY'); %></label></h4>
+    <h4><strong>End Date :</strong> <label id="end"><%= moment(project.endDate).format('MMMM Do YYYY'); %></label></h4>
+    <h4><strong>Duration :</strong> <label><%= Math.ceil((new Date(project.endDate) - new Date(project.startDate)) / (1000 * 60 * 60 * 24)) %> days</label></h4>
+</div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -117,7 +119,7 @@
                                         </div>
                                         <div class="panel-body">
                                             <div style="max-height: 200px; overflow: auto;">
-                                                <p style="font-family: 'Arial'; font-size: medium" id="description" style="word-wrap: break-word;">
+                                                <p style="font-family: 'Arial'; font-size: 14px" id="description" style="word-wrap: break-word;">
                                                     <%= project.description; %>
                                                 </p>
                                             </div>
@@ -172,6 +174,8 @@
                 }, 5000);
             });
         </script>
+
+
     </body>
 
      

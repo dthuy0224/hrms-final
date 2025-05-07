@@ -3,10 +3,9 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
 />
-
-<div id="sidebar-wrapper" style="min-height: 100vh;">
+<link rel="stylesheet" href="/stylesheets/navbar.css" />
+<div id="sidebar-wrapper">
   <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
-    
     <li class="<%= typeof path !== 'undefined' && path === '/employee/dashboard' ? 'active' : '' %>">
       <a href="/employee/dashboard">
         <span class="fa-stack fa-lg pull-left"><i class="fa fa-dashboard fa-stack-1x"></i></span>
@@ -82,3 +81,4 @@ document.getElementById('markAttendance').addEventListener('click', function () 
   </script>
 
 <!-- /#sidebar-wrapper -->
+

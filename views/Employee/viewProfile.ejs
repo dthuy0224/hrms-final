@@ -2,8 +2,10 @@
 <html>
 <%- include('../partials/header') %>
 <link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
-<link rel="stylesheet" href="/stylesheets/thuongTitle.css" />
-    <body>
+
+
+
+ <body>
          <nav class="navbar navbar-default no-margin">
             <!-- Brand and toggle get grouped for better mobile display -->
 
@@ -393,6 +395,120 @@
             }
         </style>
     </body>
+ <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <form method="post" action="/employee/mark-employee-attendance">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Mark Attendance</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to mark attendance.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+               <button type="submit" class="btn btn-default">Yes</button>         <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Cancel
+                        </button>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form method="post" action="/employee/view-attendance">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">
+                            &times;
+                        </button>
+                        <h4 class="modal-title">Select Month/Year</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="Month">Month:</label>
+                            <select class="form-control" id="month" name="month">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year:</label>
+                            <select class="form-control" id="year" name="year"></select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="reset" class="btn btn-default" data-dismiss="modal">
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-default">View</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+    // Tắt hoàn toàn backdrop mặc định
+    $.fn.modal.Constructor.DEFAULTS.backdrop = 'static';
+    
+    // Xử lý sự kiện modal
+    $('.modal').on('show.bs.modal', function() {
+        // Xóa backdrop cũ nếu có
+        $('.modal-backdrop').remove();
+    });
+    
+    $('.modal').on('hidden.bs.modal', function() {
+        // Đảm bảo xóa hoàn toàn backdrop
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+    });
+
+    // Xử lý nút đóng mạnh mẽ
+    $('[data-dismiss="modal"], .close').click(function(e) {
+        e.preventDefault();
+        var $modal = $(this).closest('.modal');
+        $modal.modal('hide');
+        
+        // Force remove backdrop sau 300ms nếu còn
+        setTimeout(function() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        }, 300);
+    });
+
+    // Khởi tạo năm cho dropdown
+    const yearSelect = document.getElementById('year');
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentYear) option.selected = true;
+        yearSelect.appendChild(option);
+    }
+});
+</script>
+
     <script>
         $(document).ready(function () {
            // Any additional script can go here
@@ -569,11 +685,7 @@
     white-space: nowrap;
     border-color: #c5bebe;
 }
-.profile-header {
-                height: 50px;
-                position: relative;
-             
-            }
+
             /* Header chứa title và button - dùng flex chia trái/phải */
 .profile-header {
     display: flex;
@@ -584,7 +696,7 @@
      
 .profile-header {
               
-              height: 50px;
+              height: 150px;
               position: relative;
           }
 </style>
@@ -1593,5 +1705,5 @@
         });
 });
 </script>
-    <%- include('../partials/modals') %>
+   
 </html>

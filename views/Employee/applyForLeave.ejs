@@ -72,7 +72,17 @@ background-color: rgba(0,0,0,0.5);}
                           border-bottom: 1px solid #eee;
                           font-weight: bold;
                           color: #333;
+
                         }
+#sidebar-wrapper {
+  margin-top: 58px; /* CHÍNH XÁC chiều cao của navbar */
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #000000;
+  width: 250px; /* hoặc chiều rộng bạn mong muốn */
+ 
+}
                         </style>
                     <div class="container" id="menu1" style="overflow: auto;">
                       <form action="/employee/apply-for-leave" method="post" id="formApply" style="display: flex; flex-wrap: wrap; gap: 30px;">
