@@ -23,7 +23,7 @@ router.get("/", function viewHome(req, res, next) {
  */
 router.get("/dashboard", function viewDashboard(req, res, next) {
   // Get the count of pending leaves
-  Leave.countDocuments({ applicantID: req.user._id, status: "Pending" }, function(err, pendingLeaves) {
+  Leave.countDocuments({ applicantID: req.user._id, adminResponse: "Pending" }, function(err, pendingLeaves) {
     if (err) {
       console.log(err);
       pendingLeaves = 0;

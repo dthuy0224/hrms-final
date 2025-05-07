@@ -63,7 +63,7 @@ router.get("/", function viewHomePage(req, res, next) {
     // Get active projects count - với nhiều loại status khác nhau và không phân biệt chữ hoa/chữ thường
     Project.countDocuments({ 
       status: { 
-        $regex: /(on going|ongoing|in progress)/i 
+        $regex: /^in\s*progress$/i 
       } 
     }, function(err, activeProjectsCount) {
       if (!err) {
@@ -82,7 +82,7 @@ router.get("/", function viewHomePage(req, res, next) {
         
         // Get in-progress projects count - không phân biệt chữ hoa/chữ thường
         Project.countDocuments({ 
-          status: { $regex: /(on going|ongoing|in progress)/i } 
+          status: { $regex: /^in\s*progress$/i } 
         }, function(err, inProgressProjectsCount) {
           if (!err) {
             dateVars.inProgressProjectsCount = inProgressProjectsCount || 0;
