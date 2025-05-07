@@ -57,8 +57,68 @@
                                             Attendance Rate
                                         </div>
                                         <div class="panel-body text-center">
-                                            <h2><%= attendanceRate %>%</h2>
-                                            <p><%= presentDays %> of <%= workingDaysInMonth %> working days</p>
+                                            <% 
+                                              // Tính toán số ngày làm việc thực tế trong tháng (loại bỏ cuối tuần và ngày lễ)
+                                              let workingDays = 0;
+                                              const daysInCurrentMonth = new Date(selectedYear, Number(month), 0).getDate();
+                                              
+                                              // Khai báo ngày lễ - import từ vietnameseHolidays.js
+                                              const vietnameseHolidays = [
+                                                { name: "Tết Dương Lịch", date: 1, month: 1, numberOfDays: 1 },
+                                                { name: "Tết Nguyên đán 2024", date: 10, month: 2, year: 2024, numberOfDays: 5 },
+                                                { name: "Giỗ Tổ Hùng Vương 2024", date: 18, month: 4, year: 2024, numberOfDays: 1 },
+                                                { name: "Ngày Giải phóng miền Nam", date: 30, month: 4, numberOfDays: 1 },
+                                                { name: "Ngày Quốc tế Lao động", date: 1, month: 5, numberOfDays: 1 },
+                                                { name: "Ngày Quốc khánh", date: 2, month: 9, numberOfDays: 1 }
+                                              ];
+                                              
+                                              // Kiểm tra xem ngày hiện tại có phải là ngày lễ không
+                                              function isHoliday(day, month, year) {
+                                                for (const holiday of vietnameseHolidays) {
+                                                  // Kiểm tra ngày và tháng
+                                                  if (holiday.date === day && holiday.month === month) {
+                                                    // Nếu holiday có trường year, kiểm tra thêm năm
+                                                    if (holiday.year && holiday.year !== year) {
+                                                      continue;
+                                                    }
+                                                    
+                                                    // Kiểm tra cả khoảng nghỉ lễ nhiều ngày
+                                                    if (holiday.numberOfDays > 1) {
+                                                      // Kiểm tra xem ngày hiện tại có nằm trong khoảng nghỉ lễ không
+                                                      const holidayStartDate = new Date(year, holiday.month - 1, holiday.date);
+                                                      const checkDate = new Date(year, month - 1, day);
+                                                      const holidayEndDate = new Date(holidayStartDate);
+                                                      holidayEndDate.setDate(holidayStartDate.getDate() + holiday.numberOfDays - 1);
+                                                      
+                                                      if (checkDate >= holidayStartDate && checkDate <= holidayEndDate) {
+                                                        return true;
+                                                      }
+                                                    } else {
+                                                      return true;
+                                                    }
+                                                  }
+                                                }
+                                                return false;
+                                              }
+                                              
+                                              // Đếm số ngày làm việc (loại bỏ thứ 7, chủ nhật và ngày lễ)
+                                              for (let day = 1; day <= daysInCurrentMonth; day++) {
+                                                const date = new Date(selectedYear, Number(month)-1, day);
+                                                const dayOfWeek = date.getDay();
+                                                // 0 = Chủ nhật, 6 = Thứ 7
+                                                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                                                  // Nếu không phải cuối tuần, kiểm tra có phải ngày lễ không
+                                                  if (!isHoliday(day, Number(month), selectedYear)) {
+                                                    workingDays++;
+                                                  }
+                                                }
+                                              }
+                                              
+                                              // Tính tỷ lệ mới
+                                              const calculatedRate = workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
+                                            %>
+                                            <h2><%= calculatedRate %>%</h2>
+                                            <p><%= presentDays %> of <%= workingDays %> working days</p>
                                         </div>
                                     </div>
                                 </div>
@@ -106,21 +166,17 @@
                             <!-- Export & Print Buttons -->
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <button class="btn btn-primary" id="exportBtn">
-                                        <i class="fa fa-download"></i> Export to Excel
-                                    </button>
-                                    <button class="btn btn-default" id="printBtn">
-                                        <i class="fa fa-print"></i> Print
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Search Bar -->
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="searchInput">Search:</label>
-                                        <input type="text" id="searchInput" class="form-control" placeholder="Search records...">
+                                    <div class="control-panel clearfix">
+                                        <div class="pull-left button-group">
+                                            <button class="btn btn-primary" id="exportBtn">
+                                                <i class="fa fa-download"></i> Export to Excel
+                                            </button>
+                                            <button class="btn btn-default" id="printBtn">
+                                                <i class="fa fa-print"></i> Print
+                                            </button>
+                                        </div>
+                                        <!-- DataTables search sẽ được đặt ở đây bởi JavaScript -->
+                                        <div id="custom-search-container" class="pull-right"></div>
                                     </div>
                                 </div>
                             </div>
@@ -222,29 +278,6 @@
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
-                                        <tfoot>
-                                            <tr>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search Date">
-                                                </th>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search Status">
-                                                </th>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search">
-                                                </th>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search">
-                                                </th>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search">
-                                                </th>
-                                                <th>
-                                                    <input type="text" class="form-control input-sm" placeholder="Search">
-                                                </th>
-                                                <th></th>
-                                            </tr>
-                                        </tfoot>
                                         <tbody>
                                             <% attendance.forEach(function(item){ %>
                                                 <tr>
@@ -279,7 +312,7 @@
                                                                 <button type="submit" class="btn btn-primary btn-sm">Check Out</button>
                                                             </form>
                                                         <% } else { %>
-                                                            <button class="btn btn-info btn-sm" disabled>Request Edit</button>
+                                                            <button class="btn btn-info btn-sm" disabled>Completed</button>
                                                         <% } %>
                                                     </td>
                                                 </tr>
@@ -311,35 +344,46 @@
         <script src="/javascripts/sidebar_menu.js"></script>
         <script>
             $(document).ready(function () {
-                // Initialize DataTable
+                // Initialize DataTable with Excel export functionality
                 var table = $("#attendanceTable").DataTable({
                     order: [],
                     paging: true,
                     searching: true,
-                    pageLength: 10
-                });
-                
-                // Setup - add a text input to each footer cell
-                $("#attendanceTable tfoot th").each(function () {
-                    var title = $(this).text();
-                    if (title != "") {
-                        $(this).html(
-                            '<input type="text" class="form-control" placeholder="Search ' +
-                            title +
-                            '" />'
-                        );
+                    pageLength: 10,
+                    // Ẩn thanh tìm kiếm mặc định để chúng ta có thể di chuyển nó
+                    dom: '<"row"<"col-md-12"B>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: 'Export to Excel',
+                            className: 'hidden-excel-button',
+                            title: 'Attendance Records - <%= monthName %> <%= selectedYear %>',
+                            exportOptions: {
+                                columns: [0, 1, 2, 3, 4, 5] // Skip Actions column
+                            }
+                        }
+                    ],
+                    language: {
+                        search: "Search:",
+                        zeroRecords: "No matching records found",
+                        info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                        infoEmpty: "Showing 0 to 0 of 0 entries",
+                        infoFiltered: "(filtered from _MAX_ total entries)"
                     }
                 });
-
-                // Apply the search
-                table.columns().every(function () {
-                    var that = this;
-
-                    $("input", this.footer()).on("keyup change", function () {
-                        if (that.search() !== this.value) {
-                            that.search(this.value).draw();
-                        }
-                    });
+                
+                // Di chuyển thanh tìm kiếm vào vị trí tùy chỉnh
+                $("#custom-search-container").append(
+                    $('<div class="custom-search-box">')
+                    .append('<label>Search:</label>')
+                    .append($('<input type="search" class="form-control" placeholder="Search records...">').on('keyup', function() {
+                        table.search($(this).val()).draw();
+                    }))
+                );
+                
+                // Connect custom Export button to DataTables button
+                $("#exportBtn").on("click", function() {
+                    $('.hidden-excel-button').click();
                 });
                 
                 // Year dropdown population
@@ -347,19 +391,9 @@
                     $("#year").append($("<option />").val(i).html(i));
                 }
                 
-                // Export to Excel functionality
-                $("#exportBtn").on("click", function() {
-                    table.button('.buttons-excel').trigger();
-                });
-                
                 // Print functionality
                 $("#printBtn").on("click", function() {
                     window.print();
-                });
-                
-                // Set up search functionality
-                $("#searchInput").on("keyup", function() {
-                    table.search(this.value).draw();
                 });
             });
             
@@ -389,6 +423,85 @@
                 return hours;
             }
         </script>
+        
+        <style>
+            .hidden-excel-button {
+                display: none;
+            }
+            
+            /* Làm đẹp control panel */
+            .control-panel {
+                margin-bottom: 20px;
+                background-color: #f8f8f8;
+                border: 1px solid #e7e7e7;
+                border-radius: 4px;
+                padding: 15px;
+            }
+            
+            .button-group button {
+                margin-right: 8px;
+            }
+            
+            /* CSS cho ô tìm kiếm tùy chỉnh */
+            .custom-search-box {
+                display: flex;
+                align-items: center;
+            }
+            
+            .custom-search-box label {
+                margin-right: 10px;
+                margin-bottom: 0;
+                font-weight: bold;
+            }
+            
+            .custom-search-box input {
+                width: 250px;
+                height: 34px;
+                padding: 6px 12px;
+                font-size: 14px;
+                line-height: 1.42857143;
+                color: #555;
+                background-color: #fff;
+                background-image: none;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            
+            /* Clearfix cho float elements */
+            .clearfix:after {
+                content: "";
+                display: table;
+                clear: both;
+            }
+            
+            /* Làm đẹp phân trang và thông tin */
+            .dataTables_info, .dataTables_paginate {
+                margin-top: 15px;
+            }
+            
+            .dataTables_paginate .paginate_button {
+                cursor: pointer;
+                padding: 6px 12px;
+                margin-left: -1px;
+                line-height: 1.42857143;
+                color: #337ab7;
+                text-decoration: none;
+                background-color: #fff;
+                border: 1px solid #ddd;
+            }
+            
+            .dataTables_paginate .paginate_button.current {
+                background-color: #337ab7;
+                color: white;
+                border-color: #337ab7;
+            }
+            
+            @media print {
+                .control-panel, .dataTables_paginate, .dataTables_info {
+                    display: none !important;
+                }
+            }
+        </style>
 
 
     </body>

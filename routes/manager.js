@@ -47,7 +47,7 @@ router.get("/", function viewHomePage(req, res, next) {
     teamCount: 0,
     activeProjectsCount: 0,
     pendingLeavesCount: 0,
-    todayAttendanceCount: 0,
+    monthlyAttendanceCount: 0,
     completedProjectsCount: 0,
     inProgressProjectsCount: 0,
     moment: moment
@@ -98,19 +98,18 @@ router.get("/", function viewHomePage(req, res, next) {
               console.log("Pending leaves count:", pendingLeavesCount);
             }
             
-            // Get today's attendance count
-            var today = moment().startOf('day');
-            var tomorrow = moment(today).add(1, 'days');
+            // Get monthly attendance count
+            var currentMonth = new Date().getMonth() + 1;
+            var currentYear = new Date().getFullYear();
             
             Attendance.countDocuments({
-              date: {
-                $gte: today.toDate(),
-                $lt: tomorrow.toDate()
-              }
-            }, function(err, todayAttendanceCount) {
+              employeeID: req.user._id,
+              month: currentMonth,
+              year: currentYear
+            }, function(err, monthlyAttendanceCount) {
               if (!err) {
-                dateVars.todayAttendanceCount = todayAttendanceCount || 0;
-                console.log("Today's attendance count:", todayAttendanceCount);
+                dateVars.monthlyAttendanceCount = monthlyAttendanceCount || 0;
+                console.log("Monthly attendance count:", monthlyAttendanceCount);
               }
               
               // Hiển thị tổng quan về dữ liệu dashboard
