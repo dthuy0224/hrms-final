@@ -61,8 +61,18 @@
       <div class="container-fluid xyz">
         <div class="row">
           <div class="col-lg-12">
-            <h1 class="ThuongTitle"><i class="fa fa-angle-right"></i> Admin Dashboard</h1>
-     
+            <h5 class="ThuongTitleAdminDashboard"><i class="fa fa-angle-right"></i> Admin Dashboard</h5>
+            <style>
+              .ThuongTitleAdminDashboard {
+                  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                  font-size: 1.6em;
+                  padding-bottom: 9px;
+                  margin: 10px 0 20px;
+                  border-bottom: 1px solid #eee;
+                  font-weight: bold;
+                  color: #333;
+                }
+                </style>
             <div class="time-container" style="margin-bottom: 15px; position: relative;">
               <p class="text-muted" id="current-time">
               <%= moment().format('dddd') %><br>
