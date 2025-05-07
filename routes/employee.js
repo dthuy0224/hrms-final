@@ -164,7 +164,7 @@ router.post(
   async function viewAttendanceSheet(req, res, next) {
     try {
       var monthName = "";
-      switch (req.body.month) {
+      switch (parseInt(req.body.month)) {
         case 1:
           monthName = "January";
           break;
@@ -203,18 +203,27 @@ router.post(
           break;
       }
 
-      const workingDaysInMonth = await calculateWorkingDaysInMonth(req.body.month, req.body.year);
+      console.log(`POST view-attendance - Month: ${req.body.month}, Year: ${req.body.year}`);
+      
+      // Đảm bảo month và year là số
+      const month = parseInt(req.body.month);
+      const year = parseInt(req.body.year);
+      
+      // Tính ngày làm việc trong tháng
+      const workingDaysInMonth = await calculateWorkingDaysInMonth(month, year);
+      console.log(`Calculated working days for ${monthName} ${year}: ${workingDaysInMonth}`);
       
       const docs = await Attendance.find(
         {
           employeeID: req.user._id,
-          month: req.body.month,
-          year: req.body.year,
+          month: month,
+          year: year,
         },
         null,
         { sort: { date: 1 } }
       );
 
+      console.log(`Found ${docs.length} attendance records`);
       var found = docs.length > 0 ? 1 : 0;
       const presentDays = docs.length;
       const attendanceRate = Math.round((presentDays / workingDaysInMonth) * 100);

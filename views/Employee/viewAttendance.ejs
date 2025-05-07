@@ -67,67 +67,18 @@
                                         </div>
                                         <div class="panel-body text-center">
                                             <% 
-                                              // Tính toán số ngày làm việc thực tế trong tháng (loại bỏ cuối tuần và ngày lễ)
-                                              let workingDays = 0;
-                                              const daysInCurrentMonth = new Date(selectedYear, Number(month), 0).getDate();
-                                              
-                                              // Khai báo ngày lễ - import từ vietnameseHolidays.js
-                                              const vietnameseHolidays = [
-                                                { name: "Tết Dương Lịch", date: 1, month: 1, numberOfDays: 1 },
-                                                { name: "Tết Nguyên đán 2024", date: 10, month: 2, year: 2024, numberOfDays: 5 },
-                                                { name: "Giỗ Tổ Hùng Vương 2024", date: 18, month: 4, year: 2024, numberOfDays: 1 },
-                                                { name: "Ngày Giải phóng miền Nam", date: 30, month: 4, numberOfDays: 1 },
-                                                { name: "Ngày Quốc tế Lao động", date: 1, month: 5, numberOfDays: 1 },
-                                                { name: "Ngày Quốc khánh", date: 2, month: 9, numberOfDays: 1 }
-                                              ];
-                                              
-                                              // Kiểm tra xem ngày hiện tại có phải là ngày lễ không
-                                              function isHoliday(day, month, year) {
-                                                for (const holiday of vietnameseHolidays) {
-                                                  // Kiểm tra ngày và tháng
-                                                  if (holiday.date === day && holiday.month === month) {
-                                                    // Nếu holiday có trường year, kiểm tra thêm năm
-                                                    if (holiday.year && holiday.year !== year) {
-                                                      continue;
-                                                    }
-                                                    
-                                                    // Kiểm tra cả khoảng nghỉ lễ nhiều ngày
-                                                    if (holiday.numberOfDays > 1) {
-                                                      // Kiểm tra xem ngày hiện tại có nằm trong khoảng nghỉ lễ không
-                                                      const holidayStartDate = new Date(year, holiday.month - 1, holiday.date);
-                                                      const checkDate = new Date(year, month - 1, day);
-                                                      const holidayEndDate = new Date(holidayStartDate);
-                                                      holidayEndDate.setDate(holidayStartDate.getDate() + holiday.numberOfDays - 1);
-                                                      
-                                                      if (checkDate >= holidayStartDate && checkDate <= holidayEndDate) {
-                                                        return true;
-                                                      }
-                                                    } else {
-                                                      return true;
-                                                    }
-                                                  }
-                                                }
-                                                return false;
-                                              }
-                                              
-                                              // Đếm số ngày làm việc (loại bỏ thứ 7, chủ nhật và ngày lễ)
-                                              for (let day = 1; day <= daysInCurrentMonth; day++) {
-                                                const date = new Date(selectedYear, Number(month)-1, day);
-                                                const dayOfWeek = date.getDay();
-                                                // 0 = Chủ nhật, 6 = Thứ 7
-                                                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-                                                  // Nếu không phải cuối tuần, kiểm tra có phải ngày lễ không
-                                                  if (!isHoliday(day, Number(month), selectedYear)) {
-                                                    workingDays++;
-                                                  }
-                                                }
-                                              }
-                                              
-                                              // Tính tỷ lệ mới
-                                              const calculatedRate = workingDays > 0 ? Math.round((presentDays / workingDays) * 100) : 0;
+                                            try {
+                                                // Sử dụng workingDaysInMonth được truyền từ controller
+                                                var calculatedRate = typeof workingDaysInMonth !== 'undefined' && workingDaysInMonth > 0 ? 
+                                                   Math.round((presentDays / workingDaysInMonth) * 100) : 0;
                                             %>
                                             <h2><%= calculatedRate %>%</h2>
-                                            <p><%= presentDays %> of <%= workingDays %> working days</p>
+                                            <p><%= presentDays %> of <%= typeof workingDaysInMonth !== 'undefined' ? workingDaysInMonth : 0 %> working days</p>
+                                            <% } catch (error) { %>
+                                            <h2>0%</h2>
+                                            <p><%= presentDays || 0 %> of 0 working days</p>
+                                            <p style="color: #999; font-size: 11px;">Error calculating working days</p>
+                                            <% } %>
                                         </div>
                                     </div>
                                 </div>
@@ -291,8 +242,11 @@
                                             <% attendance.forEach(function(item){ %>
                                                 <tr>
                                                     <td>
-                                                        <%= moment(item.month + "/" + item.date + "/" +
-                                                            item.year).format('MMMM Do YYYY'); %>
+                                                        <% 
+                                                            // Tạo đối tượng moment đúng cách
+                                                            const dateObj = moment().year(item.year).month(item.month - 1).date(item.date);
+                                                        %>
+                                                        <%= dateObj.format('MMMM Do YYYY'); %>
                                                     </td>
                                                     <td>
                                                         <% if (item.status && item.status === 'late') { %>
