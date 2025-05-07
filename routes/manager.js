@@ -62,8 +62,9 @@ router.get("/", function viewHomePage(req, res, next) {
     
     // Get active projects count - với nhiều loại status khác nhau và không phân biệt chữ hoa/chữ thường
     Project.countDocuments({ 
+      employeeID: req.user._id,
       status: { 
-        $regex: /(on going|ongoing|in progress)/i 
+        $regex: /(in\s*progress|on\s*going|ongoing)/i 
       } 
     }, function(err, activeProjectsCount) {
       if (!err) {
@@ -73,7 +74,8 @@ router.get("/", function viewHomePage(req, res, next) {
       
       // Get completed projects count - không phân biệt chữ hoa/chữ thường
       Project.countDocuments({ 
-        status: { $regex: /completed/i } 
+        employeeID: req.user._id,
+        status: { $regex: /completed|finished/i } 
       }, function(err, completedProjectsCount) {
         if (!err) {
           dateVars.completedProjectsCount = completedProjectsCount || 0;
@@ -82,7 +84,10 @@ router.get("/", function viewHomePage(req, res, next) {
         
         // Get in-progress projects count - không phân biệt chữ hoa/chữ thường
         Project.countDocuments({ 
-          status: { $regex: /(on going|ongoing|in progress)/i } 
+          employeeID: req.user._id,
+          status: { 
+            $regex: /(in\s*progress|on\s*going|ongoing)/i 
+          } 
         }, function(err, inProgressProjectsCount) {
           if (!err) {
             dateVars.inProgressProjectsCount = inProgressProjectsCount || 0;
@@ -651,7 +656,7 @@ router.get(
     
     // Add status filter if active filter is applied
     if (activeFilter) {
-      query.status = { $regex: /^in\s*progress$/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
+      query.status = { $regex: /(in\s*progress|on\s*going|ongoing)/i }; // Case-insensitive regex for "In Progress" with possible spacing variations
     } else if (outdateFilter) {
       query.status = 'Out Date';
     }
