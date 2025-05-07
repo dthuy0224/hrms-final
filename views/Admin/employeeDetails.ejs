@@ -59,23 +59,22 @@
               <!-- Left Profile Section -->
               <div class="col-md-4">
                 <div class="panel panel-info">
-                  <div class="panel-heading">
+                  <div class="panel-heading" style="  height: 140px;">
                     <div class="text-center">
-                      <span class="label label-primary pull-right"><%= employee.employmentType === 'full-time' ? 'Full-Time' : 'Part-Time' %></span>
-                      <h3 style="margin-top: 10px; margin-bottom: 10px;">Employee Profile</h3>
+                      <span class="label label-primary pull-right " style="  padding: 5px 10px;"><%= employee.employmentType === 'full-time' ? 'Full-Time' : 'Part-Time' %></span>
                     </div>
                   </div>
                   <div class="panel-body">
-                    <div class="text-center">
-                      <div class="profile-img-container">
+                    <div class="text-center" style=" margin-top: -30px;" >
+                      <div class="profile-img-container " >
                         <% if (employee.photo) { %>
-                          <img src="/uploads/<%= employee.photo %>" alt="Profile Image" class="img-circle" style="width: 140px; height: 140px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;">
+                          <img src="/uploads/<%= employee.photo %>" alt="Profile Image" class="img-circle" style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;">
                         <% } else { %>
                           <img src="/uploads/default.png" alt="Profile Image" class="img-circle" style="width: 140px; height: 140px; object-fit: cover; border: 5px solid #75b5e4; margin-bottom: 10px;">
                         <% } %>
                       </div>
-                      <h3 class="employee-name" style="margin-top: 0;"><%= employee.name %></h3>
-                      <p class="text-muted">#<%= employee.employeeID || employee.jobId || 'N/A' %></p>
+                      <h3 class="employee-name" style="margin-top: 0; font-size:18px;"><%= employee.name %></h3>
+                      <p class="text-muted" style="margin-top: -10px; font-size:12px;">#<%= employee.employeeID || employee.jobId || 'N/A' %></p>
                     </div>
                     
                     <div class="employee-basic-info" style="margin-top: 15px;">
@@ -158,7 +157,7 @@
                 
                 <!-- Job Information Box -->
                 <div class="panel panel-info" style="margin-top: 15px;">
-                  <div class="panel-heading">
+                  <div class="panel-heading" >
                     <h3 class="panel-title" style="margin: 5px 0;">Job information</h3>
                   </div>
                   <div class="panel-body" style="padding-top: 10px; padding-bottom: 10px;">

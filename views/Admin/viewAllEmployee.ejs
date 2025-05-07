@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <%- include('../partials/header') %>
+<link rel="stylesheet" href="/stylesheets/viewAllEmployeeAdmin.css" />
     <head>
         <!-- Add moment.js in the head section to ensure it loads early -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
@@ -117,7 +118,7 @@
 
               <!-- Search box -->
               <div class="form-group" style="margin-bottom: 20px;">
-                <label for="search">Search:</label>
+               
                 <input type="text" id="searchInput" class="form-control" placeholder="Search employees...">
               </div>
 
@@ -126,12 +127,12 @@
                 <table id="employeesTable" class="table table-striped table-bordered">
                   <thead>
                     <tr>
-                      <th>ID <i class="fa fa-sort"></i></th>
-                      <th>Name <i class="fa fa-sort"></i></th>
-                      <th>Email <i class="fa fa-sort"></i></th>
-                      <th>Role <i class="fa fa-sort"></i></th>
-                      <th>Department <i class="fa fa-sort"></i></th>
-                      <th>Start date <i class="fa fa-sort"></i></th>
+                      <th>ID </th>
+                      <th>Name </th>
+                      <th>Email </th>
+                      <th>Role </th>
+                      <th>Department </th>
+                      <th>Start date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -156,15 +157,7 @@
                           <button data-toggle="modal" data-target="#myModal1" class="btn btn-xs btn-default delete-button" id="<%= item._id %>" title="Delete">
                             <i class="fa fa-trash"></i>
                           </button>
-                          <% if(item.type !="accounts_manager" ){ %>
-                          <a href="/admin/add-employee-project/<%= item._id %>" class="btn btn-xs btn-default" title="Add Project">
-                            <i class="fa fa-plus"></i>
-                          </a>
-                          <a href="/admin/all-employee-projects/<%= item._id %>" class="btn btn-xs btn-default" title="View Projects">
-                            <i class="fa fa-list"></i>
-                          </a>
-                          <% } %>
-                        </div>
+                                                 </div>
                       </td>
                     </tr>
                     <% }) %>
@@ -173,7 +166,7 @@
               </div>
 
               <!-- Pagination -->
-              <nav aria-label="Page navigation" class="text-center">
+              <nav aria-label="Page navigation" class="text-center" style=" margin-top: 10px;">
                 <ul class="pagination">
                   <li>
                     <a href="#" aria-label="First">
@@ -181,11 +174,6 @@
                     </a>
                   </li>
                   <li class="active"><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                  <li><a href="#">3</a></li>
-                  <li><a href="#">4</a></li>
-                  <li><a href="#">5</a></li>
-                  <li><a href="#">...</a></li>
                   <li>
                     <a href="#" aria-label="Last">
                       <span aria-hidden="true">Last</span>
@@ -407,7 +395,7 @@
           ordering: true,
           info: false,
           autoWidth: false,
-          pageLength: 10,
+          pageLength: 7,
           language: {
             search: "",
             searchPlaceholder: "Search employees..."
