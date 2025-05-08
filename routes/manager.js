@@ -91,7 +91,7 @@ router.get("/", function viewHomePage(req, res, next) {
           
           // Get pending leaves count - không phân biệt chữ hoa/chữ thường
           Leave.countDocuments({ 
-            status: { $regex: /pending/i }
+            adminResponse: { $regex: /pending/i }
           }, function(err, pendingLeavesCount) {
             if (!err) {
               dateVars.pendingLeavesCount = pendingLeavesCount || 0;
